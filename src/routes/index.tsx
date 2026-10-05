@@ -22,7 +22,7 @@ function Home() {
         <img
           src="/art/hero.jpg"
           alt=""
-          className="h-[52vh] min-h-[320px] w-full object-cover object-[center_40%] sm:h-[64vh]"
+          className="h-[52vh] min-h-[320px] w-full object-cover object-[center_72%] sm:h-[64vh]"
         />
         {leader ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-5">
@@ -148,7 +148,7 @@ function Home() {
 
       <section className="relative mt-8 overflow-hidden">
         <img src="/art/sky.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-overlay/45" />
+        <div className="absolute inset-0 bg-overlay/30" />
         <div className="relative mx-auto max-w-[1120px] px-5 py-24 text-center sm:py-32">
           <p className="inline-flex items-center gap-2 rounded-full bg-paper/20 px-3 py-1.5 text-sm text-paper backdrop-blur-sm">
             <span className="size-2 rounded-[2px] bg-sage-soft" aria-hidden="true" />
