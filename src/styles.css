@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+  --font-serif: "Fraunces", "Iowan Old Style", Palatino, Georgia, serif;
+
+  --color-canvas: #faf9f7;
+  --color-paper: #ffffff;
+  --color-sand: #f3f1ee;
+  --color-ink: #1a1a1a;
+  --color-secondary: #6b6b6b;
+  --color-muted: #9a9a9a;
+  --color-sage: #3d7a6a;
+  --color-sage-soft: #e8f2ef;
+  --color-rise: #2f7d4f;
+  --color-fall: #b85c38;
+  --color-warn: #c4922a;
+  --color-line: #e8e6e3;
+  --color-overlay: #1c5c56;
+
+  --radius-card: 1.25rem;
+  --radius-control: 0.5rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    min-height: 100%;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--color-sage-soft);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
