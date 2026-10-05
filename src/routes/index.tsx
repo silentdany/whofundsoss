@@ -54,8 +54,8 @@ function Home() {
           Who really funds open source.
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-secondary">
-          Public money, read once a month. Pledges, collectives, and the rare GitHub tier that is
-          actually visible. The file records. It does not guess.
+          A row starts at zero. Only a published dollar moves it: a pledge, a collective, a GitHub
+          tier you can actually see. Zerow reads the file once a month. It does not guess.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
           <a
@@ -186,15 +186,15 @@ function Home() {
 
 const CHAPTERS = [
   {
-    title: "Record the public floor",
-    text: "Once a month the file keeps what a company has already published: a pledge, a collective total, a visible GitHub tier, or a number on their own page.",
+    title: "A row starts at zero",
+    text: "Once a month Zerow keeps what a company has already published: a pledge, a collective total, a visible GitHub tier, or a number on their own page.",
   },
   {
-    title: "Compare two collections",
+    title: "Two collections, then a move",
     text: "Rank, dollars, and project counts move only after a second snapshot exists. Until then this month is the floor, not a forecast.",
   },
   {
-    title: "See who funds the same work",
+    title: "Who shares the work",
     text: "Companies that share distinctive projects sit on the graph. Mega-collectives everyone funds are left out, so the picture is not a knot.",
   },
 ] as const;
@@ -356,8 +356,8 @@ function FileChecks() {
       <div className="mt-8 rounded-2xl bg-paper/80 p-5">
         <p className="text-lg font-medium">A line has to earn its number.</p>
         <p className="mt-2 leading-relaxed text-secondary">
-          If the tier is hidden, the row stays. The dollar does not. Cumulative gifts are marked
-          cumulative. Nothing here is annualized to look larger.
+          If the tier is hidden, the row stays at zero. The dollar does not. Cumulative gifts stay
+          marked cumulative. Nothing here is annualized to look larger.
         </p>
       </div>
     </div>

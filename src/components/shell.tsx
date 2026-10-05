@@ -77,7 +77,7 @@ function Header() {
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-5">
           <Link to="/" className="flex items-center gap-2 text-ink" onClick={() => setOpen(false)}>
             <Mark className="size-7" />
-            <span className="text-[1.15rem] leading-none font-semibold tracking-tight">WhoFundsOSS</span>
+            <span className="text-[1.15rem] leading-none font-semibold tracking-tight">Zerow</span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-secondary md:flex">
             <Link to="/classement" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
@@ -110,7 +110,7 @@ function Header() {
           <div className="absolute inset-0 bg-gradient-to-b from-overlay/88 via-overlay/62 to-overlay/25" />
           <div className="relative mx-auto flex h-full max-w-[1120px] flex-col px-5 pt-5">
             <div className="flex items-center justify-between">
-              <span className="text-sm tracking-tight">WhoFundsOSS</span>
+              <span className="text-sm tracking-tight">Zerow</span>
               <button
                 type="button"
                 className="flex size-11 items-center justify-center text-2xl leading-none"
@@ -205,7 +205,7 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
         </div>
       </div>
       <div className="relative mx-auto flex max-w-[1120px] flex-wrap gap-x-6 gap-y-2 px-5 pt-16 pb-8 text-sm text-paper/90">
-        <span>© WhoFundsOSS {collectedAt?.slice(0, 4) ?? "2026"}</span>
+        <span>© Zerow {collectedAt?.slice(0, 4) ?? "2026"}</span>
         {collectedAt ? <span>Collected {collectedLabel(collectedAt)}</span> : null}
         {hash ? <span className="tabular-nums">Snapshot {hashShort(hash)}</span> : null}
       </div>

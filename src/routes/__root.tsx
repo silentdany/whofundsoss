@@ -3,7 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "WhoFundsOSS";
+const APP_NAME = "Zerow";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -14,7 +14,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Who really funds open source. Public amounts only, read monthly. A floor, not the whole truth.",
+          "The public row of who funds open source. Read once a month. Nothing invented.",
       },
       { name: "theme-color", content: "#faf9f7" },
     ],
