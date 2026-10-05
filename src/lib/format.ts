@@ -11,9 +11,9 @@ export function formatUsd(value: number | null | undefined): string | null {
   return `$${Math.round(value)}`;
 }
 
-/** Map research FR platform tokens to EN UI labels. */
-export function platformShort(plateformes: string): string {
-  if (!plateformes) return "—";
+/** Map research FR platform tokens to EN UI labels (array). */
+export function platformTokens(plateformes: string): string[] {
+  if (!plateformes) return [];
   return plateformes
     .split("|")
     .map((p) => {
@@ -27,8 +27,13 @@ export function platformShort(plateformes: string): string {
       }
       return t;
     })
-    .filter(Boolean)
-    .join(" · ");
+    .filter(Boolean);
+}
+
+/** Map research FR platform tokens to EN UI labels. */
+export function platformShort(plateformes: string): string {
+  const tokens = platformTokens(plateformes);
+  return tokens.length ? tokens.join(" · ") : "—";
 }
 
 /** Translate FR sector labels from research dumps. */

@@ -9,8 +9,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Amount } from "@/components/amount";
+import { SourceBadges } from "@/components/source-badges";
 import type { ProjectRow } from "@/lib/data";
-import { platformShort, projectLabel } from "@/lib/format";
+import { projectLabel } from "@/lib/format";
 
 export function ProjectsTable({ projects }: { projects: ProjectRow[] }) {
   if (projects.length === 0) {
@@ -39,8 +40,8 @@ export function ProjectsTable({ projects }: { projects: ProjectRow[] }) {
               <TableCell className="font-medium">
                 {projectLabel(p.project)}
               </TableCell>
-              <TableCell className="text-[12px] text-muted-foreground">
-                {platformShort(p.platform)}
+              <TableCell>
+                <SourceBadges plateformes={p.platform} />
               </TableCell>
               <TableCell className="text-right">
                 <Amount value={amount} />

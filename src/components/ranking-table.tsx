@@ -16,6 +16,7 @@ import {
   type SortKey,
   type SourceFilter,
 } from "@/components/ranking-toolbar";
+import { SourceBadges } from "@/components/source-badges";
 import type { RankingRow } from "@/lib/data";
 import { platformShort } from "@/lib/format";
 
@@ -69,9 +70,9 @@ export function RankingTable({ rows }: { rows: RankingRow[] }) {
         </div>
       ) : (
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-[49px] z-10">
             <TableRow>
-              <TableHead className="w-12">#</TableHead>
+              <TableHead className="w-12 text-right">#</TableHead>
               <TableHead>Company</TableHead>
               <TableHead className="text-right">Projects</TableHead>
               <TableHead className="text-right">Public $</TableHead>
@@ -81,7 +82,7 @@ export function RankingTable({ rows }: { rows: RankingRow[] }) {
           <TableBody>
             {filtered.map((row, i) => (
               <TableRow key={row.slug}>
-                <TableCell className="font-mono tabular-nums text-muted-foreground">
+                <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
                   {sort === "dollars" && source === "all" && !search
                     ? row.rank
                     : i + 1}
@@ -89,7 +90,7 @@ export function RankingTable({ rows }: { rows: RankingRow[] }) {
                 <TableCell>
                   <Link
                     href={`/company/${row.slug}`}
-                    className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                    className="font-medium text-foreground hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
                   >
                     {row.name}
                   </Link>
@@ -100,8 +101,8 @@ export function RankingTable({ rows }: { rows: RankingRow[] }) {
                 <TableCell className="text-right">
                   <Amount value={row.totalPublicUsd} />
                 </TableCell>
-                <TableCell className="text-[12px] text-muted-foreground">
-                  {platformShort(row.plateformes)}
+                <TableCell>
+                  <SourceBadges plateformes={row.plateformes} />
                 </TableCell>
               </TableRow>
             ))}

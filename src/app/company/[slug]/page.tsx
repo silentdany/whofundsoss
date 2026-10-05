@@ -4,11 +4,12 @@ import { SiteHeader } from "@/components/site-header";
 import { DisclaimerCta } from "@/components/disclaimer-cta";
 import { ProjectsTable } from "@/components/projects-table";
 import { Amount } from "@/components/amount";
+import { SourceBadges } from "@/components/source-badges";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCompany, getCompanySlugs } from "@/lib/data";
-import { platformShort, secteurLabel } from "@/lib/format";
+import { secteurLabel } from "@/lib/format";
 
 export function generateStaticParams() {
   return getCompanySlugs().map((slug) => ({ slug }));
@@ -51,7 +52,7 @@ export default async function CompanyPage({
               <AvatarFallback>{initials || "?"}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <h1 className="text-[22px] font-semibold tracking-tight">
+              <h1 className="text-[22px] font-semibold tracking-[-0.02em]">
                 {company.name}
               </h1>
               <p className="mt-1 text-[13px] text-muted-foreground">
@@ -73,15 +74,7 @@ export default async function CompanyPage({
                 ) : null}
               </p>
 
-              <div className="mt-3 flex flex-wrap gap-5 text-[13px]">
-                <div>
-                  <div className="font-mono text-[16px] font-semibold tabular-nums">
-                    <Amount value={company.totalPublicUsd} />
-                  </div>
-                  <div className="text-[12px] text-muted-foreground">
-                    Public $*
-                  </div>
-                </div>
+              <div className="mt-4 grid grid-cols-3 gap-3 rounded-md border border-border/70 bg-muted/30 px-3.5 py-3 sm:gap-5">
                 <div>
                   <div className="font-mono text-[16px] font-semibold tabular-nums">
                     {company.projectsCount}
@@ -91,10 +84,16 @@ export default async function CompanyPage({
                   </div>
                 </div>
                 <div>
-                  <div className="font-mono text-[16px] font-semibold">
-                    {platformShort(company.plateformes)}
+                  <div className="font-mono text-[16px] font-semibold tabular-nums">
+                    <Amount value={company.totalPublicUsd} />
                   </div>
                   <div className="text-[12px] text-muted-foreground">
+                    Public $*
+                  </div>
+                </div>
+                <div>
+                  <SourceBadges plateformes={company.plateformes} />
+                  <div className="mt-1 text-[12px] text-muted-foreground">
                     Sources
                   </div>
                 </div>

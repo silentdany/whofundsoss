@@ -28,9 +28,12 @@ export function RankingToolbar({
   onSource: (v: SourceFilter) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 text-muted-foreground">
       <Select value={source} onValueChange={(v) => onSource(v as SourceFilter)}>
-        <SelectTrigger className="w-[140px]" aria-label="Filter by source">
+        <SelectTrigger
+          className="h-8 w-[140px] border-border/80 bg-muted/40 text-[13px] text-muted-foreground shadow-none"
+          aria-label="Filter by source"
+        >
           <SelectValue placeholder="All sources" />
         </SelectTrigger>
         <SelectContent>
@@ -45,12 +48,15 @@ export function RankingToolbar({
         value={search}
         onChange={(e) => onSearch(e.target.value)}
         placeholder="Search company…"
-        className="min-w-[160px] flex-1"
+        className="h-8 min-w-[160px] flex-1 border-border/80 bg-muted/40 text-[13px] shadow-none"
         aria-label="Search company"
       />
 
       <Select value={sort} onValueChange={(v) => onSort(v as SortKey)}>
-        <SelectTrigger className="w-[180px]" aria-label="Sort ranking">
+        <SelectTrigger
+          className="h-8 w-[180px] border-border/80 bg-muted/40 text-[13px] text-muted-foreground shadow-none"
+          aria-label="Sort ranking"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

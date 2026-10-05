@@ -3,30 +3,28 @@ import { SiteHeader } from "@/components/site-header";
 import { FeaturedSlot } from "@/components/featured-slot";
 import { RankingTable } from "@/components/ranking-table";
 import { DisclaimerCta } from "@/components/disclaimer-cta";
-import { Button } from "@/components/ui/button";
-import { getFeatured, getRanking } from "@/lib/data";
+import { StatsStrip } from "@/components/stats-strip";
+import { getFeatured, getRanking, getRankingStats } from "@/lib/data";
 
 export default function HomePage() {
   const ranking = getRanking();
   const featured = getFeatured();
+  const stats = getRankingStats();
 
   return (
     <>
       <SiteHeader />
       <main className="mx-auto max-w-[960px] space-y-6 px-4 pb-16 pt-7">
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-foreground">
+          <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
             Who really funds open source
           </h1>
-          <p className="mt-2 text-[14px] text-muted-foreground">
+          <p className="mt-2 max-w-xl text-[14px] text-muted-foreground">
             Companies → projects. Public data, updated monthly.
           </p>
-          <div className="mt-4">
-            <Button asChild variant="outline">
-              <a href="#featured-cta">Get a Featured slot →</a>
-            </Button>
-          </div>
         </div>
+
+        <StatsStrip stats={stats} />
 
         {featured ? <FeaturedSlot company={featured} /> : null}
 
