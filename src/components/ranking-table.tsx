@@ -70,9 +70,9 @@ export function RankingTable({ rows }: { rows: RankingRow[] }) {
         </div>
       ) : (
         <Table>
-          <TableHeader className="sticky top-[49px] z-10">
+          <TableHeader className="sticky top-0 z-10 bg-muted [&_th]:bg-muted">
             <TableRow>
-              <TableHead className="w-12 text-right">#</TableHead>
+              <TableHead className="w-12 text-right font-mono tabular-nums">#</TableHead>
               <TableHead>Company</TableHead>
               <TableHead className="text-right">Projects</TableHead>
               <TableHead className="text-right">Public $</TableHead>
@@ -82,7 +82,7 @@ export function RankingTable({ rows }: { rows: RankingRow[] }) {
           <TableBody>
             {filtered.map((row, i) => (
               <TableRow key={row.slug}>
-                <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
+                <TableCell className="w-12 text-right font-mono tabular-nums text-muted-foreground">
                   {sort === "dollars" && source === "all" && !search
                     ? row.rank
                     : i + 1}
