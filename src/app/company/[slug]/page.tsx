@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCompany, getCompanySlugs } from "@/lib/data";
-import { platformShort } from "@/lib/format";
+import { platformShort, secteurLabel } from "@/lib/format";
 
 export function generateStaticParams() {
   return getCompanySlugs().map((slug) => ({ slug }));
@@ -55,7 +55,7 @@ export default async function CompanyPage({
                 {company.name}
               </h1>
               <p className="mt-1 text-[13px] text-muted-foreground">
-                {[company.secteur, company.login ? `@${company.login}` : null]
+                {[secteurLabel(company.secteur), company.login ? `@${company.login}` : null]
                   .filter(Boolean)
                   .join(" · ") || "Open-source sponsor"}
                 {company.site ? (

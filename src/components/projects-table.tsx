@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Amount } from "@/components/amount";
 import type { ProjectRow } from "@/lib/data";
-import { platformShort } from "@/lib/format";
+import { platformShort, projectLabel } from "@/lib/format";
 
 export function ProjectsTable({ projects }: { projects: ProjectRow[] }) {
   if (projects.length === 0) {
@@ -37,7 +37,7 @@ export function ProjectsTable({ projects }: { projects: ProjectRow[] }) {
           return (
             <TableRow key={`${p.project}-${p.platform}-${idx}`}>
               <TableCell className="font-medium">
-                {p.project || "—"}
+                {projectLabel(p.project)}
               </TableCell>
               <TableCell className="text-[12px] text-muted-foreground">
                 {platformShort(p.platform)}
