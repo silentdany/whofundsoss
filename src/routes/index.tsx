@@ -22,7 +22,7 @@ function Home() {
         <img
           src="/art/hero.jpg"
           alt=""
-          className="h-[52vh] min-h-[320px] w-full object-cover object-[center_72%] sm:h-[64vh]"
+          className="h-[52vh] min-h-[320px] w-full object-cover object-[center_62%] sm:h-[64vh]"
         />
         {leader ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-5">
