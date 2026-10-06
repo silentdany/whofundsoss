@@ -211,7 +211,6 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
       </div>
       <div className="relative mx-auto flex max-w-[1120px] flex-wrap gap-x-6 gap-y-2 px-5 pt-16 pb-8 text-sm text-paper/90">
         <span>© {collectedAt?.slice(0, 4) ?? "2026"} WhoFundsOSS</span>
-        <span>Data CC BY 4.0</span>
         {collectedAt ? <span>Collected {collectedLabel(collectedAt)}</span> : null}
         {hash ? <span className="tabular-nums">Snapshot {hashShort(hash)}</span> : null}
       </div>

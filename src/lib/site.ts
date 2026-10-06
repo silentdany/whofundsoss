@@ -14,7 +14,6 @@ export const TITLE_SEPARATOR = " · ";
 export const TITLE_TEMPLATE = `%s${TITLE_SEPARATOR}${SITE_NAME}`;
 export const SITE_URL_FALLBACK = "https://whofundsoss.vercel.app";
 export const REPO_URL = "https://github.com/silentdany/whofundsoss";
-export const DATA_LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/";
 
 export const OG_IMAGE_PATH = "/og.jpg";
 export const OG_IMAGE_WIDTH = 1200;
