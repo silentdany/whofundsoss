@@ -28,12 +28,17 @@ export function companyIndexable(row: CompanyRow, detail: CompanyDetail | undefi
   return row.publicUsd > 0 || namedProjects(detail).length >= 3;
 }
 
-/** Sitemap paths: static pages + every index-eligible company, in catalog order. */
-export function sitemapPaths(rows: CompanyRow[], details: Record<string, CompanyDetail | undefined>): string[] {
+/** Sitemap paths: static pages + indexable companies + gated project pages. */
+export function sitemapPaths(
+  rows: CompanyRow[],
+  details: Record<string, CompanyDetail | undefined>,
+  projectPaths: string[] = [],
+): string[] {
   return [
     ...STATIC_PATHS,
     ...rows
       .filter((row) => companyIndexable(row, details[row.slug]))
       .map((row) => `/company/${encodeURIComponent(row.slug)}`),
+    ...projectPaths,
   ];
 }

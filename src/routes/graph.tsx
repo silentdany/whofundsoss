@@ -18,15 +18,16 @@ export const Route = createFileRoute("/graph")({
 });
 
 function GraphPage() {
-  const { meta, nodes, links, commons } = Route.useLoaderData();
+  const { meta, nodes, links, commons, publishedProjectSlugs } = Route.useLoaderData();
   const names = new Map(nodes.map((node) => [node.id, node.name]));
+  const published = new Set(publishedProjectSlugs);
 
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <PageIntro
         eyebrow="Co-sponsorships"
         title="Who funds the same work."
-        lede="Edges connect companies that share at least two distinctive projects — projects with between 2 and 15 sponsors. Webpack and Babel are left out of the drawing on purpose. Everyone funds them, so the picture would be a knot."
+        lede="Edges connect companies that share at least two distinctive projects: projects with between 2 and 15 sponsors. Webpack and Babel are left out of the drawing on purpose. Everyone funds them, so the picture would be a knot."
       />
       <AllianceGraph nodes={nodes} links={links} />
       <section className="mx-auto max-w-[1120px] px-5 pt-12 pb-6">
@@ -43,7 +44,27 @@ function GraphPage() {
               </Link>
               <span className="text-secondary">
                 {" "}
-                · {link.shared} shared · {link.projects.slice(0, 4).join(", ")}
+                · {link.shared} shared ·{" "}
+                {link.projects.slice(0, 4).map((project, i) => {
+                  const slug = project.trim().toLowerCase();
+                  const sep = i > 0 ? ", " : "";
+                  if (published.has(slug)) {
+                    return (
+                      <span key={project}>
+                        {sep}
+                        <Link to="/project/$slug" params={{ slug }} className="hover:text-sage">
+                          {project}
+                        </Link>
+                      </span>
+                    );
+                  }
+                  return (
+                    <span key={project}>
+                      {sep}
+                      {project}
+                    </span>
+                  );
+                })}
               </span>
             </li>
           ))}
@@ -59,7 +80,19 @@ function GraphPage() {
           {commons.map((item) => (
             <li key={item.project} className="border-t border-line pt-5">
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-lg font-medium">{item.project}</h3>
+                <h3 className="text-lg font-medium">
+                  {published.has(item.project.trim().toLowerCase()) ? (
+                    <Link
+                      to="/project/$slug"
+                      params={{ slug: item.project.trim().toLowerCase() }}
+                      className="hover:text-sage"
+                    >
+                      {item.project}
+                    </Link>
+                  ) : (
+                    item.project
+                  )}
+                </h3>
                 <p className="text-sm text-muted tabular-nums">{item.sponsors} sponsors</p>
               </div>
               <ul className="mt-3 space-y-1 text-sm">

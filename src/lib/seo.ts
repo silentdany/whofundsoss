@@ -169,18 +169,18 @@ export function companyOrganizationJsonLd(row: CompanyRow): Record<string, unkno
 }
 
 export function companyTitle(row: CompanyRow): string {
-  const withAmount =
-    row.publicUsd > 0
-      ? formatTitle(`${row.name} open source funding: ${money(row.publicUsd)} public`)
-      : formatTitle(`${row.name} open source funding`);
-  if (withAmount.length <= 70) return withAmount;
+  // Soft Copy gel: `{Company} · {$amount} public · WhoFundsOSS`
+  if (row.publicUsd > 0) {
+    const gel = formatTitle(`${row.name} · ${money(row.publicUsd)} public`);
+    if (gel.length <= 70) return gel;
+  }
   const plain = formatTitle(`${row.name} open source funding`);
   if (plain.length <= 70) return plain;
   return formatTitle(row.name.length > 48 ? `${row.name.slice(0, 47).trimEnd()}…` : row.name);
 }
 
 export function companyDescription(row: CompanyRow, detail: CompanyDetail | undefined, meta: Meta): string {
-  // Named projects shown on the page (aggregate pledge lines excluded) — P0-4 meta alignment.
+  // Named projects shown on the page (aggregate pledge lines excluded). P0-4 meta alignment.
   const named = namedProjects(detail);
   const names = named
     .filter((item) => item.source === "oc" || item.source === "gh")
