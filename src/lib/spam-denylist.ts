@@ -14,7 +14,7 @@
  * buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool),
  * open-apk-file (file utility), upgrow (growth agency).
  *
- * v2026-10-06.3 · Data triage (casino/SEO) + prior QA/dev pass
+ * v2026-10-06.4 · Data triage + awisee-agency (same agency as awisee)
  */
 export type SpamCategory =
   | "gambling"
@@ -25,7 +25,7 @@ export type SpamCategory =
   | "piracy"
   | "adult";
 
-export const SPAM_DENYLIST_VERSION = "2026-10-06.3";
+export const SPAM_DENYLIST_VERSION = "2026-10-06.4";
 
 /** Who flagged it: "qa" = QA sitemap review (2026-10-06), "dev" = Dev pass over the full catalog. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -137,6 +137,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "aviator": { category: "gambling", source: "data", reason: "1Win casino / sports betting (techyguy.in)" },
   "writers-per-hour": { category: "link-spam", source: "data", reason: "essay writing / homework mill" },
   "awisee": { category: "link-spam", source: "data", reason: "link building / SEO outreach agency" },
+  "awisee-agency": { category: "link-spam", source: "data", reason: "same agency as awisee (awisee.agency / spam_seo)" },
 };
 
 export function isSpamDenylisted(slug: string): boolean {

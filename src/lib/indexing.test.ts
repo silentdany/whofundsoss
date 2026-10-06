@@ -29,7 +29,7 @@ test("every denylisted slug that is in the catalog stays listed (data unchanged)
 });
 
 test("2026-10-06 Data triage slugs are denylisted (source=data)", () => {
-  for (const slug of ["baocasino", "bsc-news", "w-in-ua", "spin-paradise", "aviator", "writers-per-hour", "awisee"]) {
+  for (const slug of ["baocasino", "bsc-news", "w-in-ua", "spin-paradise", "aviator", "writers-per-hour", "awisee", "awisee-agency"]) {
     assert.ok(isSpamDenylisted(slug), slug);
     assert.equal(SPAM_DENYLIST[slug]!.source, "data");
   }
@@ -70,5 +70,5 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
-  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 7);
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 8);
 });
