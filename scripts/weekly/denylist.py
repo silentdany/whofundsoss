@@ -2,7 +2,7 @@
 
 The TypeScript file `src/lib/spam-denylist.ts` is the single source of truth for
 SEO-spam company slugs. This module reads it; it never keeps a divergent copy.
-`data/exclusions/raw-exclusions.csv` is the 119 publishable-build exclusions
+`data/exclusions/raw-exclusions.csv` is the 120 publishable-build exclusions
 (spam_casino / spam_vpn / spam_followers / spam_seo / supabase_self_fund).
 """
 from __future__ import annotations
@@ -132,7 +132,12 @@ def is_excluded(
         if name_l and row.entreprise and row.entreprise.lower() == name_l:
             return f"exclusion:{row.exclusion_raison}"
         if site_l and row.site:
-            rs = row.site.lower().rstrip("/")
-            if site_l.rstrip("/") == rs or site_l in rs or rs in site_l:
+            from .normalize import normalize_domain
+            d1 = normalize_domain(site_l)
+            d2 = normalize_domain(row.site)
+            if d1 and d2 and d1 == d2:
+                return f"exclusion:{row.exclusion_raison}"
+            # Exact full-URL equality (after strip trailing slash) as fallback
+            if site_l.rstrip("/") == row.site.lower().rstrip("/"):
                 return f"exclusion:{row.exclusion_raison}"
     return None

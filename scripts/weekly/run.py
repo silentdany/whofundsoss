@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import sys
 import time
 from datetime import date, datetime, timezone
@@ -61,8 +63,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     t0 = time.time()
 
+    date_str = args.date or date.today().isoformat()
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", date_str):
+        print("bad --date, expected YYYY-MM-DD", file=sys.stderr)
+        return 2
     try:
-        run_date = date.fromisoformat(args.date) if args.date else date.today()
+        run_date = date.fromisoformat(date_str)
     except ValueError:
         print("bad --date, expected YYYY-MM-DD", file=sys.stderr)
         return 2
@@ -198,38 +204,79 @@ def main(argv: list[str] | None = None) -> int:
         suspicious_pct=args.suspicious_pct,
     )
 
+    excluded_slugs = {e["slug"] for e in excluded_noted if e.get("slug")}
+
+    def _row_excluded(row: dict) -> bool:
+        slug = row.get("slug") or row.get("sponsor") or ""
+        if slug in excluded_slugs:
+            return True
+        return bool(
+            is_excluded(
+                slug=slug,
+                name=row.get("name") or "",
+                site="",
+                login=row.get("login") or slug,
+                denylist=denylist,
+                exclusions=exclusions,
+            )
+        )
+
     # Annotate new sponsors vs catalog; drop false "new" that alias back into catalog
     if baseline_kind == "catalog" and catalog_path.exists():
         annotated = explain_new_against_catalog(diff.new_sponsors, catalog_path)
         real_new = []
         for row in annotated:
             if row.get("in_catalog"):
-                # Should not happen after merge resolve — keep as note if it does
                 continue
-            # Skip excluded spam/self-fund from actionable new list
-            if any(e["slug"] == row.get("slug") for e in excluded_noted):
-                row["note"] = (row.get("note") or "") + " · on denylist/exclusions"
+            if _row_excluded(row):
                 continue
+            # Empty GH-only seeds are not "new sponsors"
+            sources = set(row.get("sources") or [])
+            if sources <= {"gh"}:
+                # Look up live company for beneficiary count
+                live = next((c for c in companies if c.get("slug") == row.get("slug")), None)
+                if live is not None:
+                    bens = live.get("ghBeneficiaries") or 0
+                    if int(bens or 0) <= 0 and not live.get("beneficiaries"):
+                        continue
             real_new.append(row)
         diff.new_sponsors = real_new
-        # Recompute suspicious after filtering
-        diff.suspicious = False
-        diff.suspicious_reasons = []
-        if diff.baseline_size > 0:
-            new_pct = 100.0 * len(diff.new_sponsors) / diff.baseline_size
-            dis_pct = 100.0 * len(diff.disappeared_sponsors) / diff.baseline_size
-            if new_pct > args.suspicious_pct:
-                diff.suspicious = True
-                diff.suspicious_reasons.append(
-                    f"new_sponsors {len(diff.new_sponsors)} = {new_pct:.1f}% of baseline {diff.baseline_size}"
-                )
-            if dis_pct > args.suspicious_pct:
-                diff.suspicious = True
-                diff.suspicious_reasons.append(
-                    f"disappeared_sponsors {len(diff.disappeared_sponsors)} = {dis_pct:.1f}% of baseline {diff.baseline_size}"
-                )
+
+    # Denylist + exclusions apply to ALL diff sections
+    diff.new_sponsors = [r for r in diff.new_sponsors if not _row_excluded(r)]
+    diff.disappeared_sponsors = [r for r in diff.disappeared_sponsors if not _row_excluded(r)]
+    diff.unverified_partial = [r for r in diff.unverified_partial if not _row_excluded(r)]
+    diff.amount_changes = [r for r in diff.amount_changes if not _row_excluded(r)]
+    diff.beneficiary_changes = [r for r in diff.beneficiary_changes if not _row_excluded(r)]
+    diff.new_sponsorships = [r for r in diff.new_sponsorships if not _row_excluded(r)]
+
+    # Recompute suspicious after filtering
+    diff.suspicious = False
+    diff.suspicious_reasons = []
+    if diff.baseline_size > 0:
+        new_pct = 100.0 * len(diff.new_sponsors) / diff.baseline_size
+        dis_pct = 100.0 * len(diff.disappeared_sponsors) / diff.baseline_size
+        if new_pct > args.suspicious_pct:
+            diff.suspicious = True
+            diff.suspicious_reasons.append(
+                f"new_sponsors {len(diff.new_sponsors)} = {new_pct:.1f}% of baseline {diff.baseline_size}"
+            )
+        if dis_pct > args.suspicious_pct:
+            diff.suspicious = True
+            diff.suspicious_reasons.append(
+                f"disappeared_sponsors {len(diff.disappeared_sponsors)} = {dis_pct:.1f}% of baseline {diff.baseline_size}"
+            )
 
     suspects = flag_suspects(companies, denylist_slugs=set(denylist.keys()))
+    suspects = [h for h in suspects if h.slug not in excluded_slugs]
+
+    run_id = os.environ.get("GITHUB_RUN_ID") or "local"
+
+    # Collect non-USD rows from OC meta
+    non_usd = []
+    for r in results:
+        if r.name == "open_collective":
+            non_usd = list((r.meta or {}).get("non_usd") or [])
 
     payload = build_payload(
         run_date=run_date,
@@ -243,6 +290,8 @@ def main(argv: list[str] | None = None) -> int:
         excluded_from_report=excluded_noted,
         duration_s=time.time() - t0,
         coverage=coverage,
+        run_id=run_id,
+        non_usd=non_usd,
     )
     payload["generatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 

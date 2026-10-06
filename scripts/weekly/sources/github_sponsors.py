@@ -262,6 +262,7 @@ def fetch_github_sponsors(
 
     items: list[dict] = []
     errors: list[str] = []
+    ok_logins: list[str] = []
     for login in targets:
         try:
             row = fetch_sponsoring(login, token)
@@ -282,6 +283,7 @@ def fetch_github_sponsors(
                 )
             continue
         items.append(row)
+        ok_logins.append(login)
         time.sleep(0.05)
 
     if not items and errors:
@@ -302,6 +304,7 @@ def fetch_github_sponsors(
             "ok": len(items),
             "soft_errors": len(errors),
             "skipped_invalid": len(skipped),
+            "ok_logins": ok_logins,
             "auth": "token" if token else "gh-cli-or-none",
             "capped": False,
         },

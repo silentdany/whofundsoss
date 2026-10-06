@@ -104,6 +104,9 @@ def merge_companies(
     for c in by_key.values():
         parts = [v for v in (c.get("publicUsdBySource") or {}).values() if v is not None]
         c["publicUsd"] = round(sum(float(v) for v in parts), 2) if parts else None
+        for k, v in list((c.get("publicUsdBySource") or {}).items()):
+            if v is not None:
+                c["publicUsdBySource"][k] = round(float(v), 2)
         if apply_retention and not passes_retention(c):
             continue
         out.append(c)
@@ -171,12 +174,16 @@ def build_payload(
     excluded_from_report: list[dict],
     duration_s: float,
     coverage: CoverageReport,
+    run_id: str = "local",
+    non_usd: list[dict] | None = None,
 ) -> dict[str, Any]:
     return {
         "date": run_date.isoformat(),
+        "runId": run_id,
         "generatedAt": None,
         "durationSeconds": round(duration_s, 2),
         "suspicious": diff.suspicious,
+        "nonUsd": non_usd or [],
         "denylist": {"version": denylist_version, "count": denylist_count},
         "exclusions": {"count": exclusions_count},
         "coverage": coverage.to_dict(),
@@ -212,9 +219,9 @@ def build_payload(
         "notes": [
             "GitHub Sponsors monthly amounts are almost never public; gh publicUsd is left null.",
             "Open Collective publicUsd is cumulative totalAmountDonated (historical), not a run-rate.",
-            "Open Source Pledge publicUsd is the largest parseable annual figure on the member page; null if unparseable.",
+            "Open Source Pledge publicUsd is the most recent annual-report year on the member page; null if unparseable.",
             "Amount diffs are like-with-like (oc↔oc, osp↔osp, own↔own).",
-            "Disappearances require full coverage on every source that covers the baseline company; otherwise → unverified_partial.",
+            "Verified disappearances require each covering source to have succeeded for that entity; otherwise → unverified_partial.",
             "Suspects are FLAG-only and are never excluded by keyword alone.",
             "Retention filter matches the catalog build: gh/osp/own, or OC with ≥3 collectives or ≥$5k public.",
         ],
@@ -225,6 +232,11 @@ def render_markdown(payload: dict[str, Any]) -> str:
     d = payload["date"]
     lines: list[str] = []
     lines.append(f"# WhoFundsOSS weekly scrape · {d}")
+    lines.append("")
+    lines.append(
+        f"Run ID: `{payload.get('runId') or 'local'}` · "
+        f"Generated: `{payload.get('generatedAt') or '—'}`"
+    )
     lines.append("")
     if payload.get("suspicious") or (payload.get("diff") or {}).get("suspicious"):
         lines.append("## ⚠ DIFF SUSPICIOUS — CHECK COVERAGE")
@@ -239,7 +251,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
             lines.append(f"- {reason}")
         lines.append("")
 
-    lines.append(f"Duration: **{payload.get('durationSeconds')}s**")
+    lines.append(f"Duration: **{payload.get('durationSeconds')}s** · amounts in **USD** (2 d.p.)")
     lines.append("")
 
     lines.append("## Coverage")
@@ -258,9 +270,16 @@ def render_markdown(payload: dict[str, Any]) -> str:
     lines.append("")
     lines.append("| Source | Status | Count | Notes |")
     lines.append("|---|---|---|---|")
+    _META_SKIP = {"ok_logins", "ok_collective_slugs", "ok_member_slugs", "non_usd"}
     for s in payload["sources"]:
         if s["status"] == "ok":
-            note = ", ".join(f"{k}={v}" for k, v in (s.get("meta") or {}).items())
+            meta = s.get("meta") or {}
+            parts = []
+            for k, v in meta.items():
+                if k in _META_SKIP:
+                    continue
+                parts.append(f"{k}={v}")
+            note = ", ".join(parts)
             lines.append(f"| {s['name']} | ok | {s.get('count')} | {note} |")
         else:
             err = (s.get("error") or "source unavailable").replace("|", "/")
@@ -287,17 +306,17 @@ def render_markdown(payload: dict[str, Any]) -> str:
     )
     lines.append("")
 
-    def _section(title: str, rows: list[dict], fmt) -> None:
+    def _section(title: str, rows: list[dict], fmt, *, limit: int = 50) -> None:
         lines.append(f"### {title}")
         lines.append("")
         if not rows:
             lines.append("_None._")
             lines.append("")
             return
-        for row in rows[:50]:
+        for row in rows[:limit]:
             lines.append(f"- {fmt(row)}")
-        if len(rows) > 50:
-            lines.append(f"- … and {len(rows) - 50} more")
+        if len(rows) > limit:
+            lines.append(f"- … and {len(rows) - limit} more, see JSON")
         lines.append("")
 
     _section(
@@ -325,7 +344,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
     _section(
         "Amount changes (like-with-like)",
         diff["amount_changes"],
-        lambda r: f"`{r['slug']}` · {r.get('source')} · {r['from']} → {r['to']} (Δ {r['delta']})",
+        lambda r: f"`{r['slug']}` · {r.get('source')} · ${float(r['from']):.2f} → ${float(r['to']):.2f} (Δ ${float(r['delta']):.2f})",
     )
     _section(
         "Beneficiary count changes (GitHub, full coverage only)",
@@ -346,6 +365,8 @@ def render_markdown(payload: dict[str, Any]) -> str:
             lines.append(
                 f"- `{s['slug']}` · {s.get('name') or ''} · keywords={', '.join(s.get('matched_keywords') or [])}"
             )
+        if len(fresh) > 40:
+            lines.append(f"- … and {len(fresh) - 40} more, see JSON")
         lines.append("")
     if known:
         lines.append(f"_Also matched but already denylisted: {len(known)} (skipped as new risk)._")
@@ -361,6 +382,22 @@ def render_markdown(payload: dict[str, Any]) -> str:
     if noted:
         lines.append(f"- Live companies also on denylist/exclusions this run: **{len(noted)}**")
     lines.append("")
+    non_usd = payload.get("nonUsd") or []
+    lines.append("## Non-USD amounts (not summed into USD totals)")
+    lines.append("")
+    if not non_usd:
+        lines.append("_None observed this run._")
+        lines.append("")
+    else:
+        for row in non_usd[:30]:
+            lines.append(
+                f"- `{row.get('orgKey') or row.get('name')}` · {row.get('collective')} · "
+                f"{row.get('amount')} {row.get('currency')}"
+            )
+        if len(non_usd) > 30:
+            lines.append(f"- … and {len(non_usd) - 30} more, see JSON")
+        lines.append("")
+
     lines.append("## Notes")
     lines.append("")
     for n in payload.get("notes") or []:

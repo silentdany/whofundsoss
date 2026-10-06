@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
 # Create a data PR whose branch is based on origin/main and contains ONLY
-# data/weekly/**. Never prints secrets. Requires GH_TOKEN / gh auth.
+# data/weekly/**. Never prints secrets. Requires WFO_WEEKLY_PAT / GH_TOKEN
+# explicitly (works with actions/checkout persist-credentials: false).
 set -euo pipefail
 
-if [ -z "${GH_TOKEN:-${WFO_WEEKLY_PAT:-}}" ]; then
-  echo "ERROR: GH_TOKEN/WFO_WEEKLY_PAT missing" >&2
+TOKEN="${WFO_WEEKLY_PAT:-${GH_TOKEN:-}}"
+if [ -z "$TOKEN" ]; then
+  echo "ERROR: WFO_WEEKLY_PAT/GH_TOKEN missing" >&2
   exit 1
 fi
-export GH_TOKEN="${GH_TOKEN:-$WFO_WEEKLY_PAT}"
+# gh uses GH_TOKEN; never echo it.
+export GH_TOKEN="$TOKEN"
+export WFO_WEEKLY_PAT="$TOKEN"
 
 DATE="${DATE:-$(date -u +%F)}"
+if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+  echo "ERROR: invalid DATE (expected YYYY-MM-DD)" >&2
+  exit 1
+fi
 RUN_ID="${RUN_ID:-local}"
 BRANCH="data/weekly-run-${RUN_ID}"
 JSON="data/weekly/${DATE}.json"
 MD="data/weekly/${DATE}.md"
+REPO="${GITHUB_REPOSITORY:-silentdany/whofundsoss}"
 
 if [ ! -f "$JSON" ] || [ ! -f "$MD" ]; then
   echo "ERROR: missing scrape outputs $JSON / $MD" >&2
@@ -25,6 +34,10 @@ cp "$JSON" "$MD" "$TMP/"
 
 git config user.name "whofundsoss-weekly-bot"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+# Auth without embedding the token in the remote URL (avoid leak in logs).
+# persist-credentials: false means checkout did not store credentials.
+gh auth setup-git >/dev/null 2>&1 || true
 
 git fetch origin main
 git checkout -B "$BRANCH" origin/main
@@ -46,7 +59,6 @@ done < <(git diff --cached --name-only)
 
 if git diff --cached --quiet; then
   echo "No data changes to commit (idempotent scrape)."
-  # Still open/update PR if branch exists with prior commit
 else
   git commit -m "data(weekly): scrape ${RUN_ID} (${DATE})"
 fi
@@ -63,14 +75,16 @@ while IFS= read -r path; do
   esac
 done < <(git diff --name-only origin/main...HEAD)
 
+# Push using gh credential helper (token never printed).
 git push -u origin "HEAD:refs/heads/${BRANCH}"
 
 # Open PR if missing (base main). No auto-merge.
-if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+if gh pr view "$BRANCH" --repo "$REPO" --json number >/dev/null 2>&1; then
   echo "PR for $BRANCH already exists"
-  gh pr view "$BRANCH" --json url,baseRefName,headRefName
+  gh pr view "$BRANCH" --repo "$REPO" --json url,baseRefName,headRefName
 else
   gh pr create \
+    --repo "$REPO" \
     --base main \
     --head "$BRANCH" \
     --title "data(weekly): sponsorship scrape ${RUN_ID}" \
@@ -82,7 +96,7 @@ Automated weekly scrape (cron \`17 4 * * 1\` UTC / workflow_dispatch).
 - Denylist source of truth: \`src/lib/spam-denylist.ts\` (parsed, not copied)
 - Exclusions: \`data/exclusions/raw-exclusions.csv\`
 - Suspects are **flag-only** (never excluded by keyword)
-- Disappearances require full source coverage; otherwise see \`unverified_partial\`
+- Verified disappearances require per-entity source success; otherwise see \`unverified_partial\`
 - No auto-merge. Consumer: WFOSS Data bot.
 BODY
 )"

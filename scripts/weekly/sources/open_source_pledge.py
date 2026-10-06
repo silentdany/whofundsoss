@@ -1,8 +1,7 @@
 """Open Source Pledge members — scrape the public members index + member pages.
 
-No invented numbers: if a member page has no parseable annual payment, the
-amount is left null (not 0). If the members index cannot be fetched, the whole
-source is `unavailable`.
+Amount rule: take the MOST RECENT annual report year on the page (not the page
+max). If unparseable, leave null — never invent.
 """
 from __future__ import annotations
 
@@ -42,22 +41,37 @@ def list_member_slugs(html: str) -> list[str]:
 
 
 def parse_member_page(slug: str, html: str) -> dict[str, Any]:
-    """Extract name + best-effort annual payment. Null amount if unparseable."""
+    """Extract name + annual payment from the most recent report year."""
     title_m = re.search(r"<title>([^|<]+)", html, re.I)
     name = (title_m.group(1).strip() if title_m else slug).replace(" | Open Source Pledge", "").strip()
-    # Prefer large round annual figures ($X,XXX or $XXX,XXX)
-    amounts = []
-    for m in re.finditer(r"\$([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,})", html):
-        try:
-            amounts.append(int(m.group(1).replace(",", "")))
-        except ValueError:
+
+    # Split into annual-report sections; pick the highest year.
+    year_amounts: dict[int, list[int]] = {}
+    sections = re.split(r'<section[^>]*class="[^"]*annual-report', html, flags=re.I)
+    for sec in sections[1:] if len(sections) > 1 else []:
+        year_m = re.search(r">(20[12][0-9])\s*report", sec, re.I)
+        if not year_m:
             continue
-    # Heuristic: the largest amount on the page that looks like an annual total
-    # (>= 1000). Never invent — if nothing parses, leave null.
+        year = int(year_m.group(1))
+        amounts: list[int] = []
+        for m in re.finditer(r"\$([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,})", sec):
+            try:
+                amounts.append(int(m.group(1).replace(",", "")))
+            except ValueError:
+                continue
+        candidates = [a for a in amounts if a >= 1000]
+        if candidates:
+            year_amounts[year] = candidates
+
     public_usd = None
-    candidates = [a for a in amounts if a >= 1000]
-    if candidates:
-        public_usd = float(max(candidates))
+    report_year = None
+    if year_amounts:
+        report_year = max(year_amounts)
+        # Within the latest year, the annual total is the largest figure.
+        public_usd = float(max(year_amounts[report_year]))
+    else:
+        # Fallback: no section structure — leave null rather than inventing from page max.
+        public_usd = None
 
     gh = None
     gh_m = re.search(r'href="https://github\.com/([A-Za-z0-9_.-]+)"', html)
@@ -67,7 +81,10 @@ def parse_member_page(slug: str, html: str) -> dict[str, Any]:
             gh = login
 
     site = None
-    site_m = re.search(r'href="(https?://(?!opensourcepledge\.com|github\.com|twitter\.com|x\.com|linkedin\.com)[^"]+)"', html)
+    site_m = re.search(
+        r'href="(https?://(?!opensourcepledge\.com|github\.com|twitter\.com|x\.com|linkedin\.com)[^"]+)"',
+        html,
+    )
     if site_m:
         site = site_m.group(1)
 
@@ -76,10 +93,11 @@ def parse_member_page(slug: str, html: str) -> dict[str, Any]:
         "ospSlug": slug,
         "name": name,
         "login": gh,
-        "site": site or f"https://opensourcepledge.com/members/{slug}/",
+        "site": site or None,  # avoid opensourcepledge.com generic host
         "source": "osp",
         "sources": ["osp"],
-        "publicUsd": public_usd,
+        "publicUsd": round(public_usd, 2) if public_usd is not None else None,
+        "ospReportYear": report_year,
         "reportUrl": f"https://opensourcepledge.com/members/{slug}/",
     }
 
@@ -109,10 +127,12 @@ def fetch_open_source_pledge(*, max_members: int | None = None) -> SourceResult:
 
     items: list[dict] = []
     errors: list[str] = []
+    ok_member_slugs: list[str] = []
     for slug in slugs:
         try:
             page = _get(f"https://opensourcepledge.com/members/{slug}/")
             items.append(parse_member_page(slug, page))
+            ok_member_slugs.append(slug)
         except urllib.error.HTTPError as e:
             errors.append(f"{slug}: HTTP {e.code}")
         except Exception as e:
@@ -136,6 +156,7 @@ def fetch_open_source_pledge(*, max_members: int | None = None) -> SourceResult:
         meta={
             "index_slugs": len(slugs),
             "fetched": len(items),
+            "ok_member_slugs": ok_member_slugs,
             "with_amount": sum(1 for i in items if i.get("publicUsd") is not None),
             "soft_errors": len(errors),
             "capped": max_members is not None,

@@ -115,13 +115,22 @@ def load_baseline(weekly_dir: Path, catalog_path: Path, *, run_date: str | None 
     snapshots = sorted(weekly_dir.glob("????-??-??.json"))
     if run_date:
         snapshots = [p for p in snapshots if p.stem < run_date]
+    def _rel(path: Path) -> str:
+        try:
+            # Prefer repo-relative path (never absolute runner path in reports).
+            from pathlib import Path as _P
+            root = _P(__file__).resolve().parents[2]
+            return str(path.resolve().relative_to(root))
+        except Exception:
+            return path.name
+
     if snapshots:
         path = snapshots[-1]
         data = json.loads(path.read_text(encoding="utf-8"))
-        return "weekly", str(path), data.get("companies") or []
+        return "weekly", _rel(path), data.get("companies") or []
     if catalog_path.exists():
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-        return "catalog", str(catalog_path), catalog_as_companies(catalog)
+        return "catalog", _rel(catalog_path), catalog_as_companies(catalog)
     return "none", None, []
 
 
@@ -153,20 +162,66 @@ SOURCE_FULL_KEY = {
 }
 
 
-def _coverage_allows_disappearance(baseline_sources: set[str], coverage: CoverageReport) -> tuple[bool, list[str]]:
-    """True only when every covering source ran with full coverage."""
+def _entity_source_succeeded(
+    src: str,
+    baseline_company: dict,
+    coverage: CoverageReport,
+) -> bool:
+    """True when this entity's covering source succeeded for that entity.
+
+    Ignores the global success-ratio "full" flag — a company can be a verified
+    disappearance when its own collectives/logins were fetched successfully.
+    """
+    key = SOURCE_FULL_KEY.get(src, src)
+    meta = (coverage.sources.get(key) or {})
+    if meta.get("status") != "ok":
+        return False
+    if meta.get("capped"):
+        return False
+    m = meta.get("meta") or {}
+    if src == "oc":
+        ok_slugs = set(m.get("ok_collective_slugs") or [])
+        collectives = set(baseline_company.get("collectives") or [])
+        if not collectives:
+            # Catalog baseline may only have project counts — cannot verify per-entity.
+            return False
+        return bool(collectives) and collectives.issubset(ok_slugs)
+    if src == "gh":
+        ok_logins = {x.lower() for x in (m.get("ok_logins") or [])}
+        login = (baseline_company.get("login") or baseline_company.get("slug") or "").lower()
+        if not login:
+            return False
+        # If we track ok_logins, require membership; else fall back to source ok+uncapped.
+        if ok_logins:
+            return login in ok_logins
+        return True
+    if src == "osp":
+        ok_members = set(m.get("ok_member_slugs") or [])
+        osp = (baseline_company.get("ospSlug") or "").lower()
+        if ok_members and osp:
+            return osp in ok_members
+        return True
+    if src == "own":
+        return False
+    return True
+
+
+def _coverage_allows_disappearance(
+    baseline_sources: set[str],
+    coverage: CoverageReport,
+    baseline_company: dict | None = None,
+) -> tuple[bool, list[str]]:
+    """Verified disappeared only if every covering source succeeded for this entity."""
     if not baseline_sources:
-        # Unknown provenance — never call disappeared
         return False, ["unknown_sources"]
+    company = baseline_company or {}
     missing = []
     for src in baseline_sources:
-        key = SOURCE_FULL_KEY.get(src, src)
         if src == "own":
-            # Own programmes are not re-fetched weekly → cannot verify disappearance
             missing.append("own")
             continue
-        if not coverage.full(key):
-            missing.append(key)
+        if not _entity_source_succeeded(src, company, coverage):
+            missing.append(SOURCE_FULL_KEY.get(src, src))
     return (len(missing) == 0), missing
 
 
@@ -268,7 +323,7 @@ def diff_snapshots(
         if key in cur:
             continue
         sources = _sources_of(b)
-        ok, missing = _coverage_allows_disappearance(sources, coverage)
+        ok, missing = _coverage_allows_disappearance(sources, coverage, b)
         entry = {
             "slug": key,
             "name": b.get("name"),
@@ -280,6 +335,13 @@ def diff_snapshots(
         else:
             entry["unverified_because"] = missing
             result.unverified_partial.append(entry)
+
+    # Round + sort amount changes by |delta| descending
+    for row in result.amount_changes:
+        row["from"] = round(float(row["from"]), 2)
+        row["to"] = round(float(row["to"]), 2)
+        row["delta"] = round(float(row["delta"]), 2)
+    result.amount_changes.sort(key=lambda r: abs(float(r.get("delta") or 0)), reverse=True)
 
     # Sanity threshold
     if result.baseline_size > 0:

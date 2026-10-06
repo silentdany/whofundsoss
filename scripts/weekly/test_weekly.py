@@ -73,7 +73,8 @@ class TestNormalize(unittest.TestCase):
             self.assertIn(slug, idx.by_slug)
 
     def test_retention_filter(self):
-        self.assertTrue(passes_retention({"sources": ["gh"], "publicUsdBySource": {}}))
+        self.assertFalse(passes_retention({"sources": ["gh"], "publicUsdBySource": {}, "ghBeneficiaries": 0}))
+        self.assertTrue(passes_retention({"sources": ["gh"], "publicUsdBySource": {}, "ghBeneficiaries": 2, "beneficiaries": [{"login": "x"}]}))
         self.assertTrue(passes_retention({"sources": ["osp"], "publicUsdBySource": {"osp": 100}}))
         self.assertFalse(
             passes_retention({
@@ -114,15 +115,23 @@ class TestSuspects(unittest.TestCase):
 class TestDiffCoverage(unittest.TestCase):
     def test_partial_coverage_goes_to_unverified_not_disappeared(self):
         baseline = [
-            {"slug": "a", "name": "A", "sources": ["oc"], "publicUsdBySource": {"oc": 100}},
-            {"slug": "b", "name": "B", "sources": ["gh"], "publicUsdBySource": {}, "ghBeneficiaries": 3},
+            {"slug": "a", "name": "A", "sources": ["oc"], "publicUsdBySource": {"oc": 100},
+             "collectives": ["webpack"]},
+            {"slug": "b", "name": "B", "sources": ["gh"], "publicUsdBySource": {}, "ghBeneficiaries": 3,
+             "login": "b"},
         ]
         current = []  # saw nothing
-        # OC full, GH partial → a can disappear, b is unverified
+        # OC succeeded for entity a (webpack fetched); GH did not succeed for b
         cov = CoverageReport(sources={
-            "open_collective": {"full": True},
-            "github_sponsors": {"full": False},
-            "open_source_pledge": {"full": True},
+            "open_collective": {
+                "full": False, "status": "ok", "capped": False,
+                "meta": {"ok_collective_slugs": ["webpack"]},
+            },
+            "github_sponsors": {
+                "full": False, "status": "ok", "capped": False,
+                "meta": {"ok_logins": ["other"]},  # b not fetched successfully
+            },
+            "open_source_pledge": {"full": True, "status": "ok", "capped": False, "meta": {}},
         })
         d = diff_snapshots(current, baseline, baseline_kind="catalog", baseline_path="x", coverage=cov)
         self.assertEqual([x["slug"] for x in d.disappeared_sponsors], ["a"])
@@ -172,10 +181,17 @@ class TestDiffCoverage(unittest.TestCase):
         self.assertEqual(d.amount_changes, [])
 
     def test_suspicious_threshold(self):
-        baseline = [{"slug": f"c{i}", "sources": ["oc"], "publicUsdBySource": {"oc": 1}} for i in range(100)]
+        baseline = [
+            {"slug": f"c{i}", "sources": ["oc"], "publicUsdBySource": {"oc": 1}, "collectives": ["webpack"]}
+            for i in range(100)
+        ]
         current = [{"slug": "brand-new", "sources": ["oc"], "publicUsdBySource": {"oc": 9000}, "publicUsd": 9000}]
-        # 100 baseline, 100 disappeared (OC full) + 1 new → both > 10%
-        cov = CoverageReport(sources={"open_collective": {"full": True}})
+        cov = CoverageReport(sources={
+            "open_collective": {
+                "full": True, "status": "ok", "capped": False,
+                "meta": {"ok_collective_slugs": ["webpack"]},
+            },
+        })
         d = diff_snapshots(current, baseline, baseline_kind="catalog", baseline_path="x", coverage=cov, suspicious_pct=10)
         self.assertTrue(d.suspicious)
         self.assertGreaterEqual(len(d.suspicious_reasons), 1)
