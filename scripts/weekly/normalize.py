@@ -19,7 +19,15 @@ from urllib.parse import urlparse
 from .generic_hosts import is_generic_host
 
 # Known OSP member slug → catalog slug (when GH login differs from OSP path).
+
+# Catalog slug merges (dropped → kept). Applied in resolve() like OSP aliases.
+CATALOG_SLUG_ALIASES: dict[str, str] = {
+    "nx-by-nrwl": "nrwl",
+}
+
 OSP_SLUG_ALIASES: dict[str, str] = {
+    # Catalog merge 2026-10-06 (also used as general alias key)
+
     "sentry": "getsentry",
     "posit": "posit-dev",
     "sanity": "sanity-io",
@@ -110,7 +118,9 @@ class CatalogIndex:
     ) -> str:
         candidates: list[str] = []
         if login:
-            candidates.append(login.strip().lower())
+            login_l = login.strip().lower()
+            candidates.append(CATALOG_SLUG_ALIASES.get(login_l, login_l))
+            candidates.append(login_l)
         if osp_slug:
             osp = osp_slug.strip().lower()
             candidates.append(OSP_SLUG_ALIASES.get(osp, osp))
@@ -171,6 +181,9 @@ def build_catalog_index(catalog: dict[str, Any] | Path) -> CatalogIndex:
     for osp, cat in OSP_SLUG_ALIASES.items():
         if cat in idx.by_slug:
             idx.aliases[osp] = cat
+    for dropped, kept in CATALOG_SLUG_ALIASES.items():
+        if kept in idx.by_slug:
+            idx.aliases[dropped] = kept
     return idx
 
 

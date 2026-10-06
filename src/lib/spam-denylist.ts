@@ -14,7 +14,7 @@
  * buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool),
  * open-apk-file (file utility), upgrow (growth agency).
  *
- * v1 · 2026-10-06 · catalog collectedAt 2026-10-05
+ * v2026-10-06.3 · Data triage (casino/SEO) + prior QA/dev pass
  */
 export type SpamCategory =
   | "gambling"
@@ -25,10 +25,10 @@ export type SpamCategory =
   | "piracy"
   | "adult";
 
-export const SPAM_DENYLIST_VERSION = "2026-10-06.2";
+export const SPAM_DENYLIST_VERSION = "2026-10-06.3";
 
 /** Who flagged it: "qa" = QA sitemap review (2026-10-06), "dev" = Dev pass over the full catalog. */
-export type SpamSource = "qa" | "dev";
+export type SpamSource = "qa" | "dev" | "data";
 
 export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; source: SpamSource; reason: string }>> = {
   // gambling
@@ -129,6 +129,14 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "piratebay": { category: "piracy", source: "dev", reason: "Pirate Bay proxy" },
   // adult
   "john-s-directory": { category: "adult", source: "dev", reason: "adult directory" },
+  // WFOSS Data triage 2026-10-06
+  "baocasino": { category: "gambling", source: "data", reason: "online casino (baocasino.com + OC)" },
+  "bsc-news": { category: "gambling", source: "data", reason: "Thai gambling affiliate (name พนัน)" },
+  "w-in-ua": { category: "gambling", source: "data", reason: "Ukrainian online casino listing (w.in.ua)" },
+  "spin-paradise": { category: "gambling", source: "data", reason: "casino affiliate / parked lander" },
+  "aviator": { category: "gambling", source: "data", reason: "1Win casino / sports betting (techyguy.in)" },
+  "writers-per-hour": { category: "link-spam", source: "data", reason: "essay writing / homework mill" },
+  "awisee": { category: "link-spam", source: "data", reason: "link building / SEO outreach agency" },
 };
 
 export function isSpamDenylisted(slug: string): boolean {

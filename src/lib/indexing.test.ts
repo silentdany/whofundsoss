@@ -11,6 +11,7 @@ const catalog = JSON.parse(readFileSync(new URL("../data/catalog.json", import.m
 };
 const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
 const DENIED = Object.keys(SPAM_DENYLIST);
+const DENIED_IN_CATALOG = DENIED.filter((slug) => bySlug.has(slug));
 const NAMED_BY_CDP = ["uudetkasinot-com", "fire-stick-tricks", "buy-google-reviews", "socialboosting", "nettikasinot-media"];
 
 test("denylist has the five slugs named by CdP, each with a reason", () => {
@@ -21,8 +22,17 @@ test("denylist has the five slugs named by CdP, each with a reason", () => {
   }
 });
 
-test("every denylisted slug exists in the catalog (data unchanged, still listed)", () => {
-  for (const slug of DENIED) assert.ok(bySlug.has(slug), `${slug} missing from catalog.json`);
+test("every denylisted slug that is in the catalog stays listed (data unchanged)", () => {
+  // Data-triage additions may be weekly-only (not yet in catalog.json) — those are OK.
+  assert.ok(DENIED_IN_CATALOG.length >= 90, "most denylist entries should still be catalog rows");
+  for (const slug of DENIED_IN_CATALOG) assert.ok(bySlug.has(slug), `${slug} missing from catalog.json`);
+});
+
+test("2026-10-06 Data triage slugs are denylisted (source=data)", () => {
+  for (const slug of ["baocasino", "bsc-news", "w-in-ua", "spin-paradise", "aviator", "writers-per-hour", "awisee"]) {
+    assert.ok(isSpamDenylisted(slug), slug);
+    assert.equal(SPAM_DENYLIST[slug]!.source, "data");
+  }
 });
 
 test("denylisted slugs stay in the ranking with their rank and dollars", () => {
@@ -36,13 +46,13 @@ test("denylisted slugs stay in the ranking with their rank and dollars", () => {
 });
 
 test("denylisted company pages are noindex", () => {
-  for (const slug of DENIED) {
+  for (const slug of DENIED_IN_CATALOG) {
     assert.equal(companyIndexable(bySlug.get(slug)!, catalog.details[slug]), false, slug);
   }
 });
 
 test("a normal company with public dollars stays indexable", () => {
-  for (const slug of ["posit-dev", "getsentry", "microsoft"]) {
+  for (const slug of ["posit-dev", "getsentry", "microsoft", "nrwl", "sanity-io"]) {
     assert.equal(companyIndexable(bySlug.get(slug)!, catalog.details[slug]), true, slug);
   }
 });
@@ -50,7 +60,8 @@ test("a normal company with public dollars stays indexable", () => {
 test("sitemap excludes every denylisted slug and keeps static pages", () => {
   const paths = new Set(sitemapPaths(catalog.index, catalog.details));
   for (const slug of DENIED) assert.ok(!paths.has(`/company/${slug}`), slug);
-  for (const path of ["/", "/ranking", "/method", "/company/posit-dev"]) assert.ok(paths.has(path), path);
+  for (const path of ["/", "/ranking", "/method", "/company/posit-dev", "/company/nrwl"]) assert.ok(paths.has(path), path);
+  assert.ok(!paths.has("/company/nx-by-nrwl"));
   assert.ok(![...paths].some((p) => /^\/(classement|methode|mouvements|mysteres|graphe)$/.test(p)));
 });
 
@@ -59,4 +70,5 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 7);
 });
