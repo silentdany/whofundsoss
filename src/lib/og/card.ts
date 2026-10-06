@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import catalogFile from "../../data/catalog.json" with { type: "json" };
+import { FONT_SANS, FONT_SANS_BOLD, FONT_SERIF } from "./fonts.ts";
 import { markShapes } from "../brand-mark.ts";
 import { companyTitle } from "../seo.ts";
 import { OG_IMAGE_HEIGHT, OG_IMAGE_TYPE, OG_IMAGE_WIDTH, PAGE_TITLES, SITE_URL } from "../site.ts";
@@ -143,16 +144,23 @@ export function ogOverlaySvg(spec: OgSpec): string {
   const texts = fitted.lines
     .map(
       (line, index) =>
-        `<text x="80" y="${titleY + index * fitted.leading}" font-family="DejaVu Serif" font-size="${fitted.size}" fill="#1a1a1a">${xml(line)}</text>`,
+        `<text x="80" y="${titleY + index * fitted.leading}" font-family="CardSerif" font-size="${fitted.size}" fill="#1a1a1a">${xml(line)}</text>`,
     )
     .join("\n  ");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}">
+  <defs>
+    <style>
+      @font-face { font-family: "CardSans"; src: url("data:font/ttf;base64,${FONT_SANS}"); }
+      @font-face { font-family: "CardSansBold"; src: url("data:font/ttf;base64,${FONT_SANS_BOLD}"); }
+      @font-face { font-family: "CardSerif"; src: url("data:font/ttf;base64,${FONT_SERIF}"); }
+    </style>
+  </defs>
   <title>${xml(spec.title)}</title>
   <rect x="48" y="${cardY}" width="820" height="${cardBottom - cardY}" rx="36" fill="#ffffff"/>
   <svg id="brand-mark" x="80" y="246" width="72" height="72" viewBox="0 0 512 512">${markShapes()}</svg>
-  <text x="168" y="290" font-family="DejaVu Sans" font-size="24" font-weight="700" fill="#1a1a1a">WhoFundsOSS</text>
-  <text x="820" y="290" text-anchor="end" font-family="DejaVu Sans" font-size="22" fill="#3d7a6a">${xml(label)}</text>
+  <text x="168" y="290" font-family="CardSansBold" font-size="24" fill="#1a1a1a">WhoFundsOSS</text>
+  <text x="820" y="290" text-anchor="end" font-family="CardSans" font-size="22" fill="#3d7a6a">${xml(label)}</text>
   ${texts}
 </svg>
 `;
