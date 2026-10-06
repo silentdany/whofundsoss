@@ -1,25 +1,32 @@
 # Weekly scraper
 
-Ports the research collectors (`github_sponsors/collect.py`, `build_publishable.py` rules)
-into the public repo. No `/workspace` dependency at runtime.
+Ports the research collectors into the public repo. **Default = full catalog scope.**
 
 ```bash
 # Unit tests (no network)
 python3 -m unittest scripts.weekly.test_weekly -v
 
-# Local run (uses `gh auth` / GH_TOKEN / GH_SPONSORS_TOKEN — never echo)
+# Full weekly run (GH catalog sponsors + all OC collectives + all OSP members)
 python3 -m scripts.weekly.run
+
+# Smoke only (marks coverage partial → disappearances go to unverified)
 python3 -m scripts.weekly.run --gh-logins vercel,getsentry --max-oc 20 --max-osp 5
 ```
 
-Sources:
+## Diff semantics (WFOSS Data bot)
 
-1. **GitHub Sponsors** — GraphQL `organization|user.sponsoring` (public lists; amounts almost never public → left `null`, never invented)
-2. **Open Collective** — `opencollective.com/{slug}/members/organizations.json`
-3. **Open Source Pledge** — scrape `opensourcepledge.com/members/` + member pages
+- **Slugs** resolve through `src/data/catalog.json` aliases (`getsentry` ← OSP `sentry`, name kebab-case, site host…).
+- **Retention** matches the catalog build: keep if `gh`/`osp`/`own`, or OC with ≥3 collectives or ≥$5k public.
+- **Disappeared** only when every source covering that baseline company ran with **full** coverage; otherwise → `unverified_partial`.
+- **Amount changes** are like-with-like (`oc↔oc`, `osp↔osp`, `own↔own`).
+- If new or disappeared > 10% of baseline → `suspicious: true` + ⚠ banner in the `.md` (run still succeeds).
 
-Denylist: parse `src/lib/spam-denylist.ts` (single source of truth).
-Exclusions: `data/exclusions/raw-exclusions.csv` (120 rows = 119 spam + supabase_self_fund).
-Suspects: keyword flag only — never exclude.
+## Sources
 
-Workflow: `scripts/weekly/github-workflow.yml` (copy to `.github/workflows/weekly-scraper.yml` once the `workflow` OAuth scope is available) (cron `17 4 * * 1` + `workflow_dispatch`).
+1. **GitHub Sponsors** — GraphQL `sponsoring` for every catalog company with `gh` + seed orgs
+2. **Open Collective** — all collectives in `OC_COLLECTIVES` (~104)
+3. **Open Source Pledge** — full members index
+
+Denylist source of truth: `src/lib/spam-denylist.ts` (parsed).
+Exclusions: `data/exclusions/raw-exclusions.csv`.
+Workflow: `.github/workflows/weekly-scraper.yml` (cron `17 4 * * 1` + `workflow_dispatch`).

@@ -138,5 +138,6 @@ def fetch_open_source_pledge(*, max_members: int | None = None) -> SourceResult:
             "fetched": len(items),
             "with_amount": sum(1 for i in items if i.get("publicUsd") is not None),
             "soft_errors": len(errors),
+            "capped": max_members is not None,
         },
     )

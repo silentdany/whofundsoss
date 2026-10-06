@@ -63,9 +63,12 @@ def fetch_oc_org_backers(slug: str) -> list[dict[str, Any]]:
         gh_field = m.get("github")
         if isinstance(gh_field, str) and "github.com/" in gh_field:
             github = gh_field.rstrip("/").split("/")[-1]
+        oc_slug = (m.get("slug") or "").strip().lower()
         out.append({
             "name": name,
-            "slug": (m.get("slug") or name).lower().replace(" ", "-"),
+            # Provisional slug: login or name; finalize via catalog resolve in merge_companies.
+            "slug": (github or oc_slug or name).lower().replace(" ", "-"),
+            "ocSlug": oc_slug or None,
             "login": github,
             "site": m.get("website") or m.get("profile"),
             "source": "oc",
@@ -105,25 +108,30 @@ def fetch_open_collective(
             errors.append(f"{slug}: {e}")
             continue
         for b in backers:
-            key = (b.get("login") or b.get("slug") or b["name"]).lower()
+            key = (b.get("login") or b.get("ocSlug") or b["name"]).lower()
             cur = by_key.get(key)
             if cur is None:
                 by_key[key] = {
                     "slug": key,
+                    "ocSlug": b.get("ocSlug"),
                     "name": b["name"],
                     "login": b.get("login"),
                     "site": b.get("site"),
                     "source": "oc",
                     "sources": ["oc"],
-                    "publicUsd": b.get("publicUsd") or 0.0,
+                    "publicUsd": float(b["publicUsd"]) if b.get("publicUsd") is not None else None,
                     "collectives": [b["collective"]],
                     "ocActive": bool(b.get("isActive")),
                 }
             else:
-                if b.get("publicUsd"):
+                if b.get("publicUsd") is not None:
                     cur["publicUsd"] = (cur.get("publicUsd") or 0) + float(b["publicUsd"])
                 if b["collective"] not in cur["collectives"]:
                     cur["collectives"].append(b["collective"])
+                if not cur.get("login") and b.get("login"):
+                    cur["login"] = b["login"]
+                if not cur.get("ocSlug") and b.get("ocSlug"):
+                    cur["ocSlug"] = b["ocSlug"]
         time.sleep(0.05)
 
     if ok_collectives == 0:
@@ -146,5 +154,7 @@ def fetch_open_collective(
             "ok_collectives": ok_collectives,
             "companies": len(items),
             "soft_errors": len(errors),
+            "capped": max_collectives is not None,
+            "universe": len(OC_COLLECTIVES),
         },
     )

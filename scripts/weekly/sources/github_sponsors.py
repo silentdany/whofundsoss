@@ -163,7 +163,7 @@ def seed_logins_from_catalog(catalog_path: Path | None = None) -> list[str]:
         sources = row.get("sources") or []
         if "gh" in sources and row.get("slug"):
             logins.append(row["slug"])
-    # Cap weekly GH surface to keep rate limits sane
+    # Full catalog GH surface (same scope as the published catalog's gh companies).
     uniq: list[str] = []
     seen: set[str] = set()
     for login in logins:
@@ -172,8 +172,6 @@ def seed_logins_from_catalog(catalog_path: Path | None = None) -> list[str]:
             continue
         seen.add(key)
         uniq.append(login)
-        if len(uniq) >= 120:
-            break
     return uniq
 
 
@@ -229,5 +227,6 @@ def fetch_github_sponsors(
             "ok": len(items),
             "soft_errors": len(errors),
             "auth": "token" if token else "gh-cli-or-none",
+            "capped": False,
         },
     )

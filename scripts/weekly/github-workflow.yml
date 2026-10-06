@@ -9,15 +9,15 @@ on:
   workflow_dispatch:
     inputs:
       max_oc:
-        description: "Optional cap on Open Collective collectives (smoke)"
+        description: "Optional cap on Open Collective collectives (smoke only; leave empty for FULL coverage = all ~104 collectives)"
         required: false
         default: ""
       max_osp:
-        description: "Optional cap on Open Source Pledge members (smoke)"
+        description: "Optional cap on Open Source Pledge members (smoke only; leave empty for FULL coverage)"
         required: false
         default: ""
       gh_logins:
-        description: "Optional comma-separated GitHub logins to re-check"
+        description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set ~281)"
         required: false
         default: ""
 
@@ -35,12 +35,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
+      - name: Require WFO_WEEKLY_PAT
+        env:
+          WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+        run: |
+          set -euo pipefail
+          # Inline copy of scripts/weekly/require_pat.sh (runs before checkout).
+          # Never print the secret value.
+          if [ -z "${WFO_WEEKLY_PAT}" ]; then
+            echo "::error::Missing repository secret WFO_WEEKLY_PAT (empty)."
+            echo "Create a fine-grained PAT (Contents: R/W, Pull requests: R/W on silentdany/whofundsoss)"
+            echo "and store it as Actions secret WFO_WEEKLY_PAT. Broader scopes not required."
+            exit 1
+          fi
+          echo "WFO_WEEKLY_PAT: present (value not logged)"
+
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          # Prefer a PAT that can open PRs when the repo setting
-          # "Allow GitHub Actions to create and approve pull requests" is off.
-          token: ${{ secrets.WFO_WEEKLY_PAT || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WFO_WEEKLY_PAT }}
+
+      - name: Re-check WFO_WEEKLY_PAT via repo script
+        env:
+          WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+        run: bash scripts/weekly/require_pat.sh
 
       - name: Set up Python
         uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
@@ -52,10 +70,9 @@ jobs:
 
       - name: Run weekly scraper
         env:
-          # Never echo. Masked by Actions when stored as secrets.
-          GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT || secrets.GITHUB_TOKEN }}
+          # Never echo. Actions masks secrets; we still avoid printing env.
+          GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT }}
           GH_SPONSORS_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || '' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           DATE=$(date -u +%F)
@@ -81,7 +98,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
-          token: ${{ secrets.WFO_WEEKLY_PAT || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WFO_WEEKLY_PAT }}
           commit-message: "data(weekly): scrape ${{ github.run_id }}"
           branch: data/weekly-run-${{ github.run_id }}
           delete-branch: true
@@ -93,11 +110,8 @@ jobs:
             - Denylist source of truth: `src/lib/spam-denylist.ts` (parsed, not copied)
             - Exclusions: `data/exclusions/raw-exclusions.csv`
             - Suspects are **flag-only** (never excluded by keyword)
+            - Disappearances require full source coverage; otherwise see `unverified_partial`
             - No auto-merge. Consumer: WFOSS Data bot.
-
-            If this PR was not created, check:
-            1. Repo setting **Allow GitHub Actions to create and approve pull requests**, or
-            2. Secret `WFO_WEEKLY_PAT` (classic PAT: `repo` scope, or fine-grained: Contents R/W + Pull requests R/W on `silentdany/whofundsoss`).
           add-paths: |
             data/weekly/**
           labels: |

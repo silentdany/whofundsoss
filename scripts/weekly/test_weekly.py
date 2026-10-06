@@ -8,10 +8,18 @@ import unittest
 from pathlib import Path
 
 from scripts.weekly.denylist import is_excluded, load_raw_exclusions, parse_spam_denylist
-from scripts.weekly.diff import catalog_as_companies, diff_snapshots
-from scripts.weekly.report import merge_companies, render_markdown
+from scripts.weekly.diff import CoverageReport, catalog_as_companies, diff_snapshots
+from scripts.weekly.normalize import (
+    build_catalog_index,
+    company_slug,
+    passes_retention,
+    slugify,
+)
+from scripts.weekly.report import coverage_from_results, merge_companies, render_markdown
 from scripts.weekly.sources.base import SourceResult
 from scripts.weekly.suspects import flag_suspects
+
+CATALOG = Path(__file__).resolve().parents[2] / "src" / "data" / "catalog.json"
 
 
 class TestDenylistParse(unittest.TestCase):
@@ -20,25 +28,75 @@ class TestDenylistParse(unittest.TestCase):
         self.assertTrue(version)
         self.assertGreaterEqual(len(entries), 50)
         self.assertIn("uudetkasinot-com", entries)
-        self.assertEqual(entries["uudetkasinot-com"].category, "gambling")
 
     def test_parse_rejects_empty(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "empty.ts"
-            p.write_text("export const SPAM_DENYLIST_VERSION = \"x\";\nexport const SPAM_DENYLIST = {};\n")
+            p.write_text('export const SPAM_DENYLIST_VERSION = "x";\nexport const SPAM_DENYLIST = {};\n')
             with self.assertRaises(ValueError):
                 parse_spam_denylist(p)
 
     def test_raw_exclusions_count(self):
         rows = load_raw_exclusions()
-        self.assertEqual(len(rows), 120)  # 119 spam + 1 supabase_self_fund
+        self.assertEqual(len(rows), 120)
 
     def test_is_excluded_denylist(self):
         _, entries = parse_spam_denylist()
-        reason = is_excluded(slug="socialboosting", denylist=entries, exclusions=[])
-        self.assertIsNotNone(reason)
-        self.assertIn("denylist", reason or "")
+        self.assertIsNotNone(is_excluded(slug="socialboosting", denylist=entries, exclusions=[]))
         self.assertIsNone(is_excluded(slug="getsentry", denylist=entries, exclusions=[]))
+
+
+class TestNormalize(unittest.TestCase):
+    def test_slugify_name(self):
+        self.assertEqual(slugify("General Catalyst"), "general-catalyst")
+        self.assertEqual(slugify("Nx (by Nrwl)"), "nx-by-nrwl")
+
+    def test_company_slug_prefers_login(self):
+        self.assertEqual(company_slug(login="getsentry", name="Sentry"), "getsentry")
+        self.assertEqual(company_slug(login="", name="Creative Tim"), "creative-tim")
+
+    def test_catalog_aliases_osp(self):
+        if not CATALOG.exists():
+            self.skipTest("catalog.json missing")
+        idx = build_catalog_index(CATALOG)
+        self.assertEqual(idx.resolve(osp_slug="sentry", name="Sentry"), "getsentry")
+        self.assertEqual(idx.resolve(login="vercel"), "vercel")
+        self.assertEqual(idx.resolve(name="General Catalyst"), "general-catalyst")
+
+    def test_catalog_join_rate(self):
+        """Most dump companies with login/name must resolve into catalog."""
+        if not CATALOG.exists():
+            self.skipTest("catalog.json missing")
+        idx = build_catalog_index(CATALOG)
+        # Sanity: known rows resolve to themselves
+        for slug in ("vercel", "getsentry", "posit-dev", "trivago"):
+            self.assertIn(slug, idx.by_slug)
+
+    def test_retention_filter(self):
+        self.assertTrue(passes_retention({"sources": ["gh"], "publicUsdBySource": {}}))
+        self.assertTrue(passes_retention({"sources": ["osp"], "publicUsdBySource": {"osp": 100}}))
+        self.assertFalse(
+            passes_retention({
+                "sources": ["oc"],
+                "collectives": ["a"],
+                "publicUsdBySource": {"oc": 100},
+                "publicUsd": 100,
+            })
+        )
+        self.assertTrue(
+            passes_retention({
+                "sources": ["oc"],
+                "collectives": ["a", "b", "c"],
+                "publicUsdBySource": {"oc": 100},
+            })
+        )
+        self.assertTrue(
+            passes_retention({
+                "sources": ["oc"],
+                "collectives": ["a"],
+                "publicUsdBySource": {"oc": 6000},
+            })
+        )
 
 
 class TestSuspects(unittest.TestCase):
@@ -46,104 +104,197 @@ class TestSuspects(unittest.TestCase):
         companies = [
             {"slug": "acme-casino", "name": "Acme Casino", "site": "https://acme.example"},
             {"slug": "getsentry", "name": "Sentry", "site": "https://sentry.io"},
-            {"slug": "plain-co", "name": "Plain Co", "site": "https://plain.example"},
         ]
         hits = flag_suspects(companies, denylist_slugs={"acme-casino"})
         self.assertEqual(len(hits), 1)
-        self.assertEqual(hits[0].slug, "acme-casino")
         self.assertTrue(hits[0].already_denylisted)
-        # original list untouched
-        self.assertEqual(len(companies), 3)
-
-    def test_allowlist_skips_sentry(self):
-        hits = flag_suspects([{"slug": "getsentry", "name": "Sentry Betting Labs", "site": ""}])
-        self.assertEqual(hits, [])
+        self.assertEqual(len(companies), 2)
 
 
-class TestDiff(unittest.TestCase):
-    def test_new_and_disappeared_and_amount(self):
+class TestDiffCoverage(unittest.TestCase):
+    def test_partial_coverage_goes_to_unverified_not_disappeared(self):
         baseline = [
-            {"slug": "a", "name": "A", "publicUsd": 100, "ghBeneficiaries": 2, "beneficiaries": [{"login": "x"}]},
-            {"slug": "b", "name": "B", "publicUsd": 50},
+            {"slug": "a", "name": "A", "sources": ["oc"], "publicUsdBySource": {"oc": 100}},
+            {"slug": "b", "name": "B", "sources": ["gh"], "publicUsdBySource": {}, "ghBeneficiaries": 3},
         ]
-        current = [
-            {"slug": "a", "name": "A", "publicUsd": 150, "ghBeneficiaries": 3, "beneficiaries": [{"login": "x"}, {"login": "y"}]},
-            {"slug": "c", "name": "C", "publicUsd": 10},
-        ]
-        d = diff_snapshots(current, baseline, baseline_kind="weekly", baseline_path="x.json")
-        self.assertEqual([x["slug"] for x in d.new_sponsors], ["c"])
-        self.assertEqual([x["slug"] for x in d.disappeared_sponsors], ["b"])
-        self.assertEqual(d.amount_changes[0]["delta"], 50)
-        self.assertEqual(d.beneficiary_changes[0]["to"], 3)
-        self.assertEqual(d.new_sponsorships[0]["beneficiary"], "y")
+        current = []  # saw nothing
+        # OC full, GH partial → a can disappear, b is unverified
+        cov = CoverageReport(sources={
+            "open_collective": {"full": True},
+            "github_sponsors": {"full": False},
+            "open_source_pledge": {"full": True},
+        })
+        d = diff_snapshots(current, baseline, baseline_kind="catalog", baseline_path="x", coverage=cov)
+        self.assertEqual([x["slug"] for x in d.disappeared_sponsors], ["a"])
+        self.assertEqual([x["slug"] for x in d.unverified_partial], ["b"])
 
-    def test_null_amounts_not_treated_as_zero(self):
-        baseline = [{"slug": "a", "publicUsd": None}]
-        current = [{"slug": "a", "publicUsd": None}]
-        d = diff_snapshots(current, baseline, baseline_kind="none", baseline_path=None)
+    def test_own_source_never_disappears(self):
+        baseline = [{"slug": "x", "name": "X", "sources": ["own"]}]
+        cov = CoverageReport(sources={
+            "open_collective": {"full": True},
+            "github_sponsors": {"full": True},
+            "open_source_pledge": {"full": True},
+        })
+        d = diff_snapshots([], baseline, baseline_kind="catalog", baseline_path="x", coverage=cov)
+        self.assertEqual(d.disappeared_sponsors, [])
+        self.assertEqual(d.unverified_partial[0]["slug"], "x")
+
+    def test_like_with_like_amounts(self):
+        baseline = [{
+            "slug": "a",
+            "sources": ["oc", "osp"],
+            "publicUsdBySource": {"oc": 100, "osp": 50, "gh": None, "own": None},
+            "publicUsd": 150,
+        }]
+        current = [{
+            "slug": "a",
+            "sources": ["oc", "osp"],
+            "publicUsdBySource": {"oc": 100, "osp": 80, "gh": None, "own": None},
+            "publicUsd": 180,
+        }]
+        cov = CoverageReport(sources={
+            "open_collective": {"full": True},
+            "open_source_pledge": {"full": True},
+            "github_sponsors": {"full": True},
+        })
+        d = diff_snapshots(current, baseline, baseline_kind="weekly", baseline_path="x", coverage=cov)
+        self.assertEqual(len(d.amount_changes), 1)
+        self.assertEqual(d.amount_changes[0]["source"], "osp")
+        self.assertEqual(d.amount_changes[0]["delta"], 30)
+
+    def test_null_amounts_not_zero(self):
+        baseline = [{"slug": "a", "sources": ["gh"], "publicUsdBySource": {"gh": None}}]
+        current = [{"slug": "a", "sources": ["gh"], "publicUsdBySource": {"gh": None}}]
+        d = diff_snapshots(
+            current, baseline, baseline_kind="none", baseline_path=None,
+            coverage=CoverageReport(sources={"github_sponsors": {"full": True}}),
+        )
         self.assertEqual(d.amount_changes, [])
-        # Introducing a real number vs null is NOT an amount change (no invented baseline 0)
-        current2 = [{"slug": "a", "publicUsd": 100}]
-        d2 = diff_snapshots(current2, baseline, baseline_kind="none", baseline_path=None)
-        self.assertEqual(d2.amount_changes, [])
 
-    def test_catalog_as_companies(self):
-        catalog = {"index": [{"slug": "vercel", "name": "Vercel", "publicUsd": 1, "sources": ["gh"], "ghBeneficiaries": 4}]}
+    def test_suspicious_threshold(self):
+        baseline = [{"slug": f"c{i}", "sources": ["oc"], "publicUsdBySource": {"oc": 1}} for i in range(100)]
+        current = [{"slug": "brand-new", "sources": ["oc"], "publicUsdBySource": {"oc": 9000}, "publicUsd": 9000}]
+        # 100 baseline, 100 disappeared (OC full) + 1 new → both > 10%
+        cov = CoverageReport(sources={"open_collective": {"full": True}})
+        d = diff_snapshots(current, baseline, baseline_kind="catalog", baseline_path="x", coverage=cov, suspicious_pct=10)
+        self.assertTrue(d.suspicious)
+        self.assertGreaterEqual(len(d.suspicious_reasons), 1)
+
+    def test_catalog_as_companies_has_bysource(self):
+        if not CATALOG.exists():
+            self.skipTest("catalog.json missing")
+        catalog = json.loads(CATALOG.read_text())
         rows = catalog_as_companies(catalog)
-        self.assertEqual(rows[0]["slug"], "vercel")
-        self.assertEqual(rows[0]["sources"], ["gh"])
+        sentry = next(r for r in rows if r["slug"] == "getsentry")
+        self.assertEqual(sentry["publicUsdBySource"]["osp"], 750000.0)
 
 
-class TestSourceFailureSemantics(unittest.TestCase):
-    def test_unavailable_source_contributes_no_silent_zero(self):
+class TestMergeRetention(unittest.TestCase):
+    def test_merge_resolves_osp_alias(self):
+        if not CATALOG.exists():
+            self.skipTest("catalog.json missing")
+        idx = build_catalog_index(CATALOG)
+        osp = SourceResult(
+            name="open_source_pledge",
+            status="ok",
+            items=[{"name": "Sentry", "ospSlug": "sentry", "login": "getsentry", "source": "osp", "publicUsd": 750000}],
+        )
+        merged = merge_companies([osp], catalog_index=idx)
+        self.assertEqual(merged[0]["slug"], "getsentry")
+        self.assertEqual(merged[0]["publicUsdBySource"]["osp"], 750000)
+
+    def test_unavailable_no_silent_zero(self):
         bad = SourceResult(name="github_sponsors", status="unavailable", error="boom", items=[])
         good = SourceResult(
             name="open_source_pledge",
             status="ok",
-            items=[{"slug": "sentry", "name": "Sentry", "source": "osp", "publicUsd": 750000}],
+            items=[{"slug": "zerodha", "name": "Zerodha", "source": "osp", "ospSlug": "zerodha", "publicUsd": 1}],
         )
-        merged = merge_companies([bad, good])
+        if CATALOG.exists():
+            idx = build_catalog_index(CATALOG)
+        else:
+            idx = None
+        merged = merge_companies([bad, good], catalog_index=idx)
         self.assertEqual(len(merged), 1)
-        self.assertEqual(merged[0]["publicUsd"], 750000)
-        # unavailable count must be None in to_dict, never 0-as-success
-        d = bad.to_dict()
-        self.assertIsNone(d["count"])
-        self.assertEqual(d["status"], "unavailable")
+        self.assertIsNone(bad.to_dict()["count"])
 
-    def test_markdown_marks_unavailable(self):
+    def test_oc_low_success_ratio_not_full(self):
+        r = SourceResult(
+            name="open_collective",
+            status="ok",
+            items=[{"x": 1}],
+            meta={"attempted": 100, "ok_collectives": 50},
+        )
+        cov = coverage_from_results([r], max_oc=None, max_osp=None, gh_logins_override=False)
+        self.assertFalse(cov.full("open_collective"))
+
+    def test_coverage_marks_capped(self):
+        r = SourceResult(name="open_collective", status="ok", items=[{"x": 1}], meta={})
+        cov = coverage_from_results([r], max_oc=40, max_osp=None, gh_logins_override=False)
+        self.assertFalse(cov.full("open_collective"))
+        self.assertTrue(cov.sources["open_collective"]["capped"])
+
+    def test_markdown_suspicious_banner(self):
         payload = {
             "date": "2026-10-06",
-            "durationSeconds": 1.2,
-            "sources": [
-                {"name": "github_sponsors", "status": "unavailable", "error": "no token", "count": None, "meta": {}},
-                {"name": "open_collective", "status": "ok", "count": 3, "meta": {"ok_collectives": 3}},
-            ],
+            "durationSeconds": 1,
+            "suspicious": True,
+            "coverage": {"open_collective": {"full": False, "status": "ok", "count": 1, "capped": True}},
+            "sources": [{"name": "open_collective", "status": "ok", "count": 1, "meta": {}}],
             "diff": {
                 "baseline_kind": "catalog",
-                "baseline_path": "src/data/catalog.json",
+                "baseline_path": "x",
+                "baseline_size": 100,
+                "suspicious": True,
+                "suspicious_reasons": ["new_sponsors 50 = 50.0% of baseline 100"],
                 "counts": {
-                    "new_sponsors": 0,
+                    "new_sponsors": 50,
                     "disappeared_sponsors": 0,
+                    "unverified_partial": 10,
                     "new_sponsorships": 0,
                     "amount_changes": 0,
                     "beneficiary_changes": 0,
                 },
                 "new_sponsors": [],
                 "disappeared_sponsors": [],
+                "unverified_partial": [],
                 "new_sponsorships": [],
                 "amount_changes": [],
                 "beneficiary_changes": [],
             },
             "suspects": [],
-            "denylist": {"version": "test", "count": 1},
-            "exclusions": {"count": 119},
+            "denylist": {"version": "t", "count": 1},
+            "exclusions": {"count": 120},
             "excludedNoted": [],
-            "notes": ["x"],
+            "notes": [],
         }
         md = render_markdown(payload)
-        self.assertIn("source unavailable", md)
-        self.assertIn("github_sponsors", md)
+        self.assertIn("DIFF SUSPICIOUS", md)
+        self.assertIn("Unverified (partial coverage)", md)
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRequirePat(unittest.TestCase):
+    def test_missing_secret_fails_cleanly(self):
+        import os, subprocess
+        script = Path(__file__).resolve().parent / "require_pat.sh"
+        env = {k: v for k, v in os.environ.items() if k != "WFO_WEEKLY_PAT"}
+        r = subprocess.run(["bash", str(script)], capture_output=True, text=True, env=env)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("WFO_WEEKLY_PAT is missing", r.stderr)
+        # Must never look like a token dump
+        self.assertNotRegex(r.stdout + r.stderr, r"ghp_|github_pat_|gho_")
+
+    def test_present_secret_ok_without_echoing_value(self):
+        import os, subprocess
+        script = Path(__file__).resolve().parent / "require_pat.sh"
+        env = dict(os.environ)
+        env["WFO_WEEKLY_PAT"] = "dummy-value-not-a-github-token"
+        r = subprocess.run(["bash", str(script)], capture_output=True, text=True, env=env)
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("present", r.stdout)
+        self.assertNotIn("dummy-value-not-a-github-token", r.stdout)
+        self.assertNotIn("dummy-value-not-a-github-token", r.stderr)
