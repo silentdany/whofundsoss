@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import opentype from "opentype.js";
 import catalogFile from "../../data/catalog.json" with { type: "json" };
 import { FONT_SANS, FONT_SANS_BOLD, FONT_SERIF } from "./fonts.ts";
 import { markShapes } from "../brand-mark.ts";
@@ -133,8 +134,37 @@ function fitTitle(
   return { lines, size, leading: Math.round(size * 1.18) };
 }
 
+function parsedFont(encoded: string) {
+  const bytes = Buffer.from(encoded, "base64");
+  return opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+}
+
+let cardFonts: ReturnType<typeof loadCardFonts> | null = null;
+function loadCardFonts() {
+  return {
+    sans: parsedFont(FONT_SANS),
+    bold: parsedFont(FONT_SANS_BOLD),
+    serif: parsedFont(FONT_SERIF),
+  };
+}
+
+function glyphPath(
+  font: ReturnType<typeof parsedFont>,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  fill: string,
+  anchor: "start" | "end" = "start",
+): string {
+  const drawX = anchor === "end" ? x - font.getAdvanceWidth(text, size) : x;
+  const d = font.getPath(text, drawX, y, size).toPathData(1);
+  return d ? `<path d="${d}" fill="${fill}"/>` : "";
+}
+
 /** SVG overlay: paper plate, the shared mark, the page title. Transparent elsewhere. */
 export function ogOverlaySvg(spec: OgSpec): string {
+  const fonts = (cardFonts ??= loadCardFonts());
   const fitted = fitTitle(spec.title, 700);
   const titleY = 392;
   const lastBaseline = titleY + (fitted.lines.length - 1) * fitted.leading;
@@ -142,25 +172,17 @@ export function ogOverlaySvg(spec: OgSpec): string {
   const cardY = 214;
   const label = spec.label.length > 32 ? `${spec.label.slice(0, 31).trimEnd()}…` : spec.label;
   const texts = fitted.lines
-    .map(
-      (line, index) =>
-        `<text x="80" y="${titleY + index * fitted.leading}" font-family="CardSerif" font-size="${fitted.size}" fill="#1a1a1a">${xml(line)}</text>`,
+    .map((line, index) =>
+      glyphPath(fonts.serif, line, 80, titleY + index * fitted.leading, fitted.size, "#1a1a1a"),
     )
     .join("\n  ");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}">
-  <defs>
-    <style>
-      @font-face { font-family: "CardSans"; src: url("data:font/ttf;base64,${FONT_SANS}"); }
-      @font-face { font-family: "CardSansBold"; src: url("data:font/ttf;base64,${FONT_SANS_BOLD}"); }
-      @font-face { font-family: "CardSerif"; src: url("data:font/ttf;base64,${FONT_SERIF}"); }
-    </style>
-  </defs>
   <title>${xml(spec.title)}</title>
   <rect x="48" y="${cardY}" width="820" height="${cardBottom - cardY}" rx="36" fill="#ffffff"/>
   <svg id="brand-mark" x="80" y="246" width="72" height="72" viewBox="0 0 512 512">${markShapes()}</svg>
-  <text x="168" y="290" font-family="CardSansBold" font-size="24" fill="#1a1a1a">WhoFundsOSS</text>
-  <text x="820" y="290" text-anchor="end" font-family="CardSans" font-size="22" fill="#3d7a6a">${xml(label)}</text>
+  ${glyphPath(fonts.bold, "WhoFundsOSS", 168, 290, 24, "#1a1a1a")}
+  ${glyphPath(fonts.sans, label, 820, 290, 22, "#3d7a6a", "end")}
   ${texts}
 </svg>
 `;
