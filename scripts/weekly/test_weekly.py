@@ -298,3 +298,47 @@ class TestRequirePat(unittest.TestCase):
         self.assertIn("present", r.stdout)
         self.assertNotIn("dummy-value-not-a-github-token", r.stdout)
         self.assertNotIn("dummy-value-not-a-github-token", r.stderr)
+
+
+class TestSanitizeLogin(unittest.TestCase):
+    def test_accepts_valid_logins(self):
+        from scripts.weekly.sources.github_sponsors import sanitize_login
+        for login in ("vercel", "getsentry", "n8n-io", "FrontendMasters", "a", "A" * 39):
+            self.assertEqual(sanitize_login(login), login)
+
+    def test_rejects_invalid_logins(self):
+        from scripts.weekly.sources.github_sponsors import sanitize_login
+        for bad in (
+            "",
+            "-vercel",
+            "vercel-",
+            "ver cell",
+            "ver\ncel",
+            "a" * 40,
+            "foo/bar",
+            'foo"bar',
+            "${{inputs.x}}",
+            "alice;rm -rf",
+        ):
+            self.assertIsNone(sanitize_login(bad), msg=repr(bad))
+        self.assertIsNone(sanitize_login(None))
+
+    def test_graphql_uses_variables_not_interpolation(self):
+        import inspect
+        from scripts.weekly.sources import github_sponsors as gh
+        src = inspect.getsource(gh)
+        self.assertIn("variables", src)
+        self.assertIn("SPONSORING_QUERY", src)
+        # Old interpolation pattern must be gone
+        self.assertNotIn('login: "{login}"', src)
+        self.assertNotIn("login: \"{login}\"", src)
+
+
+class TestOpenDataPrGuard(unittest.TestCase):
+    def test_script_mentions_data_weekly_only_and_base_main(self):
+        script = (Path(__file__).resolve().parent / "open_data_pr.sh").read_text()
+        self.assertIn("origin/main", script)
+        self.assertIn("--base main", script)
+        self.assertIn("data/weekly/", script)
+        self.assertIn("outside data/weekly", script)
+        self.assertNotIn("--force", script)
