@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
+import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { companyTitle, pageHead } from "../seo.ts";
 import { OG_IMAGE_HEIGHT, OG_IMAGE_TYPE, OG_IMAGE_WIDTH, PAGE_TITLES } from "../site.ts";
 import type { CompanyRow } from "../types.ts";
-import { renderOgCard } from "./card.ts";
+import { photoBytes, renderOgCard } from "./card.ts";
 
 const catalog = JSON.parse(
   readFileSync(new URL("../../data/catalog.json", import.meta.url), "utf8"),
@@ -89,4 +92,31 @@ test("rendered cards are distinct images that carry the page title and the mark"
     first.map((body) => body.length),
     second.map((body) => body.length),
   );
+});
+
+test("a missing public/art file is loaded from the site origin", async () => {
+  const hero = readFileSync(
+    join(fileURLToPath(new URL("../../..", import.meta.url)), "public/art/hero.jpg"),
+  );
+  const server = createServer((request, response) => {
+    if (request.url === "/art/hero.jpg") {
+      response.writeHead(200, { "content-type": "image/jpeg" });
+      response.end(hero);
+      return;
+    }
+    response.writeHead(404);
+    response.end();
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("no port");
+  try {
+    const bytes = await photoBytes("hero", {
+      root: "/tmp/whofundsoss-og-no-public",
+      origin: `http://127.0.0.1:${address.port}`,
+    });
+    assert.ok(bytes.equals(hero));
+  } finally {
+    await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+  }
 });

@@ -2,9 +2,10 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import catalogFile from "../../data/catalog.json" with { type: "json" };
 import { markShapes } from "../brand-mark.ts";
 import { companyTitle } from "../seo.ts";
-import { OG_IMAGE_HEIGHT, OG_IMAGE_TYPE, OG_IMAGE_WIDTH, PAGE_TITLES } from "../site.ts";
+import { OG_IMAGE_HEIGHT, OG_IMAGE_TYPE, OG_IMAGE_WIDTH, PAGE_TITLES, SITE_URL } from "../site.ts";
 import type { CompanyRow } from "../types.ts";
 
 export type OgPhoto = "hero" | "meadow" | "sky";
@@ -29,8 +30,9 @@ const STATIC_PAGES: Record<string, Omit<OgSpec, "path">> = {
   "/method": { title: PAGE_TITLES.method, label: "Method", photo: "meadow" },
 };
 
+const companyRows = (catalogFile as { index: CompanyRow[] }).index;
+
 let rootCache: string | null = null;
-let rowsCache: CompanyRow[] | null = null;
 
 export function repoRoot(): string {
   if (rootCache) return rootCache;
@@ -53,15 +55,6 @@ export function repoRoot(): string {
   return rootCache;
 }
 
-function rows(): CompanyRow[] {
-  if (rowsCache) return rowsCache;
-  const raw = JSON.parse(readFileSync(join(repoRoot(), "src/data/catalog.json"), "utf8")) as {
-    index: CompanyRow[];
-  };
-  rowsCache = raw.index;
-  return rowsCache;
-}
-
 function photoForSlug(slug: string): OgPhoto {
   let hash = 0;
   for (const char of slug) hash = (hash + char.charCodeAt(0)) % PHOTOS.length;
@@ -76,7 +69,7 @@ export function specForPath(pagePath: string): OgSpec | null {
   if (!path.startsWith("/company/")) return null;
   const slug = decodeURIComponent(path.slice("/company/".length));
   if (!slug || slug.includes("/")) return null;
-  const row = rows().find((item) => item.slug === slug);
+  const row = companyRows.find((item) => item.slug === slug);
   if (!row) return null;
   return {
     path,
@@ -186,14 +179,46 @@ export type OgCard = {
 
 const cardCache = new Map<string, OgCard>();
 
+/**
+ * Landing photo for the card. The dev server and local preview have
+ * `public/art` on disk. The Vercel function does not: `public/` is static
+ * CDN output, so a missing file is loaded from the site itself.
+ */
+export async function photoBytes(
+  photo: OgPhoto,
+  options?: { root?: string; origin?: string },
+): Promise<Buffer> {
+  const root = options?.root ?? repoRoot();
+  try {
+    return readFileSync(join(root, "public", "art", `${photo}.jpg`));
+  } catch (error) {
+    const code = (error as { code?: string }).code;
+    if (code !== "ENOENT") throw error;
+  }
+  const bases = [options?.origin, SITE_URL].filter((value): value is string => Boolean(value));
+  let last = "no origin";
+  for (const base of [...new Set(bases)]) {
+    const url = `${base.replace(/\/+$/, "")}/art/${photo}.jpg`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      last = `${response.status} ${url}`;
+      continue;
+    }
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (bytes.length > 32 && bytes[0] === 0xff && bytes[1] === 0xd8) return bytes;
+    last = `not a jpeg ${url}`;
+  }
+  throw new Error(`OG photo ${photo} is not on disk and not on the site (${last})`);
+}
+
 /** JPEG share card for a public page. Null when that page has no card. */
-export async function renderOgCard(pagePath: string): Promise<OgCard | null> {
+export async function renderOgCard(pagePath: string, origin?: string): Promise<OgCard | null> {
   const cached = cardCache.get(pagePath);
   if (cached) return cached;
   const spec = specForPath(pagePath);
   if (!spec) return null;
   const svg = ogOverlaySvg(spec);
-  const photo = join(repoRoot(), "public/art", `${spec.photo}.jpg`);
+  const photo = await photoBytes(spec.photo, origin ? { origin } : undefined);
   const base = await sharp(photo)
     .resize(OG_IMAGE_WIDTH, OG_IMAGE_HEIGHT, { fit: "cover", position: "centre" })
     .jpeg({ quality: 72 })
