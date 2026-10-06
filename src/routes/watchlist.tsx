@@ -3,11 +3,19 @@ import { useEffect, useMemo, useState } from "react";
 import { PageIntro, Shell } from "@/components/shell";
 import { money } from "@/lib/format";
 import { loadWatchlist } from "@/lib/queries";
+import { pageHead } from "@/lib/seo";
+import { formatTitle } from "@/lib/site";
 
 const PIN_KEY = "whofundsoss-pins";
 
 export const Route = createFileRoute("/watchlist")({
   loader: () => loadWatchlist(),
+  head: () =>
+    pageHead({
+      path: "/watchlist",
+      title: formatTitle("Open source funding watchlist"),
+      description: "A short, versioned list of companies whose open source funding we track closely, with why each is listed and its public dollars from the latest snapshot.",
+    }),
   component: WatchlistPage,
 });
 

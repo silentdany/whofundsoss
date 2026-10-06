@@ -1,4 +1,6 @@
 {
-  "title": "Zerow",
-  "card": "custom"
+  "title": "WhoFundsOSS",
+  "description": "Public ranking of companies that fund open source: Open Source Pledge, Open Collective and visible GitHub Sponsors dollars. Updated monthly. Nothing invented.",
+  "card": "custom",
+  "appShareMeta": true
 }

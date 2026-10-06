@@ -3,6 +3,16 @@ import { useMemo, useState } from "react";
 import { Shell } from "@/components/shell";
 import { money, scoreLabel } from "@/lib/format";
 import { loadCompany } from "@/lib/queries";
+import {
+  breadcrumbJsonLd,
+  companyDescription,
+  companyIndexable,
+  companyTitle,
+  notFoundHead,
+  pageHead,
+  ROBOTS_INDEX,
+  ROBOTS_NOINDEX,
+} from "@/lib/seo";
 import { SOURCE_LABEL, SOURCE_ORDER, type SourceKey } from "@/lib/types";
 
 export const Route = createFileRoute("/company/$slug")({
@@ -10,6 +20,24 @@ export const Route = createFileRoute("/company/$slug")({
     const company = await loadCompany({ data: params.slug });
     if (!company) throw notFound();
     return company;
+  },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) return notFoundHead();
+    const { row, detail, meta } = loaderData;
+    const path = `/company/${params.slug}`;
+    return pageHead({
+      path,
+      title: companyTitle(row),
+      description: companyDescription(row, detail, meta),
+      robots: companyIndexable(row, detail) ? ROBOTS_INDEX : ROBOTS_NOINDEX,
+      jsonLd: [
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Ranking", path: "/ranking" },
+          { name: row.name, path },
+        ]),
+      ],
+    });
   },
   notFoundComponent: CompanyMissing,
   component: CompanyPage,
@@ -20,7 +48,7 @@ function CompanyMissing() {
     <Shell>
       <div className="mx-auto max-w-[1120px] px-5 py-24">
         <h1 className="font-serif text-4xl">No such company in this file.</h1>
-        <Link to="/classement" className="mt-6 inline-block text-sage">
+        <Link to="/ranking" className="mt-6 inline-block text-sage">
           Back to the ranking
         </Link>
       </div>
@@ -45,11 +73,30 @@ function CompanyPage() {
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <article className="mx-auto max-w-[1120px] px-5 pt-8 pb-16 sm:pt-12">
+        <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted">
+          <ol className="flex flex-wrap items-center gap-x-2">
+            <li>
+              <Link to="/" className="hover:text-ink">
+                Home
+              </Link>
+            </li>
+            <li aria-hidden="true">›</li>
+            <li>
+              <Link to="/ranking" className="hover:text-ink">
+                Ranking
+              </Link>
+            </li>
+            <li aria-hidden="true">›</li>
+            <li aria-current="page" className="text-secondary">
+              {row.name}
+            </li>
+          </ol>
+        </nav>
         <p className="text-sm text-muted">
           {row.rank ? `Rank ${row.rank} by public dollars` : "Outside the top 200"}
           {row.sector ? ` · ${row.sector}` : ""}
         </p>
-        <h1 className="mt-3 font-serif text-5xl tracking-tight sm:text-6xl">{row.name}</h1>
+        <h1 className="mt-3 font-serif text-5xl tracking-tight sm:text-6xl">Who {row.name} funds in open source</h1>
         {row.site ? (
           <a href={row.site} className="mt-4 inline-block text-sage" rel="noreferrer" target="_blank">
             {row.site.replace(/^https?:\/\//, "")}

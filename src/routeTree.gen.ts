@@ -10,11 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ClassementRouteImport } from './routes/classement'
-import { Route as GrapheRouteImport } from './routes/graphe'
-import { Route as MethodeRouteImport } from './routes/methode'
-import { Route as MouvementsRouteImport } from './routes/mouvements'
-import { Route as MysteresRouteImport } from './routes/mysteres'
+import { Route as GraphRouteImport } from './routes/graph'
+import { Route as MethodRouteImport } from './routes/method'
+import { Route as MovementsRouteImport } from './routes/movements'
+import { Route as MysteriesRouteImport } from './routes/mysteries'
+import { Route as RankingRouteImport } from './routes/ranking'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
@@ -34,29 +36,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ClassementRoute = ClassementRouteImport.update({
-  id: '/classement',
-  path: '/classement',
+const GraphRoute = GraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GrapheRoute = GrapheRouteImport.update({
-  id: '/graphe',
-  path: '/graphe',
+const MethodRoute = MethodRouteImport.update({
+  id: '/method',
+  path: '/method',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MethodeRoute = MethodeRouteImport.update({
-  id: '/methode',
-  path: '/methode',
+const MovementsRoute = MovementsRouteImport.update({
+  id: '/movements',
+  path: '/movements',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MouvementsRoute = MouvementsRouteImport.update({
-  id: '/mouvements',
-  path: '/mouvements',
+const MysteriesRoute = MysteriesRouteImport.update({
+  id: '/mysteries',
+  path: '/mysteries',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MysteresRoute = MysteresRouteImport.update({
-  id: '/mysteres',
-  path: '/mysteres',
+const RankingRoute = RankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WatchlistRoute = WatchlistRouteImport.update({
@@ -129,11 +141,13 @@ const ApiV1CompaniesSlugSponsorshipsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/classement': typeof ClassementRoute
-  '/graphe': typeof GrapheRoute
-  '/methode': typeof MethodeRoute
-  '/mouvements': typeof MouvementsRoute
-  '/mysteres': typeof MysteresRoute
+  '/graph': typeof GraphRoute
+  '/method': typeof MethodRoute
+  '/movements': typeof MovementsRoute
+  '/mysteries': typeof MysteriesRoute
+  '/ranking': typeof RankingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
   '/api/health': typeof ApiHealthRoute
   '/company/$slug': typeof CompanySlugRoute
@@ -150,11 +164,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/classement': typeof ClassementRoute
-  '/graphe': typeof GrapheRoute
-  '/methode': typeof MethodeRoute
-  '/mouvements': typeof MouvementsRoute
-  '/mysteres': typeof MysteresRoute
+  '/graph': typeof GraphRoute
+  '/method': typeof MethodRoute
+  '/movements': typeof MovementsRoute
+  '/mysteries': typeof MysteriesRoute
+  '/ranking': typeof RankingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
   '/api/health': typeof ApiHealthRoute
   '/company/$slug': typeof CompanySlugRoute
@@ -172,11 +188,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/classement': typeof ClassementRoute
-  '/graphe': typeof GrapheRoute
-  '/methode': typeof MethodeRoute
-  '/mouvements': typeof MouvementsRoute
-  '/mysteres': typeof MysteresRoute
+  '/graph': typeof GraphRoute
+  '/method': typeof MethodRoute
+  '/movements': typeof MovementsRoute
+  '/mysteries': typeof MysteriesRoute
+  '/ranking': typeof RankingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
   '/api/health': typeof ApiHealthRoute
   '/company/$slug': typeof CompanySlugRoute
@@ -195,11 +213,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/classement'
-    | '/graphe'
-    | '/methode'
-    | '/mouvements'
-    | '/mysteres'
+    | '/graph'
+    | '/method'
+    | '/movements'
+    | '/mysteries'
+    | '/ranking'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/watchlist'
     | '/api/health'
     | '/company/$slug'
@@ -216,11 +236,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/classement'
-    | '/graphe'
-    | '/methode'
-    | '/mouvements'
-    | '/mysteres'
+    | '/graph'
+    | '/method'
+    | '/movements'
+    | '/mysteries'
+    | '/ranking'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/watchlist'
     | '/api/health'
     | '/company/$slug'
@@ -237,11 +259,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/classement'
-    | '/graphe'
-    | '/methode'
-    | '/mouvements'
-    | '/mysteres'
+    | '/graph'
+    | '/method'
+    | '/movements'
+    | '/mysteries'
+    | '/ranking'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/watchlist'
     | '/api/health'
     | '/company/$slug'
@@ -259,11 +283,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ClassementRoute: typeof ClassementRoute
-  GrapheRoute: typeof GrapheRoute
-  MethodeRoute: typeof MethodeRoute
-  MouvementsRoute: typeof MouvementsRoute
-  MysteresRoute: typeof MysteresRoute
+  GraphRoute: typeof GraphRoute
+  MethodRoute: typeof MethodRoute
+  MovementsRoute: typeof MovementsRoute
+  MysteriesRoute: typeof MysteriesRoute
+  RankingRoute: typeof RankingRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WatchlistRoute: typeof WatchlistRoute
   ApiHealthRoute: typeof ApiHealthRoute
   CompanySlugRoute: typeof CompanySlugRoute
@@ -288,39 +314,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/classement': {
-      id: '/classement'
-      path: '/classement'
-      fullPath: '/classement'
-      preLoaderRoute: typeof ClassementRouteImport
+    '/graph': {
+      id: '/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof GraphRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/graphe': {
-      id: '/graphe'
-      path: '/graphe'
-      fullPath: '/graphe'
-      preLoaderRoute: typeof GrapheRouteImport
+    '/method': {
+      id: '/method'
+      path: '/method'
+      fullPath: '/method'
+      preLoaderRoute: typeof MethodRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/methode': {
-      id: '/methode'
-      path: '/methode'
-      fullPath: '/methode'
-      preLoaderRoute: typeof MethodeRouteImport
+    '/movements': {
+      id: '/movements'
+      path: '/movements'
+      fullPath: '/movements'
+      preLoaderRoute: typeof MovementsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mouvements': {
-      id: '/mouvements'
-      path: '/mouvements'
-      fullPath: '/mouvements'
-      preLoaderRoute: typeof MouvementsRouteImport
+    '/mysteries': {
+      id: '/mysteries'
+      path: '/mysteries'
+      fullPath: '/mysteries'
+      preLoaderRoute: typeof MysteriesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mysteres': {
-      id: '/mysteres'
-      path: '/mysteres'
-      fullPath: '/mysteres'
-      preLoaderRoute: typeof MysteresRouteImport
+    '/ranking': {
+      id: '/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof RankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/watchlist': {
@@ -419,11 +459,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ClassementRoute: ClassementRoute,
-  GrapheRoute: GrapheRoute,
-  MethodeRoute: MethodeRoute,
-  MouvementsRoute: MouvementsRoute,
-  MysteresRoute: MysteresRoute,
+  GraphRoute: GraphRoute,
+  MethodRoute: MethodRoute,
+  MovementsRoute: MovementsRoute,
+  MysteriesRoute: MysteriesRoute,
+  RankingRoute: RankingRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   WatchlistRoute: WatchlistRoute,
   ApiHealthRoute: ApiHealthRoute,
   CompanySlugRoute: CompanySlugRoute,
@@ -443,10 +485,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

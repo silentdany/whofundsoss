@@ -42,7 +42,7 @@ export function homePayload() {
     .slice(0, 4);
 
   const brief: {
-    href: "company" | "mysteres";
+    href: "company" | "mysteries";
     slug: string | null;
     title: string;
     text: string;
@@ -65,7 +65,7 @@ export function homePayload() {
   }
   if (ghosts.length) {
     brief.push({
-      href: "mysteres" as const,
+      href: "mysteries" as const,
       slug: null,
       title: "Named nowhere",
       text: `${ghosts.map((row) => row.name).join(", ")} publish pledge dollars and name zero projects.`,
@@ -94,7 +94,7 @@ export function homePayload() {
   };
 }
 
-export function classementPayload() {
+export function rankingPayload() {
   return { meta: catalog.meta, rows: catalog.index };
 }
 
@@ -422,4 +422,9 @@ function clampInt(raw: string | null, fallback: number, min: number, max: number
   const n = raw == null ? fallback : Number.parseInt(raw, 10);
   if (!Number.isFinite(n)) return fallback;
   return Math.min(max, Math.max(min, n));
+}
+
+/** Sitemap paths from the catalog (see `sitemapPaths` in indexing.ts). */
+export function catalogSitemapPaths(build: (rows: CompanyRow[], details: CatalogFile["details"]) => string[]): string[] {
+  return build(catalog.index, catalog.details);
 }

@@ -3,9 +3,17 @@ import { AllianceGraph } from "@/components/alliance-graph";
 import { PageIntro, Shell } from "@/components/shell";
 import { money } from "@/lib/format";
 import { loadGraph } from "@/lib/queries";
+import { pageHead } from "@/lib/seo";
+import { formatTitle } from "@/lib/site";
 
-export const Route = createFileRoute("/graphe")({
+export const Route = createFileRoute("/graph")({
   loader: () => loadGraph(),
+  head: () =>
+    pageHead({
+      path: "/graph",
+      title: formatTitle("Who funds the same open source projects"),
+      description: "Explore which companies co-fund the same open source projects across Open Collective, GitHub Sponsors and the Pledge. Public sources only.",
+    }),
   component: GraphPage,
 });
 

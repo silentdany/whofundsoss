@@ -398,6 +398,18 @@ export function stripShareMetaTags(html) {
   });
 }
 
+/** True when the document already links `rel="<rel>"` (app-owned manifest / touch icon). */
+export function hasLinkRel(html, rel) {
+  const re = new RegExp(`<link\\b[^>]*\\brel\\s*=\\s*["']${rel}["']`, "i");
+  return re.test(String(html));
+}
+
+/** site.json `appShareMeta: true` AND the document carries its own og:title. */
+export function appOwnsShareMeta(html, site = {}) {
+  if (site?.appShareMeta !== true) return false;
+  return /<meta\b[^>]*\bproperty\s*=\s*["']og:title["']/i.test(String(html));
+}
+
 function insertAfterHeadOpen(html, snippet) {
   if (/<head\b[^>]*>/i.test(html)) {
     return html.replace(/<head\b[^>]*>/i, (open) => `${open}${snippet}`);
@@ -445,21 +457,30 @@ export function injectGrokPwaHead(html, ctx = {}) {
     host,
     documentTitle,
   );
-  let next = stripShareMetaTags(html);
+  // Opt-in (site.json `appShareMeta: true`): the app renders its own per-route
+  // share metas (og:*, twitter:*), so keep them instead of overwriting them.
+  const keepAppShareMeta = appOwnsShareMeta(html, site);
+  let next = keepAppShareMeta ? html : stripShareMetaTags(html);
   if (!readGrokExtensionsEnabled()) next = stripGrokExtensionsScript(next);
 
   const missing = grokPwaHeadTags(appName)
     .filter(([key]) => {
-      if (key === "manifest") return !next.includes('href="/__grok/manifest.webmanifest"');
-      if (key === "apple-touch-icon") return !next.includes('href="/__grok/icon-180.png"');
+      if (key === "manifest") {
+        return !next.includes('href="/__grok/manifest.webmanifest"') && !hasLinkRel(next, "manifest");
+      }
+      if (key === "apple-touch-icon") {
+        return !next.includes('href="/__grok/icon-180.png"') && !hasLinkRel(next, "apple-touch-icon");
+      }
       return !next.includes(`name="${key}"`);
     })
     .map(([, tag]) => tag);
 
-  next = insertAfterHeadOpen(
-    next,
-    grokOgHeadTags({ host, appName, site, documentTitle, cwd }).join(""),
-  );
+  if (!keepAppShareMeta) {
+    next = insertAfterHeadOpen(
+      next,
+      grokOgHeadTags({ host, appName, site, documentTitle, cwd }).join(""),
+    );
+  }
 
   if (readGrokExtensionsEnabled() && !next.includes("/grok-app-builder/extensions.js")) {
     missing.push(...grokExtensionsHeadTags(projectId));
