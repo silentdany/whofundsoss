@@ -1,16 +1,14 @@
 # WhoFundsOSS weekly sponsorship scraper.
-# Cron: Monday 06:17 Europe/Paris in summer (UTC+2) = 04:17 UTC.
-# In winter (UTC+1) the same cron lands at 05:17 Paris — acceptable per CdP.
-# Registered on main so workflow_dispatch works; runs checkout the requested ref.
+# Registered on main so workflow_dispatch works.
+# Schedule stays disabled here until PR #3 (scraper code) is merged — otherwise
+# Monday cron would fail on main without scripts/weekly/.
 name: weekly-scraper
 
 on:
-  schedule:
-    - cron: "17 4 * * 1"
   workflow_dispatch:
     inputs:
       max_oc:
-        description: "Optional cap on Open Collective collectives (smoke only; leave empty for FULL coverage = all ~104 collectives)"
+        description: "Optional cap on Open Collective collectives (smoke only; leave empty for FULL coverage)"
         required: false
         default: ""
       max_osp:
@@ -18,7 +16,7 @@ on:
         required: false
         default: ""
       gh_logins:
-        description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set ~281)"
+        description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set)"
         required: false
         default: ""
 
@@ -52,6 +50,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           token: ${{ secrets.WFO_WEEKLY_PAT }}
+
+      - name: Ensure scraper code is present on this ref
+        run: |
+          if [ ! -f scripts/weekly/run.py ]; then
+            echo "::error::scripts/weekly/run.py missing on ref ${GITHUB_REF}. Dispatch with ref=data/weekly-scraper until PR #3 is merged."
+            exit 1
+          fi
 
       - name: Re-check WFO_WEEKLY_PAT via repo script
         env:
@@ -101,13 +106,9 @@ jobs:
           delete-branch: true
           title: "data(weekly): sponsorship scrape ${{ github.run_id }}"
           body: |
-            Automated weekly scrape (cron `17 4 * * 1` UTC / workflow_dispatch).
+            Automated weekly scrape (workflow_dispatch).
 
             - Artifact: `weekly-${{ github.run_id }}`
-            - Denylist source of truth: `src/lib/spam-denylist.ts` (parsed, not copied)
-            - Exclusions: `data/exclusions/raw-exclusions.csv`
-            - Suspects are **flag-only** (never excluded by keyword)
-            - Disappearances require full source coverage; otherwise see `unverified_partial`
             - No auto-merge. Consumer: WFOSS Data bot.
           add-paths: |
             data/weekly/**
