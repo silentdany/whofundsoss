@@ -1,4 +1,4 @@
-declare module "opentype.js" {
+declare module "opentype.js/dist/opentype.mjs" {
   interface GlyphPath {
     toPathData(decimals: number): string;
   }
@@ -6,9 +6,5 @@ declare module "opentype.js" {
     getAdvanceWidth(text: string, fontSize: number): number;
     getPath(text: string, x: number, y: number, fontSize: number): GlyphPath;
   }
-  interface OpenType {
-    parse(buffer: ArrayBuffer): Font;
-  }
-  const opentype: OpenType;
-  export default opentype;
+  export function parse(buffer: ArrayBuffer): Font;
 }

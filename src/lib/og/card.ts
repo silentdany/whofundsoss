@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import opentype from "opentype.js";
+// The package "module" build has named `parse` and no default. Node's CJS entry is the reverse.
+import { parse as parseFont } from "opentype.js/dist/opentype.mjs";
 import catalogFile from "../../data/catalog.json" with { type: "json" };
 import { FONT_SANS, FONT_SANS_BOLD, FONT_SERIF } from "./fonts.ts";
 import { markShapes } from "../brand-mark.ts";
@@ -136,7 +137,7 @@ function fitTitle(
 
 function parsedFont(encoded: string) {
   const bytes = Buffer.from(encoded, "base64");
-  return opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+  return parseFont(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
 }
 
 let cardFonts: ReturnType<typeof loadCardFonts> | null = null;
