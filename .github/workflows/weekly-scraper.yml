@@ -1,14 +1,15 @@
 # WhoFundsOSS weekly sponsorship scraper.
-# Registered on main so workflow_dispatch works.
-# Schedule stays disabled here until PR #3 (scraper code) is merged — otherwise
-# Monday cron would fail on main without scripts/weekly/.
+# Cron: Monday 06:17 Europe/Paris in summer (UTC+2) = 04:17 UTC.
+# In winter (UTC+1) the same cron lands at 05:17 Paris — acceptable per CdP.
 name: weekly-scraper
 
 on:
+  schedule:
+    - cron: "17 4 * * 1"
   workflow_dispatch:
     inputs:
       max_oc:
-        description: "Optional cap on Open Collective collectives (smoke only; leave empty for FULL coverage)"
+        description: "Optional cap on Open Collective collectives (smoke only; leave empty for FULL coverage = all ~104 collectives)"
         required: false
         default: ""
       max_osp:
@@ -16,10 +17,11 @@ on:
         required: false
         default: ""
       gh_logins:
-        description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set)"
+        description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set ~281)"
         required: false
         default: ""
 
+# Minimum permissions. Do not broaden.
 permissions:
   contents: write
   pull-requests: write
@@ -38,6 +40,8 @@ jobs:
           WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
         run: |
           set -euo pipefail
+          # Inline copy of scripts/weekly/require_pat.sh (runs before checkout).
+          # Never print the secret value.
           if [ -z "${WFO_WEEKLY_PAT}" ]; then
             echo "::error::Missing repository secret WFO_WEEKLY_PAT (empty)."
             echo "Create a fine-grained PAT (Contents: R/W, Pull requests: R/W on silentdany/whofundsoss)"
@@ -50,11 +54,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           token: ${{ secrets.WFO_WEEKLY_PAT }}
+          persist-credentials: false
 
       - name: Ensure scraper code is present on this ref
         run: |
+          set -euo pipefail
           if [ ! -f scripts/weekly/run.py ]; then
-            echo "::error::scripts/weekly/run.py missing on ref ${GITHUB_REF}. Dispatch with ref=data/weekly-scraper until PR #3 is merged."
+            echo "::error::scripts/weekly/run.py missing on this ref. Refusing to run."
             exit 1
           fi
 
@@ -69,23 +75,29 @@ jobs:
           python-version: "3.12"
 
       - name: Unit tests (no network)
-        run: python3 -m unittest scripts.weekly.test_weekly -v
+        run: python3 -m unittest scripts.weekly.test_weekly scripts.weekly.test_qa_blockers -v
 
       - name: Run weekly scraper
         env:
+          # Never echo. Actions masks secrets; we still avoid printing env.
           GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT }}
           GH_SPONSORS_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || '' }}
+          # User-controlled workflow_dispatch inputs MUST go through env, never
+          # interpolated as ${{ inputs.* }} inside run: (injection risk).
+          INPUT_MAX_OC: ${{ inputs.max_oc }}
+          INPUT_MAX_OSP: ${{ inputs.max_osp }}
+          INPUT_GH_LOGINS: ${{ inputs.gh_logins }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
           DATE=$(date -u +%F)
           EXTRA=()
-          if [ -n "${{ inputs.max_oc }}" ]; then EXTRA+=(--max-oc "${{ inputs.max_oc }}"); fi
-          if [ -n "${{ inputs.max_osp }}" ]; then EXTRA+=(--max-osp "${{ inputs.max_osp }}"); fi
-          if [ -n "${{ inputs.gh_logins }}" ]; then EXTRA+=(--gh-logins "${{ inputs.gh_logins }}"); fi
+          if [ -n "${INPUT_MAX_OC}" ]; then EXTRA+=(--max-oc "${INPUT_MAX_OC}"); fi
+          if [ -n "${INPUT_MAX_OSP}" ]; then EXTRA+=(--max-osp "${INPUT_MAX_OSP}"); fi
+          if [ -n "${INPUT_GH_LOGINS}" ]; then EXTRA+=(--gh-logins "${INPUT_GH_LOGINS}"); fi
           python3 -m scripts.weekly.run --date "$DATE" "${EXTRA[@]}"
           ls -la "data/weekly/${DATE}.json" "data/weekly/${DATE}.md"
-          python3 -c "import json,sys; p=json.load(open('data/weekly/'+'$(date -u +%F)'+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st);
-          assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'"
+          python3 -c "import json,sys; p=json.load(open('data/weekly/'+sys.argv[1]+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st); assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'" "$DATE"
 
       - name: Upload weekly artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -96,23 +108,17 @@ jobs:
             data/weekly/*.md
           if-no-files-found: error
 
-      - name: Open data PR
-        id: cpr
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
-        with:
-          token: ${{ secrets.WFO_WEEKLY_PAT }}
-          base: main
-          commit-message: "data(weekly): scrape ${{ github.run_id }}"
-          branch: data/weekly-run-${{ github.run_id }}
-          delete-branch: true
-          title: "data(weekly): sponsorship scrape ${{ github.run_id }}"
-          body: |
-            Automated weekly scrape (workflow_dispatch).
-
-            - Artifact: `weekly-${{ github.run_id }}`
-            - No auto-merge. Consumer: WFOSS Data bot.
-          add-paths: |
-            data/weekly/**
-          labels: |
-            data
-            weekly-scraper
+      - name: Open data-only PR from main
+        env:
+          GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
+          WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          DATE=$(date -u +%F)
+          if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "::error::Invalid DATE"
+            exit 1
+          fi
+          export DATE
+          bash scripts/weekly/open_data_pr.sh
