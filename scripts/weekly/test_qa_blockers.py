@@ -225,3 +225,62 @@ class TestDiffSort(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSuspectUnicodeName(unittest.TestCase):
+    def test_thai_name_flags_without_latin_slug(self):
+        from scripts.weekly.suspects import flag_suspects
+
+        hits = flag_suspects(
+            [{"slug": "bsc-news", "name": "เว็บพนันออนไลน์", "site": "https://bsc.news/"}],
+            denylist_slugs=set(),
+        )
+        self.assertEqual(len(hits), 1)
+        self.assertIn("thai_gambling", hits[0].matched_keywords)
+
+    def test_cyrillic_name_flags(self):
+        from scripts.weekly.suspects import flag_suspects
+
+        hits = flag_suspects(
+            [{"slug": "w-in-ua", "name": "Українські онлайн казино", "site": "https://w.in.ua/"}],
+            denylist_slugs=set(),
+        )
+        self.assertEqual(len(hits), 1)
+        self.assertTrue(
+            "cyrillic_gambling" in hits[0].matched_keywords or "casino" in hits[0].matched_keywords
+        )
+
+    def test_essay_and_link_building(self):
+        from scripts.weekly.suspects import flag_suspects
+
+        hits = flag_suspects(
+            [
+                {"slug": "writers-per-hour", "name": "Write My Essay | Essay Writing Service", "site": "https://writersperhour.com/"},
+                {"slug": "awisee", "name": "AWISEE", "site": "https://awisee.com/link-building"},
+            ]
+        )
+        slugs = {h.slug for h in hits}
+        self.assertIn("writers-per-hour", slugs)
+        self.assertIn("awisee", slugs)
+
+    def test_flag_only_never_filters_input(self):
+        from scripts.weekly.suspects import flag_suspects
+
+        companies = [{"slug": "baocasino", "name": "Baocasino", "site": "https://baocasino.com"}]
+        _ = flag_suspects(companies)
+        self.assertEqual(len(companies), 1)
+
+
+class TestCatalogAliasNrwl(unittest.TestCase):
+    def test_nx_by_nrwl_resolves_to_nrwl(self):
+        from scripts.weekly.normalize import build_catalog_index, CATALOG_SLUG_ALIASES
+        from pathlib import Path
+
+        self.assertEqual(CATALOG_SLUG_ALIASES["nx-by-nrwl"], "nrwl")
+        catalog = Path("src/data/catalog.json")
+        if not catalog.exists():
+            self.skipTest("catalog missing")
+        idx = build_catalog_index(catalog)
+        self.assertEqual(idx.resolve(login="nx-by-nrwl"), "nrwl")
+        self.assertIn("nrwl", idx.by_slug)
+        self.assertNotIn("nx-by-nrwl", idx.by_slug)

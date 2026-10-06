@@ -9,6 +9,8 @@ export const SLUG_REDIRECTS: Record<string, string> = {
   "/mouvements": "/movements",
   "/mysteres": "/mysteries",
   "/graphe": "/graph",
+  // Catalog merge 2026-10-06: nx-by-nrwl → nrwl (same nx.dev / GH login nrwl)
+  "/company/nx-by-nrwl": "/company/nrwl",
 };
 
 /** Production alias that should hop to SITE_URL when SITE_URL is another host. */

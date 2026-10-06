@@ -2,7 +2,7 @@
 
 The TypeScript file `src/lib/spam-denylist.ts` is the single source of truth for
 SEO-spam company slugs. This module reads it; it never keeps a divergent copy.
-`data/exclusions/raw-exclusions.csv` is the 120 publishable-build exclusions
+`data/exclusions/raw-exclusions.csv` is the 132 publishable-build exclusions (incl. platform_pass_through)
 (spam_casino / spam_vpn / spam_followers / spam_seo / supabase_self_fund).
 """
 from __future__ import annotations

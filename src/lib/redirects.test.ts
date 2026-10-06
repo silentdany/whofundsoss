@@ -37,3 +37,10 @@ test("www goes to the apex", () => {
   const url = new URL("https://www.whofundsoss.com/methode");
   assert.equal(redirectTarget(url, url.host, COM), `${COM}/method`);
 });
+
+test("dropped catalog slug nx-by-nrwl 308s to nrwl", () => {
+  const url = new URL(`${VERCEL}/company/nx-by-nrwl`);
+  assert.equal(redirectTarget(url, url.host, VERCEL), `${VERCEL}/company/nrwl`);
+  const withSlash = new URL(`${VERCEL}/company/nx-by-nrwl/`);
+  assert.equal(redirectTarget(withSlash, withSlash.host, VERCEL), `${VERCEL}/company/nrwl`);
+});

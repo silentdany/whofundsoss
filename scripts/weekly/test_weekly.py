@@ -38,7 +38,7 @@ class TestDenylistParse(unittest.TestCase):
 
     def test_raw_exclusions_count(self):
         rows = load_raw_exclusions()
-        self.assertEqual(len(rows), 120)
+        self.assertEqual(len(rows), 132)
 
     def test_is_excluded_denylist(self):
         _, entries = parse_spam_denylist()
