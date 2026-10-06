@@ -8,3 +8,5 @@ This branch is the TanStack Start build (ranking, movements, mysteries, graph, w
 npm install
 npm run dev
 ```
+
+SEO: see `SEO-NOTES.md` (env `SITE_URL`, redirects, indexing gate, `npm run seo:check`).

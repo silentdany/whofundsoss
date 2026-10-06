@@ -157,6 +157,11 @@ export default defineConfig(({ command, isPreview }) => ({
     strictPort: true,
   },
   resolve: { tsconfigPaths: true },
+  // Public origin for canonical / sitemap / OG / JSON-LD (src/lib/site.ts).
+  // Inlined at build so SSR and client navigation agree; not a secret.
+  define: {
+    "import.meta.env.SITE_URL": JSON.stringify(process.env.SITE_URL ?? ""),
+  },
   plugins: [
     pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.

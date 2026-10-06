@@ -1,3 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Zerow">
-  <path d="M16 4v24M5.2 9.2l21.6 12.6M26.8 9.2 5.2 21.8" fill="none" stroke="#1a1a1a" stroke-width="2.6" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="WhoFundsOSS">
+  <rect width="512" height="512" rx="112" fill="#3d7a6a"/>
+  <rect x="112" y="288" width="74" height="144" rx="18" fill="#faf9f7"/>
+  <rect x="219" y="200" width="74" height="232" rx="18" fill="#faf9f7"/>
+  <rect x="326" y="128" width="74" height="304" rx="18" fill="#faf9f7"/>
 </svg>

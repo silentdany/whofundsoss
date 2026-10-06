@@ -4,16 +4,16 @@ import { collectedLabel, hashShort } from "@/lib/format";
 
 const RECORD = [
   { to: "/", label: "Home" },
-  { to: "/classement", label: "Ranking" },
-  { to: "/mouvements", label: "Movements" },
-  { to: "/mysteres", label: "Mysteries" },
-  { to: "/graphe", label: "Graph" },
+  { to: "/ranking", label: "Ranking" },
+  { to: "/movements", label: "Movements" },
+  { to: "/mysteries", label: "Mysteries" },
+  { to: "/graph", label: "Graph" },
   { to: "/watchlist", label: "Watchlist" },
 ] as const;
 
 const ABOUT = [
-  { to: "/methode", label: "Method" },
-  { to: "/classement", label: "Full ranking" },
+  { to: "/method", label: "Method" },
+  { to: "/ranking", label: "Full ranking" },
 ] as const;
 
 function Mark({ className = "size-7" }: { className?: string }) {
@@ -75,18 +75,23 @@ function Header() {
     <>
       <header className="sticky top-0 z-40 bg-canvas/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-5">
-          <Link to="/" className="flex items-center gap-2 text-ink" onClick={() => setOpen(false)}>
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-ink"
+            aria-label="WhoFundsOSS home"
+            onClick={() => setOpen(false)}
+          >
             <Mark className="size-7" />
-            <span className="text-[1.15rem] leading-none font-semibold tracking-tight">Zerow</span>
+            <span className="text-[1.15rem] leading-none font-semibold tracking-tight">WhoFundsOSS</span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-secondary md:flex">
-            <Link to="/classement" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
+            <Link to="/ranking" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
               Ranking
             </Link>
-            <Link to="/mouvements" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
+            <Link to="/movements" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
               Movements
             </Link>
-            <Link to="/methode" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
+            <Link to="/method" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
               Method
             </Link>
           </nav>
@@ -110,7 +115,7 @@ function Header() {
           <div className="absolute inset-0 bg-gradient-to-b from-overlay/88 via-overlay/62 to-overlay/25" />
           <div className="relative mx-auto flex h-full max-w-[1120px] flex-col px-5 pt-5">
             <div className="flex items-center justify-between">
-              <span className="text-sm tracking-tight">Zerow</span>
+              <span className="text-sm tracking-tight">WhoFundsOSS</span>
               <button
                 type="button"
                 className="flex size-11 items-center justify-center text-2xl leading-none"
@@ -187,12 +192,12 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
           <p className="font-serif text-3xl">About</p>
           <ul className="mt-5 space-y-3 text-lg">
             <li>
-              <Link to="/methode" className="inline-flex min-h-11 items-center hover:underline">
+              <Link to="/method" className="inline-flex min-h-11 items-center hover:underline">
                 Method
               </Link>
             </li>
             <li>
-              <Link to="/mysteres" className="inline-flex min-h-11 items-center hover:underline">
+              <Link to="/mysteries" className="inline-flex min-h-11 items-center hover:underline">
                 Mysteries
               </Link>
             </li>
@@ -205,7 +210,8 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
         </div>
       </div>
       <div className="relative mx-auto flex max-w-[1120px] flex-wrap gap-x-6 gap-y-2 px-5 pt-16 pb-8 text-sm text-paper/90">
-        <span>© Zerow {collectedAt?.slice(0, 4) ?? "2026"}</span>
+        <span>© {collectedAt?.slice(0, 4) ?? "2026"} WhoFundsOSS</span>
+        <span>Data CC BY 4.0</span>
         {collectedAt ? <span>Collected {collectedLabel(collectedAt)}</span> : null}
         {hash ? <span className="tabular-nums">Snapshot {hashShort(hash)}</span> : null}
       </div>

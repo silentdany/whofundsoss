@@ -42,3 +42,25 @@ export function scoreLabel(score: number): string {
 export function hashShort(hash: string): string {
   return hash.slice(0, 12);
 }
+
+const MONTHS_LONG = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+/** "2026-10-05" → "October 2026". */
+export function monthYear(iso: string): string {
+  const [y, m] = iso.split("-").map(Number);
+  if (!y || !m) return iso;
+  return `${MONTHS_LONG[m - 1]} ${y}`;
+}

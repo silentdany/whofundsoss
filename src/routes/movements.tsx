@@ -2,9 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageIntro, Shell } from "@/components/shell";
 import { collectedLabel } from "@/lib/format";
 import { loadMovements } from "@/lib/queries";
+import { pageHead } from "@/lib/seo";
+import { formatTitle } from "@/lib/site";
 
-export const Route = createFileRoute("/mouvements")({
+export const Route = createFileRoute("/movements")({
   loader: () => loadMovements(),
+  head: () =>
+    pageHead({
+      path: "/movements",
+      title: formatTitle("Open source funding changes this month"),
+      description: "Which companies started, raised or stopped funding open source since the last monthly snapshot. Public sources only, no forecasts.",
+    }),
   component: MovementsPage,
 });
 
@@ -46,7 +54,7 @@ function MovementsPage() {
         </dl>
         <p className="mt-10 text-sm text-secondary">
           Structural oddities from this single file live on{" "}
-          <Link to="/mysteres" className="text-sage">
+          <Link to="/mysteries" className="text-sage">
             Mysteries
           </Link>
           . They are not movements.

@@ -5,9 +5,9 @@ export const loadHome = createServerFn({ method: "GET" }).handler(async () => {
   return homePayload();
 });
 
-export const loadClassement = createServerFn({ method: "GET" }).handler(async () => {
-  const { classementPayload } = await import("./catalog.server");
-  return classementPayload();
+export const loadRanking = createServerFn({ method: "GET" }).handler(async () => {
+  const { rankingPayload } = await import("./catalog.server");
+  return rankingPayload();
 });
 
 export const loadCompany = createServerFn({ method: "GET" })

@@ -2,9 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageIntro, Shell } from "@/components/shell";
 import { collectedLabel, hashShort, money } from "@/lib/format";
 import { loadMethod } from "@/lib/queries";
+import { datasetJsonLd, pageHead } from "@/lib/seo";
+import { formatTitle } from "@/lib/site";
 
-export const Route = createFileRoute("/methode")({
+export const Route = createFileRoute("/method")({
   loader: () => loadMethod(),
+  head: ({ loaderData }) =>
+    pageHead({
+      path: "/method",
+      title: formatTitle("Method: how we count open source funding"),
+      description:
+        "How WhoFundsOSS counts public open source funding: sources, exclusions, no annualizing, hidden GitHub tiers stay hidden.",
+      jsonLd: loaderData ? [datasetJsonLd(loaderData)] : [],
+    }),
   component: MethodPage,
 });
 

@@ -3,17 +3,28 @@ import { useMemo, useState } from "react";
 import { PageIntro, Shell } from "@/components/shell";
 import { RankTable } from "@/components/rank-table";
 import { collectedLabel } from "@/lib/format";
-import { loadClassement } from "@/lib/queries";
+import { loadRanking } from "@/lib/queries";
 import { SOURCE_SHORT, type SourceKey } from "@/lib/types";
+import { monthYear } from "@/lib/format";
+import { pageHead } from "@/lib/seo";
+import { formatTitle } from "@/lib/site";
 
-export const Route = createFileRoute("/classement")({
-  loader: () => loadClassement(),
-  component: ClassementPage,
+export const Route = createFileRoute("/ranking")({
+  loader: () => loadRanking(),
+  head: ({ loaderData }) =>
+    pageHead({
+      path: "/ranking",
+      title: formatTitle("Open source funding ranking: top companies"),
+      description: loaderData
+        ? `${loaderData.meta.ranked} companies ranked by publicly verifiable open source funding. Pledge, Open Collective and GitHub Sponsors, with sources. Updated ${monthYear(loaderData.meta.collectedAt)}.`
+        : undefined,
+    }),
+  component: RankingPage,
 });
 
 type SortKey = "publicUsd" | "projects" | "ghBeneficiaries";
 
-function ClassementPage() {
+function RankingPage() {
   const { meta, rows } = Route.useLoaderData();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("publicUsd");

@@ -79,3 +79,5 @@ export declare function createHeadInjector(ctx?: GrokHeadContext): {
   push(chunk: Uint8Array | string): Uint8Array[];
   flush(): Uint8Array[];
 };
+export declare function hasLinkRel(html: string, rel: string): boolean;
+export declare function appOwnsShareMeta(html: string, site?: Record<string, unknown>): boolean;

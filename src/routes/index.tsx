@@ -5,9 +5,18 @@ import { Shell } from "@/components/shell";
 import { money, collectedLabel } from "@/lib/format";
 import { loadHome } from "@/lib/queries";
 import { SOURCE_LABEL } from "@/lib/types";
+import { datasetJsonLd, pageHead } from "@/lib/seo";
+import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_TAGLINE, TITLE_SEPARATOR } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   loader: () => loadHome(),
+  head: ({ loaderData }) =>
+    pageHead({
+      path: "/",
+      title: `${SITE_NAME}${TITLE_SEPARATOR}${SITE_TAGLINE}`,
+      description: DEFAULT_DESCRIPTION,
+      jsonLd: loaderData ? [datasetJsonLd(loaderData.meta)] : [],
+    }),
   component: Home,
 });
 
@@ -39,7 +48,7 @@ function Home() {
         ) : (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-5">
             <Link
-              to="/methode"
+              to="/method"
               className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-overlay/80 px-4 py-2 text-sm text-paper backdrop-blur-sm"
             >
               <span className="size-2 rounded-[2px] bg-sage-soft" aria-hidden="true" />
@@ -55,7 +64,7 @@ function Home() {
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-secondary">
           A row starts at zero. Only a published dollar moves it: a pledge, a collective, a GitHub
-          tier you can actually see. Zerow reads the file once a month. It does not guess.
+          tier you can actually see. WhoFundsOSS reads the public record once a month. It does not guess.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
           <a
@@ -64,7 +73,7 @@ function Home() {
           >
             Read this month
           </a>
-          <Link to="/classement" className="text-sm font-medium text-sage">
+          <Link to="/ranking" className="text-sm font-medium text-sage">
             See the ranking
           </Link>
         </div>
@@ -99,7 +108,7 @@ function Home() {
                   <BriefBody index={index} title={line.title} text={line.text} />
                 </Link>
               ) : (
-                <Link to="/mysteres" className="grid gap-2 py-6 sm:grid-cols-[4rem_1fr] sm:gap-6">
+                <Link to="/mysteries" className="grid gap-2 py-6 sm:grid-cols-[4rem_1fr] sm:gap-6">
                   <BriefBody index={index} title={line.title} text={line.text} />
                 </Link>
               )}
@@ -110,8 +119,8 @@ function Home() {
 
       <section className="mx-auto max-w-[1120px] pb-6">
         <div className="flex items-end justify-between px-5 pb-4">
-          <h2 className="font-serif text-3xl tracking-tight">Top 10</h2>
-          <Link to="/classement" className="text-sm text-sage">
+          <h2 className="font-serif text-3xl tracking-tight">Top 10 companies funding open source</h2>
+          <Link to="/ranking" className="text-sm text-sage">
             See all
           </Link>
         </div>
@@ -162,7 +171,7 @@ function Home() {
             taken out before this file was published.
           </p>
           <Link
-            to="/methode"
+            to="/method"
             className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-paper px-6 text-sm font-medium text-ink"
           >
             Read the method
@@ -187,7 +196,7 @@ function Home() {
 const CHAPTERS = [
   {
     title: "A row starts at zero",
-    text: "Once a month Zerow keeps what a company has already published: a pledge, a collective total, a visible GitHub tier, or a number on their own page.",
+    text: "Once a month WhoFundsOSS keeps what a company has already published: a pledge, a collective total, a visible GitHub tier, or a number on their own page.",
   },
   {
     title: "Two collections, then a move",
