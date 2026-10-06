@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DenylistRouteImport } from './routes/denylist'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MovementsRouteImport } from './routes/movements'
@@ -35,6 +36,11 @@ import { Route as ApiV1CompaniesSlugSponsorshipsRouteImport } from './routes/api
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DenylistRoute = DenylistRouteImport.update({
+  id: '/denylist',
+  path: '/denylist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GraphRoute = GraphRouteImport.update({
@@ -147,6 +153,7 @@ const ApiV1CompaniesSlugSponsorshipsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/denylist': typeof DenylistRoute
   '/graph': typeof GraphRoute
   '/method': typeof MethodRoute
   '/movements': typeof MovementsRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/denylist': typeof DenylistRoute
   '/graph': typeof GraphRoute
   '/method': typeof MethodRoute
   '/movements': typeof MovementsRoute
@@ -196,6 +204,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/denylist': typeof DenylistRoute
   '/graph': typeof GraphRoute
   '/method': typeof MethodRoute
   '/movements': typeof MovementsRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/denylist'
     | '/graph'
     | '/method'
     | '/movements'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/denylist'
     | '/graph'
     | '/method'
     | '/movements'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/denylist'
     | '/graph'
     | '/method'
     | '/movements'
@@ -295,6 +307,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DenylistRoute: typeof DenylistRoute
   GraphRoute: typeof GraphRoute
   MethodRoute: typeof MethodRoute
   MovementsRoute: typeof MovementsRoute
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/denylist': {
+      id: '/denylist'
+      path: '/denylist'
+      fullPath: '/denylist'
+      preLoaderRoute: typeof DenylistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/graph': {
@@ -479,6 +499,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DenylistRoute: DenylistRoute,
   GraphRoute: GraphRoute,
   MethodRoute: MethodRoute,
   MovementsRoute: MovementsRoute,

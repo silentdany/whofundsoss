@@ -8,7 +8,7 @@ import type { BySource, CompanyRow, Sponsorship } from "./types.ts";
 export type CompanyDetail = { bySource: BySource; sponsorships: Sponsorship[] };
 
 /** Indexable static pages. Old FR slugs are redirects and never listed. */
-export const STATIC_PATHS = ["/", "/ranking", "/movements", "/method", "/mysteries", "/graph", "/watchlist"];
+export const STATIC_PATHS = ["/", "/ranking", "/movements", "/method", "/denylist", "/mysteries", "/graph", "/watchlist"];
 
 /** Distinct named projects (aggregate pledge lines name no project). */
 export function namedProjects(detail: CompanyDetail | undefined): Sponsorship[] {

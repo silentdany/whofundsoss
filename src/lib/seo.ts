@@ -148,6 +148,26 @@ function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
+
+/** Organization entity for a ranked company (P0-4). Public dollars only in description. */
+export function companyOrganizationJsonLd(row: CompanyRow): Record<string, unknown> {
+  const path = `/company/${row.slug}`;
+  const pageUrl = absoluteUrl(path);
+  const block: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${pageUrl}#organization`,
+    name: row.name,
+    url: pageUrl,
+    identifier: row.slug,
+  };
+  if (row.site) block.sameAs = [row.site];
+  if (row.publicUsd > 0) {
+    block.description = `Public open source funding recorded by WhoFundsOSS: ${money(row.publicUsd)}.`;
+  }
+  return block;
+}
+
 export function companyTitle(row: CompanyRow): string {
   const withAmount =
     row.publicUsd > 0
@@ -160,8 +180,9 @@ export function companyTitle(row: CompanyRow): string {
 }
 
 export function companyDescription(row: CompanyRow, detail: CompanyDetail | undefined, meta: Meta): string {
-  // Project names for the teaser: real beneficiaries only (no pledge / own-program lines).
-  const names = namedProjects(detail)
+  // Named projects shown on the page (aggregate pledge lines excluded) — P0-4 meta alignment.
+  const named = namedProjects(detail);
+  const names = named
     .filter((item) => item.source === "oc" || item.source === "gh")
     .sort((a, b) => (b.amountUsd ?? -1) - (a.amountUsd ?? -1))
     .map((item) => item.project);
@@ -171,7 +192,7 @@ export function companyDescription(row: CompanyRow, detail: CompanyDetail | unde
   const amount = row.publicUsd > 0 ? `${money(row.publicUsd)} public` : "Amount undisclosed";
   const sources = sourceList.length ? ` Sources: ${joinList(sourceList)}.` : "";
   const date = collectedLabel(meta.collectedAt);
-  const n = row.projects;
+  const n = named.length;
   const lead = (top: string[]) =>
     n === 0 || row.unitemized
       ? `${row.name} declares open source funding and names no project.`

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { companyIndexable, sitemapPaths, type CompanyDetail } from "./indexing.ts";
-import { isSpamDenylisted, SPAM_DENYLIST } from "./spam-denylist.ts";
+import { isSpamDenylisted, SPAM_DENYLIST, SPAM_DENYLIST_VERSION } from "./spam-denylist.ts";
 import type { CompanyRow } from "./types.ts";
 
 const catalog = JSON.parse(readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8")) as {
@@ -13,6 +13,13 @@ const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
 const DENIED = Object.keys(SPAM_DENYLIST);
 const DENIED_IN_CATALOG = DENIED.filter((slug) => bySlug.has(slug));
 const NAMED_BY_CDP = ["uudetkasinot-com", "fire-stick-tricks", "buy-google-reviews", "socialboosting", "nettikasinot-media"];
+
+
+test("denylist public export version is 2026-10-06.5 Soft OK", () => {
+  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-06.5");
+  assert.equal(Object.keys(SPAM_DENYLIST).length, 99);
+  assert.equal(isSpamDenylisted("redreply"), false);
+});
 
 test("denylist has the five slugs named by CdP, each with a reason", () => {
   for (const slug of NAMED_BY_CDP) assert.ok(isSpamDenylisted(slug), slug);
@@ -60,13 +67,13 @@ test("a normal company with public dollars stays indexable", () => {
 test("sitemap excludes every denylisted slug and keeps static pages", () => {
   const paths = new Set(sitemapPaths(catalog.index, catalog.details));
   for (const slug of DENIED) assert.ok(!paths.has(`/company/${slug}`), slug);
-  for (const path of ["/", "/ranking", "/method", "/company/posit-dev", "/company/nrwl"]) assert.ok(paths.has(path), path);
+  for (const path of ["/", "/ranking", "/method", "/denylist", "/company/posit-dev", "/company/nrwl"]) assert.ok(paths.has(path), path);
   assert.ok(!paths.has("/company/nx-by-nrwl"));
   assert.ok(![...paths].some((p) => /^\/(classement|methode|mouvements|mysteres|graphe)$/.test(p)));
 });
 
 test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are absent", () => {
-  for (const slug of ["cryptonewsz", "cryptomoonpress", "crypto-tracker", "seolead", "buycheaprdp", "hashtags-for-likes", "open-apk-file", "upgrow"]) {
+  for (const slug of ["cryptonewsz", "cryptomoonpress", "crypto-tracker", "seolead", "buycheaprdp", "hashtags-for-likes", "open-apk-file", "upgrow", "redreply"]) {
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
