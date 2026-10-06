@@ -60,6 +60,7 @@ export const PAGE_TITLES = {
   graph: formatTitle("Who funds the same open source projects"),
   watchlist: formatTitle("Open source funding watchlist"),
   method: formatTitle("Method: how we count open source funding"),
+  denylist: formatTitle("Spam denylist: noindex exclusions"),
 } as const;
 
 /** Absolute path of the dynamic share card for a public page. */

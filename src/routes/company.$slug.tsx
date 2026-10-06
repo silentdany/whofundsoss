@@ -7,12 +7,14 @@ import {
   breadcrumbJsonLd,
   companyDescription,
   companyIndexable,
+  companyOrganizationJsonLd,
   companyTitle,
   notFoundHead,
   pageHead,
   ROBOTS_INDEX,
   ROBOTS_NOINDEX,
 } from "@/lib/seo";
+import { projectAnchorId, sponsorshipSourceUrl } from "@/lib/sponsorship-url";
 import { SOURCE_LABEL, SOURCE_ORDER, type SourceKey } from "@/lib/types";
 
 export const Route = createFileRoute("/company/$slug")({
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/company/$slug")({
       description: companyDescription(row, detail, meta),
       robots: companyIndexable(row, detail) ? ROBOTS_INDEX : ROBOTS_NOINDEX,
       jsonLd: [
+        companyOrganizationJsonLd(row),
         breadcrumbJsonLd([
           { name: "Home", path: "/" },
           { name: "Ranking", path: "/ranking" },
@@ -172,18 +175,39 @@ function CompanyPage() {
               </tr>
             </thead>
             <tbody>
-              {visible.map((item, index) => (
-                <tr key={`${item.project}-${item.source}-${index}`} className="border-t border-line">
-                  <td className="py-3 pr-4">{item.project}</td>
-                  <td className="py-3 text-sm text-secondary">{SOURCE_LABEL[item.source]}</td>
-                  <td className="py-3 text-right tabular-nums">
-                    {item.amountUsd == null ? "Not public" : money(item.amountUsd)}
-                    {item.cumulative && item.amountUsd != null ? (
-                      <span className="mt-0.5 block text-xs font-normal text-muted">Cumulative</span>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
+              {visible.map((item, index) => {
+                const sourceUrl = sponsorshipSourceUrl(item);
+                const anchor = projectAnchorId(item.project);
+                return (
+                  <tr
+                    key={`${item.project}-${item.source}-${index}`}
+                    id={anchor ? `project-${anchor}` : undefined}
+                    className="border-t border-line"
+                  >
+                    <td className="py-3 pr-4">
+                      {sourceUrl ? (
+                        <a
+                          href={sourceUrl}
+                          className="text-ink hover:text-sage"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {item.project}
+                        </a>
+                      ) : (
+                        item.project
+                      )}
+                    </td>
+                    <td className="py-3 text-sm text-secondary">{SOURCE_LABEL[item.source]}</td>
+                    <td className="py-3 text-right tabular-nums">
+                      {item.amountUsd == null ? "Not public" : money(item.amountUsd)}
+                      {item.cumulative && item.amountUsd != null ? (
+                        <span className="mt-0.5 block text-xs font-normal text-muted">Cumulative</span>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

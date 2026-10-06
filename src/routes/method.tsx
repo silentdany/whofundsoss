@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageIntro, Shell } from "@/components/shell";
 import { collectedLabel, hashShort, money } from "@/lib/format";
 import { loadMethod } from "@/lib/queries";
 import { datasetJsonLd, pageHead } from "@/lib/seo";
 import { PAGE_TITLES } from "@/lib/site";
+import { SPAM_DENYLIST_VERSION } from "@/lib/spam-denylist";
 
 export const Route = createFileRoute("/method")({
   loader: () => loadMethod(),
@@ -42,7 +43,7 @@ function MethodPage() {
             <li>Own programs — a figure from a public page, or a name with no figure.</li>
           </ul>
         </section>
-        <section>
+        <section id="exclusions">
           <h2 className="font-serif text-2xl text-ink">What was left out</h2>
           <p className="mt-4">
             Before this file: {ex.spamCompanies} spam companies ({money(ex.spamUsd)}) and{" "}
@@ -52,6 +53,19 @@ function MethodPage() {
             Supabase appears as a backer of its own collective. That was read as money moving through
             the project, not as classic outbound sponsoring, and kept out of the ranking until a manual
             review says otherwise.
+          </p>
+          <p className="mt-3">
+            A separate, versioned{" "}
+            <Link to="/denylist" className="text-sage">
+              public spam denylist
+            </Link>{" "}
+            (v{SPAM_DENYLIST_VERSION}) marks company pages with noindex,follow and drops them from
+            sitemap.xml. Criteria, counts, and the entry list are public. Ranking dollars and company
+            pages stay; nothing is invented by a heuristic. Machine copy:{" "}
+            <a className="text-sage" href="/denylist.json">
+              denylist.json
+            </a>
+            .
           </p>
         </section>
         <section>

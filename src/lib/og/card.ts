@@ -33,6 +33,7 @@ const STATIC_PAGES: Record<string, Omit<OgSpec, "path">> = {
   "/graph": { title: PAGE_TITLES.graph, label: "Graph", photo: "sky" },
   "/watchlist": { title: PAGE_TITLES.watchlist, label: "Watchlist", photo: "hero" },
   "/method": { title: PAGE_TITLES.method, label: "Method", photo: "meadow" },
+  "/denylist": { title: PAGE_TITLES.denylist, label: "Denylist", photo: "sky" },
 };
 
 const companyRows = (catalogFile as { index: CompanyRow[] }).index;

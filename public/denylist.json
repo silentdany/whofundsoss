@@ -1,0 +1,562 @@
+{
+  "title": "WhoFundsOSS public spam denylist",
+  "version": "2026-10-06.5",
+  "as_of": "2026-10-06",
+  "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They stay in the ranking and on their company page; every public dollar figure is unchanged. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
+  "counts": {
+    "total": 99,
+    "by_category": {
+      "adult": 1,
+      "fake-engagement": 27,
+      "fake-reviews": 3,
+      "fake-traffic": 8,
+      "gambling": 52,
+      "link-spam": 5,
+      "piracy": 3
+    }
+  },
+  "criteria": {
+    "gambling": "Online casinos, sportsbooks, betting bonuses, slots, crash/colour-prediction gambling apps, and casino affiliate listings.",
+    "fake-engagement": "Sells followers, likes, views, or subscribers (SMM panels and similar).",
+    "fake-reviews": "Sells reviews (for example Google reviews).",
+    "fake-traffic": "Sells website traffic.",
+    "link-spam": "Sells backlinks, black-hat SEO forums, essay/homework mills used for link spam, and link-building agencies that buy sponsorships for backlinks.",
+    "piracy": "Piracy guides, Pirate Bay proxies, Fire TV Stick sideloading / IPTV guides.",
+    "adult": "Adult directories."
+  },
+  "entries": [
+    {
+      "slug": "john-s-directory",
+      "category": "adult",
+      "reason": "adult directory"
+    },
+    {
+      "slug": "blastup",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "bulkoid",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "bulkviews",
+      "category": "fake-engagement",
+      "reason": "sells YouTube views"
+    },
+    {
+      "slug": "buy-facebook-followers",
+      "category": "fake-engagement",
+      "reason": "sells Facebook followers"
+    },
+    {
+      "slug": "buy-fans",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "buy-twitter-followers",
+      "category": "fake-engagement",
+      "reason": "sells X followers"
+    },
+    {
+      "slug": "buy-twitter-followers-visit-twesocial",
+      "category": "fake-engagement",
+      "reason": "sells X followers"
+    },
+    {
+      "slug": "buy-x-twitter-followers-from-bulkoid",
+      "category": "fake-engagement",
+      "reason": "sells X followers"
+    },
+    {
+      "slug": "buy-youtube-subscribers",
+      "category": "fake-engagement",
+      "reason": "sells YouTube subscribers"
+    },
+    {
+      "slug": "buy-youtube-subscribers-media-mister",
+      "category": "fake-engagement",
+      "reason": "sells YouTube subscribers"
+    },
+    {
+      "slug": "buzzvoice-com",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "crescitaly",
+      "category": "fake-engagement",
+      "reason": "SMM panel"
+    },
+    {
+      "slug": "fameviso-buy-real-followers-and-likes",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "fameviso-buy-real-followers-likes-views",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "fameviso-monthly-auto-likes-automated-instagram-engagement",
+      "category": "fake-engagement",
+      "reason": "sells automated likes"
+    },
+    {
+      "slug": "famoid",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "instant-famous",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "media-mister",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "my-social-following-is-the-1-source-for-social-media-advertising-on-all-social-networks-instagram-youtube-tiktok-facebook-twitter-x-and-spotify-join-our-500-000-clients-who-have-been-with-us-since-2007",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "purchase-facebook-likes",
+      "category": "fake-engagement",
+      "reason": "sells Facebook likes"
+    },
+    {
+      "slug": "sidesmedia",
+      "category": "fake-engagement",
+      "reason": "sells followers / subscribers"
+    },
+    {
+      "slug": "smm-panel",
+      "category": "fake-engagement",
+      "reason": "SMM panel"
+    },
+    {
+      "slug": "socialboosting",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "socialdawn",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "stormlikes",
+      "category": "fake-engagement",
+      "reason": "sells followers / likes"
+    },
+    {
+      "slug": "volgersboost",
+      "category": "fake-engagement",
+      "reason": "sells followers (NL)"
+    },
+    {
+      "slug": "want-to-boost-your-channel-on-youtube-buy-youtube-subscribers-from-sidesmedia-watch-your-subs-grow",
+      "category": "fake-engagement",
+      "reason": "sells YouTube subscribers"
+    },
+    {
+      "slug": "buy-google-reviews",
+      "category": "fake-reviews",
+      "reason": "sells Google reviews"
+    },
+    {
+      "slug": "fameviso-buy-google-reviews-safely",
+      "category": "fake-reviews",
+      "reason": "sells Google reviews"
+    },
+    {
+      "slug": "reviewcart",
+      "category": "fake-reviews",
+      "reason": "sells reviews"
+    },
+    {
+      "slug": "real-targeted-traffic",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "seowebsitetraffic-net",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "t-v-services",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "targeted-organic-traffic",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "targeted-web-traffic",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "targeted-website-traffic",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "targetedvisitors",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "twt-s",
+      "category": "fake-traffic",
+      "reason": "sells website traffic"
+    },
+    {
+      "slug": "1win",
+      "category": "gambling",
+      "reason": "online casino / sportsbook"
+    },
+    {
+      "slug": "777",
+      "category": "gambling",
+      "reason": "Ukrainian online casino"
+    },
+    {
+      "slug": "au-internet-pokies",
+      "category": "gambling",
+      "reason": "online pokies"
+    },
+    {
+      "slug": "automatenspieler",
+      "category": "gambling",
+      "reason": "German slot machine site"
+    },
+    {
+      "slug": "aviator",
+      "category": "gambling",
+      "reason": "1Win casino / sports betting (techyguy.in)"
+    },
+    {
+      "slug": "banzaibet",
+      "category": "gambling",
+      "reason": "online casino"
+    },
+    {
+      "slug": "baocasino",
+      "category": "gambling",
+      "reason": "online casino (baocasino.com + OC)"
+    },
+    {
+      "slug": "bdg-game",
+      "category": "gambling",
+      "reason": "colour prediction gambling app"
+    },
+    {
+      "slug": "betbry",
+      "category": "gambling",
+      "reason": "online betting"
+    },
+    {
+      "slug": "betking",
+      "category": "gambling",
+      "reason": "Ukrainian online casino"
+    },
+    {
+      "slug": "bonusfinder-canada",
+      "category": "gambling",
+      "reason": "casino bonus site"
+    },
+    {
+      "slug": "bonusoid",
+      "category": "gambling",
+      "reason": "casino bonus site"
+    },
+    {
+      "slug": "bonustwist",
+      "category": "gambling",
+      "reason": "casino bonus site"
+    },
+    {
+      "slug": "book-of-ra-german",
+      "category": "gambling",
+      "reason": "German slot machine site"
+    },
+    {
+      "slug": "bsc-news",
+      "category": "gambling",
+      "reason": "Thai gambling affiliate (name พนัน)"
+    },
+    {
+      "slug": "daman-game",
+      "category": "gambling",
+      "reason": "colour prediction gambling app"
+    },
+    {
+      "slug": "daman-game-login",
+      "category": "gambling",
+      "reason": "colour prediction gambling app"
+    },
+    {
+      "slug": "fortune-games",
+      "category": "gambling",
+      "reason": "sweepstakes casino"
+    },
+    {
+      "slug": "fortune-tiger",
+      "category": "gambling",
+      "reason": "slot gambling game"
+    },
+    {
+      "slug": "fruityking-nz",
+      "category": "gambling",
+      "reason": "online casino"
+    },
+    {
+      "slug": "fun88",
+      "category": "gambling",
+      "reason": "online casino / sportsbook"
+    },
+    {
+      "slug": "hollandsegokken-nl",
+      "category": "gambling",
+      "reason": "Dutch online gambling"
+    },
+    {
+      "slug": "https-chicken-roadd-com",
+      "category": "gambling",
+      "reason": "crash gambling game"
+    },
+    {
+      "slug": "ilmaiset-pitk-vetovihjeet",
+      "category": "gambling",
+      "reason": "betting tips / betting bonuses"
+    },
+    {
+      "slug": "kajino-com",
+      "category": "gambling",
+      "reason": "online casino"
+    },
+    {
+      "slug": "kasinohai-com",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "kasinosivut",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "kasinot-fi",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "kasynohex",
+      "category": "gambling",
+      "reason": "Polish online casino listing"
+    },
+    {
+      "slug": "netpositive",
+      "category": "gambling",
+      "reason": "Polish bookmaker ranking"
+    },
+    {
+      "slug": "nettikasinolista-com",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "nettikasinot",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "nettikasinot-media",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "nettikasinot-org",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "ok-win",
+      "category": "gambling",
+      "reason": "colour prediction gambling app"
+    },
+    {
+      "slug": "parhaatnettikasinot-com",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "parimatch",
+      "category": "gambling",
+      "reason": "sportsbook / casino"
+    },
+    {
+      "slug": "payid-pokies",
+      "category": "gambling",
+      "reason": "online pokies"
+    },
+    {
+      "slug": "pelisivut",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "plinko-game",
+      "category": "gambling",
+      "reason": "plinko gambling game"
+    },
+    {
+      "slug": "plkasynaonline",
+      "category": "gambling",
+      "reason": "Polish online casino listing"
+    },
+    {
+      "slug": "riversweeps-internet-cafe-sweepstakes-software",
+      "category": "gambling",
+      "reason": "sweepstakes slot software"
+    },
+    {
+      "slug": "slotoking",
+      "category": "gambling",
+      "reason": "Ukrainian online casino"
+    },
+    {
+      "slug": "spelpaus-co",
+      "category": "gambling",
+      "reason": "casinos without Swedish self-exclusion"
+    },
+    {
+      "slug": "spin-paradise",
+      "category": "gambling",
+      "reason": "casino affiliate / parked lander"
+    },
+    {
+      "slug": "tiranga-game",
+      "category": "gambling",
+      "reason": "colour prediction gambling app"
+    },
+    {
+      "slug": "topkasynoonline-pl",
+      "category": "gambling",
+      "reason": "Polish online casino listing"
+    },
+    {
+      "slug": "uudetkasinot-com",
+      "category": "gambling",
+      "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "vedonlyontibonukset-com",
+      "category": "gambling",
+      "reason": "betting bonuses"
+    },
+    {
+      "slug": "vegas",
+      "category": "gambling",
+      "reason": "Ukrainian online casino"
+    },
+    {
+      "slug": "voetbalgokken",
+      "category": "gambling",
+      "reason": "Dutch sports betting"
+    },
+    {
+      "slug": "w-in-ua",
+      "category": "gambling",
+      "reason": "Ukrainian online casino listing (w.in.ua)"
+    },
+    {
+      "slug": "awisee",
+      "category": "link-spam",
+      "reason": "link building / SEO outreach agency"
+    },
+    {
+      "slug": "awisee-agency",
+      "category": "link-spam",
+      "reason": "same agency as awisee (awisee.agency)"
+    },
+    {
+      "slug": "backlink-bento",
+      "category": "link-spam",
+      "reason": "sells backlinks"
+    },
+    {
+      "slug": "black-hat-webmasters",
+      "category": "link-spam",
+      "reason": "black-hat SEO forum"
+    },
+    {
+      "slug": "writers-per-hour",
+      "category": "link-spam",
+      "reason": "essay writing / homework mill"
+    },
+    {
+      "slug": "fire-stick-how",
+      "category": "piracy",
+      "reason": "Fire TV Stick sideloading / IPTV guides"
+    },
+    {
+      "slug": "fire-stick-tricks",
+      "category": "piracy",
+      "reason": "Fire TV Stick sideloading / IPTV guides"
+    },
+    {
+      "slug": "piratebay",
+      "category": "piracy",
+      "reason": "Pirate Bay proxy"
+    }
+  ],
+  "reviewed_and_not_listed": [
+    {
+      "slug": "cryptonewsz",
+      "note": "crypto news"
+    },
+    {
+      "slug": "cryptomoonpress",
+      "note": "crypto news"
+    },
+    {
+      "slug": "crypto-tracker",
+      "note": "crypto tool"
+    },
+    {
+      "slug": "seolead",
+      "note": "unclear business"
+    },
+    {
+      "slug": "buycheaprdp",
+      "note": "RDP hosting"
+    },
+    {
+      "slug": "hashtags-for-likes",
+      "note": "hashtag tool"
+    },
+    {
+      "slug": "open-apk-file",
+      "note": "file utility"
+    },
+    {
+      "slug": "upgrow",
+      "note": "growth agency"
+    },
+    {
+      "slug": "redreply",
+      "note": "Reddit marketing SaaS; not clearly spam"
+    }
+  ]
+}
