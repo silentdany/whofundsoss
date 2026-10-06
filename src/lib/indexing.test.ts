@@ -53,3 +53,10 @@ test("sitemap excludes every denylisted slug and keeps static pages", () => {
   for (const path of ["/", "/ranking", "/method", "/company/posit-dev"]) assert.ok(paths.has(path), path);
   assert.ok(![...paths].some((p) => /^\/(classement|methode|mouvements|mysteres|graphe)$/.test(p)));
 });
+
+test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are absent", () => {
+  for (const slug of ["cryptonewsz", "cryptomoonpress", "crypto-tracker", "seolead", "buycheaprdp", "hashtags-for-likes", "open-apk-file", "upgrow"]) {
+    assert.equal(isSpamDenylisted(slug), false, slug);
+  }
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
+});

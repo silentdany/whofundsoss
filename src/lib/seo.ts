@@ -161,20 +161,29 @@ export function companyTitle(row: CompanyRow): string {
 }
 
 export function companyDescription(row: CompanyRow, detail: CompanyDetail | undefined, meta: Meta): string {
-  const projects = namedProjects(detail)
+  // Project names for the teaser: real beneficiaries only (no pledge / own-program lines).
+  const names = namedProjects(detail)
+    .filter((item) => item.source === "oc" || item.source === "gh")
     .sort((a, b) => (b.amountUsd ?? -1) - (a.amountUsd ?? -1))
     .map((item) => item.project);
-  const sources = joinList(SOURCE_ORDER.filter((key) => row.sources.includes(key)).map((key) => SOURCE_LABEL[key]));
+  const sourceList = SOURCE_ORDER.filter((key) => row.sources.includes(key)).map((key) =>
+    key === "own" ? "own program" : SOURCE_LABEL[key],
+  );
   const amount = row.publicUsd > 0 ? `${money(row.publicUsd)} public` : "Amount undisclosed";
-  const via = sources ? ` via ${sources}` : "";
-  const tail = `Public sources only, collected ${collectedLabel(meta.collectedAt)}.`;
-  let text: string;
-  if (projects.length === 0) {
-    text = `${row.name} declares open source funding and names no project. ${amount}${via}. ${tail}`;
-  } else {
-    const n = projects.length;
-    const top = projects.slice(0, 3).join(", ");
-    text = `${row.name} funds ${n} open source project${n === 1 ? "" : "s"} (${top}). ${amount}${via}. ${tail}`;
-  }
-  return clampDescription(text);
+  const sources = sourceList.length ? ` Sources: ${joinList(sourceList)}.` : "";
+  const date = collectedLabel(meta.collectedAt);
+  const n = row.projects;
+  const lead = (top: string[]) =>
+    n === 0 || row.unitemized
+      ? `${row.name} declares open source funding and names no project.`
+      : `${row.name} funds ${n} open source project${n === 1 ? "" : "s"}${top.length ? ` (${top.join(", ")})` : ""}.`;
+  // Longest variant that fits 160 chars, dropping detail instead of cutting a sentence.
+  const variants = [
+    `${lead(names.slice(0, 3))} ${amount}.${sources} Public sources only, collected ${date}.`,
+    `${lead(names.slice(0, 3))} ${amount}.${sources} Collected ${date}.`,
+    `${lead(names.slice(0, 2))} ${amount}.${sources} Collected ${date}.`,
+    `${lead(names.slice(0, 1))} ${amount}.${sources} Collected ${date}.`,
+    `${lead([])} ${amount}.${sources} Collected ${date}.`,
+  ];
+  return variants.find((text) => text.length <= 160) ?? clampDescription(variants[variants.length - 1]!);
 }
