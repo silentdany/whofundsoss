@@ -424,7 +424,7 @@ function clampInt(raw: string | null, fallback: number, min: number, max: number
   return Math.min(max, Math.max(min, n));
 }
 
-/** Company slugs that pass the indexing gate (see `companyIndexable`). */
-export function indexableCompanySlugs(isIndexable: (row: CompanyRow, detail: CatalogFile["details"][string] | undefined) => boolean): string[] {
-  return catalog.index.filter((row) => isIndexable(row, catalog.details[row.slug])).map((row) => row.slug);
+/** Sitemap paths from the catalog (see `sitemapPaths` in indexing.ts). */
+export function catalogSitemapPaths(build: (rows: CompanyRow[], details: CatalogFile["details"]) => string[]): string[] {
+  return build(catalog.index, catalog.details);
 }

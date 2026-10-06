@@ -33,8 +33,13 @@ Trailing slash and case are normalized; query strings are kept. Preview hosts ar
   The injector also no longer adds a second manifest / apple-touch-icon when the app links its own.
 
 ## Indexing gate (`/company/[slug]`)
-`index,follow` if public USD > 0 OR ≥ 3 distinct named projects (aggregate pledge lines do not count);
-otherwise `noindex,follow` and excluded from `sitemap.xml`. Sitemap = 7 static pages + gated companies,
+`index,follow` if the slug is NOT in the spam denylist AND (public USD > 0 OR ≥ 3 distinct named projects;
+aggregate pledge lines do not count); otherwise `noindex,follow` and excluded from `sitemap.xml`
+(`src/lib/indexing.ts`, tested in `src/lib/indexing.test.ts`).
+
+Spam denylist: `src/lib/spam-denylist.ts`, explicit slugs with category + reason, versioned
+(`SPAM_DENYLIST_VERSION`). No heuristic. Denylisted companies stay in the data and in the ranking;
+only their page is `noindex,follow` and absent from the sitemap. Edit the file in a PR to add or remove one. Sitemap = 7 static pages + gated companies,
 `lastmod` = catalog `collectedAt`.
 
 ## Check

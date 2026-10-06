@@ -1,7 +1,7 @@
 import { collectedLabel, money } from "@/lib/format";
+import { namedProjects, type CompanyDetail } from "@/lib/indexing";
 import {
   absoluteUrl,
-  DATA_LICENSE_URL,
   DEFAULT_DESCRIPTION,
   formatTitle,
   OG_IMAGE_ALT,
@@ -14,7 +14,7 @@ import {
   SITE_NAME,
   SITE_URL,
 } from "@/lib/site";
-import { SOURCE_LABEL, SOURCE_ORDER, type BySource, type CompanyRow, type Meta, type Sponsorship } from "@/lib/types";
+import { SOURCE_LABEL, SOURCE_ORDER, type CompanyRow, type Meta } from "@/lib/types";
 
 export const ROBOTS_INDEX = "index,follow";
 export const ROBOTS_NOINDEX = "noindex,follow";
@@ -119,7 +119,6 @@ export function datasetJsonLd(meta: Meta): Record<string, unknown> {
     name: "WhoFundsOSS public open source funding dataset",
     description: DEFAULT_DESCRIPTION,
     url: SITE_URL,
-    license: DATA_LICENSE_URL,
     isAccessibleForFree: true,
     dateModified: meta.collectedAt,
     creator: { "@type": "Organization", "@id": ORG_ID, name: SITE_NAME, url: SITE_URL },
@@ -142,24 +141,7 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]): Recor
 
 // ---------------------------------------------------------- /company/[slug]
 
-export type CompanyDetail = { bySource: BySource; sponsorships: Sponsorship[] };
-
-/** Distinct named projects (aggregate pledge lines name no project). */
-export function namedProjects(detail: CompanyDetail | undefined): Sponsorship[] {
-  if (!detail) return [];
-  const best = new Map<string, Sponsorship>();
-  for (const item of detail.sponsorships) {
-    if (item.aggregate) continue;
-    const prev = best.get(item.project);
-    if (!prev || (item.amountUsd ?? -1) > (prev.amountUsd ?? -1)) best.set(item.project, item);
-  }
-  return [...best.values()];
-}
-
-/** Indexing gate: public dollars, or at least 3 named projects. */
-export function companyIndexable(row: CompanyRow, detail: CompanyDetail | undefined): boolean {
-  return row.publicUsd > 0 || namedProjects(detail).length >= 3;
-}
+export { companyIndexable, namedProjects, type CompanyDetail } from "@/lib/indexing";
 
 function joinList(items: string[]): string {
   if (items.length <= 1) return items.join("");
