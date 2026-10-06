@@ -54,6 +54,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           token: ${{ secrets.WFO_WEEKLY_PAT }}
+          persist-credentials: false
 
       - name: Ensure scraper code is present on this ref
         run: |
@@ -74,7 +75,7 @@ jobs:
           python-version: "3.12"
 
       - name: Unit tests (no network)
-        run: python3 -m unittest scripts.weekly.test_weekly -v
+        run: python3 -m unittest scripts.weekly.test_weekly scripts.weekly.test_qa_blockers -v
 
       - name: Run weekly scraper
         env:
@@ -86,6 +87,7 @@ jobs:
           INPUT_MAX_OC: ${{ inputs.max_oc }}
           INPUT_MAX_OSP: ${{ inputs.max_osp }}
           INPUT_GH_LOGINS: ${{ inputs.gh_logins }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
           DATE=$(date -u +%F)
@@ -111,4 +113,12 @@ jobs:
           GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
           WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
           RUN_ID: ${{ github.run_id }}
-        run: bash scripts/weekly/open_data_pr.sh
+        run: |
+          set -euo pipefail
+          DATE=$(date -u +%F)
+          if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "::error::Invalid DATE"
+            exit 1
+          fi
+          export DATE
+          bash scripts/weekly/open_data_pr.sh
