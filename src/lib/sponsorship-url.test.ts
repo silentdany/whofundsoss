@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isNamedProjectSlug, projectAnchorId, sponsorshipSourceUrl } from "./sponsorship-url.ts";
+import {
+  formatSponsorshipProjectLabel,
+  isNamedProjectSlug,
+  projectAnchorId,
+  sponsorshipSourceUrl,
+} from "./sponsorship-url.ts";
 import type { Sponsorship } from "./types.ts";
 
 function line(partial: Partial<Sponsorship> & Pick<Sponsorship, "project" | "source">): Sponsorship {
@@ -30,4 +35,15 @@ test("junk project names are not linked", () => {
   assert.equal(isNamedProjectSlug("(agrégé OSS — 160 devs)"), false);
   assert.equal(sponsorshipSourceUrl(line({ project: "(agrégé OSS — 160 devs)", source: "oc" })), null);
   assert.equal(projectAnchorId("Vue.js"), "vue-js");
+});
+
+test("aggregate FR dump labels become EN without em dash", () => {
+  const en = formatSponsorshipProjectLabel(
+    "(agrégé OSS — 160 devs × $4688/dev, rapport 2025)",
+  );
+  assert.equal(en, "Aggregated OSS, 160 devs × $4688/dev, 2025 report");
+  assert.equal(en.includes("\u2014"), false);
+  assert.equal(en.includes("agrégé"), false);
+  assert.equal(en.includes("rapport"), false);
+  assert.equal(formatSponsorshipProjectLabel("webpack"), "webpack");
 });

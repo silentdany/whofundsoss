@@ -3,6 +3,7 @@ import snapPrev from "@/data/snapshots/2026-10-05.json";
 import snapCurr from "@/data/snapshots/2026-10-06.json";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
+import { formatSponsorshipProjectLabel } from "@/lib/sponsorship-url";
 import {
   buildProjectIndex,
   companyLinkedProjects,
@@ -119,10 +120,18 @@ export function rankingPayload() {
 
 export function companyPayload(slug: string) {
   const row = bySlug.get(slug);
-  const detail = catalog.details[slug];
-  if (!row || !detail) return null;
-  const linkedProjects = companyLinkedProjects(detail, publishedProjectSlugs);
-  const narrative = companyNarrativeLead(row, detail, money);
+  const rawDetail = catalog.details[slug];
+  if (!row || !rawDetail) return null;
+  const linkedProjects = companyLinkedProjects(rawDetail, publishedProjectSlugs);
+  const narrative = companyNarrativeLead(row, rawDetail, money);
+  // Soft Copy: EN labels, no em dash in dehydrated UI payload.
+  const detail = {
+    ...rawDetail,
+    sponsorships: rawDetail.sponsorships.map((item) => ({
+      ...item,
+      project: formatSponsorshipProjectLabel(item.project),
+    })),
+  };
   return { row, detail, meta: getMeta(), linkedProjects, narrative };
 }
 

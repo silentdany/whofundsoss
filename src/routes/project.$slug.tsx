@@ -148,8 +148,8 @@ function ProjectPage() {
         </p>
 
         <p className="mt-10 text-sm text-muted">
-          Snapshot {collectedLabel(meta.collectedAt)} · hash {hashShort(meta.hash)} · Sources: OC ·
-          Pledge · GitHub · Own program
+          Snapshot {collectedLabel(meta.collectedAt)} · hash {hashShort(meta.hash)} · Sources: Open
+          Collective · Pledge · GitHub · Own program
         </p>
       </article>
     </Shell>

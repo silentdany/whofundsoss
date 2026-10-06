@@ -14,7 +14,11 @@ import {
   ROBOTS_INDEX,
   ROBOTS_NOINDEX,
 } from "@/lib/seo";
-import { projectAnchorId, sponsorshipSourceUrl } from "@/lib/sponsorship-url";
+import {
+  formatSponsorshipProjectLabel,
+  projectAnchorId,
+  sponsorshipSourceUrl,
+} from "@/lib/sponsorship-url";
 import { SOURCE_LABEL, SOURCE_ORDER, type SourceKey } from "@/lib/types";
 
 export const Route = createFileRoute("/company/$slug")({
@@ -232,7 +236,7 @@ function CompanyPage() {
                           params={{ slug: internal.slug }}
                           className="text-ink hover:text-sage"
                         >
-                          {item.project}
+                          {formatSponsorshipProjectLabel(item.project)}
                         </Link>
                       ) : sourceUrl ? (
                         <a
@@ -241,10 +245,10 @@ function CompanyPage() {
                           rel="noopener noreferrer"
                           target="_blank"
                         >
-                          {item.project}
+                          {formatSponsorshipProjectLabel(item.project)}
                         </a>
                       ) : (
-                        item.project
+                        formatSponsorshipProjectLabel(item.project)
                       )}
                       {internal && sourceUrl ? (
                         <a
