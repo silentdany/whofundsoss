@@ -99,6 +99,7 @@ jobs:
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
           token: ${{ secrets.WFO_WEEKLY_PAT }}
+          base: main
           commit-message: "data(weekly): scrape ${{ github.run_id }}"
           branch: data/weekly-run-${{ github.run_id }}
           delete-branch: true
