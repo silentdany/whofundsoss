@@ -65,7 +65,7 @@ function MethodPage() {
         <section>
           <h2 className="font-serif text-2xl text-ink">Snapshots</h2>
           <p className="mt-4">
-            This build holds one snapshot, {collectedLabel(meta.collectedAt)}, hash {hashShort(meta.hash)}.{" "}
+            This build holds snapshot {collectedLabel(meta.collectedAt)}, hash {hashShort(meta.hash)}{meta.previousCollectedAt ? `, with prior ${collectedLabel(meta.previousCollectedAt)} (${hashShort(meta.previousHash ?? "")})` : ""}.{" "}
             {meta.companies} companies, {meta.sponsorships.toLocaleString("en-US")} sponsorship lines,{" "}
             {money(meta.publicUsdRanked)} in the top {meta.ranked}. {meta.cron}. Deltas compare two
             hashes. They do not forecast the next one.

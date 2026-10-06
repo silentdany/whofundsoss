@@ -194,7 +194,7 @@ function CompanyPage() {
         ) : null}
 
         <p className="mt-12 max-w-xl text-sm text-secondary">
-          No earlier snapshot is stored. Rank movement will attach here after the next collection.
+          Rank movement vs the prior snapshot is on /movements when both collections exist.
         </p>
       </article>
     </Shell>
