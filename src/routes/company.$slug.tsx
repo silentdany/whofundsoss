@@ -60,7 +60,7 @@ function CompanyMissing() {
 }
 
 function CompanyPage() {
-  const { row, detail, meta } = Route.useLoaderData();
+  const { row, detail, meta, linkedProjects, narrative } = Route.useLoaderData();
   const [source, setSource] = useState<SourceKey | "all">("all");
   const [expanded, setExpanded] = useState(false);
 
@@ -98,12 +98,36 @@ function CompanyPage() {
         <p className="text-sm text-muted">
           {row.rank ? `Rank ${row.rank} by public dollars` : "Outside the top 200"}
           {row.sector ? ` · ${row.sector}` : ""}
+          {" · "}
+          Snapshot {meta.collectedAt}
         </p>
-        <h1 className="mt-3 font-serif text-5xl tracking-tight sm:text-6xl">Who {row.name} funds in open source</h1>
+        <h1 className="mt-3 font-serif text-5xl tracking-tight sm:text-6xl">{row.name}.</h1>
         {row.site ? (
           <a href={row.site} className="mt-4 inline-block text-sage" rel="noreferrer" target="_blank">
             {row.site.replace(/^https?:\/\//, "")}
           </a>
+        ) : null}
+
+        <div className="mt-8 max-w-2xl space-y-3 text-lg leading-relaxed text-secondary">
+          {narrative.map((sentence) => (
+            <p key={sentence}>{sentence}</p>
+          ))}
+        </div>
+
+        {linkedProjects.length ? (
+          <section className="mt-10 max-w-2xl">
+            <h2 className="font-serif text-2xl text-ink">Named projects in this file</h2>
+            <p className="mt-3 text-sm leading-relaxed text-secondary">
+              {linkedProjects.map((p, i) => (
+                <span key={p.slug}>
+                  {i > 0 ? " · " : ""}
+                  <Link to="/project/$slug" params={{ slug: p.slug }} className="text-sage">
+                    {p.name}
+                  </Link>
+                </span>
+              ))}
+            </p>
+          </section>
         ) : null}
 
         <div className="mt-10 grid gap-8 border-y border-line py-8 sm:grid-cols-[auto_1fr] sm:items-end">
@@ -116,7 +140,7 @@ function CompanyPage() {
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-secondary">
               60% is this total against the leader ({money(meta.maxPublicUsd)}). 40% is how many
               named sponsorships carry a public amount ({row.projectsWithAmount} of {row.projects}).
-              {row.lowVolume ? " Low volume — do not read the score without the dollars." : ""}
+              {row.lowVolume ? " Low volume: do not read the score without the dollars." : ""}
             </p>
           </div>
         </div>
@@ -127,9 +151,23 @@ function CompanyPage() {
           </p>
         ) : null}
 
+        <section className="mt-10 max-w-2xl">
+          <h2 className="font-serif text-2xl text-ink">Sources</h2>
+          <p className="mt-3 text-sm text-secondary">
+            {SOURCE_ORDER.filter((key) => row.sources.includes(key))
+              .map((key) => SOURCE_LABEL[key])
+              .join(" · ")}
+            . Same pledge dollar is not counted twice.
+          </p>
+        </section>
+
         {row.unitemized ? (
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-warn">
-            Dollars are declared and no project is named. Coverage of the score stays at zero.
+            Dollars are declared and no project is named. Coverage of the score stays at zero. See{" "}
+            <Link to="/mysteries" className="text-sage">
+              Mysteries
+            </Link>
+            .
           </p>
         ) : (
           <ul className="mt-8 max-w-xl space-y-4">
@@ -178,6 +216,9 @@ function CompanyPage() {
               {visible.map((item, index) => {
                 const sourceUrl = sponsorshipSourceUrl(item);
                 const anchor = projectAnchorId(item.project);
+                const internal = linkedProjects.find(
+                  (p) => p.slug === item.project.trim().toLowerCase(),
+                );
                 return (
                   <tr
                     key={`${item.project}-${item.source}-${index}`}
@@ -185,7 +226,15 @@ function CompanyPage() {
                     className="border-t border-line"
                   >
                     <td className="py-3 pr-4">
-                      {sourceUrl ? (
+                      {internal ? (
+                        <Link
+                          to="/project/$slug"
+                          params={{ slug: internal.slug }}
+                          className="text-ink hover:text-sage"
+                        >
+                          {item.project}
+                        </Link>
+                      ) : sourceUrl ? (
                         <a
                           href={sourceUrl}
                           className="text-ink hover:text-sage"
@@ -197,6 +246,16 @@ function CompanyPage() {
                       ) : (
                         item.project
                       )}
+                      {internal && sourceUrl ? (
+                        <a
+                          href={sourceUrl}
+                          className="mt-0.5 block text-xs text-muted hover:text-sage"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          Public source
+                        </a>
+                      ) : null}
                     </td>
                     <td className="py-3 text-sm text-secondary">{SOURCE_LABEL[item.source]}</td>
                     <td className="py-3 text-right tabular-nums">
@@ -218,7 +277,16 @@ function CompanyPage() {
         ) : null}
 
         <p className="mt-12 max-w-xl text-sm text-secondary">
-          Rank movement vs the prior snapshot is on /movements when both collections exist.
+          Rank is the dollar rank. Featured placement, if any, is labeled and does not move rank.
+          Method:{" "}
+          <Link to="/method" className="text-sage">
+            Method
+          </Link>
+          . Movements:{" "}
+          <Link to="/movements" className="text-sage">
+            /movements
+          </Link>
+          .
         </p>
       </article>
     </Shell>

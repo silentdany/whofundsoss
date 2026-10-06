@@ -41,3 +41,10 @@ export const loadMethod = createServerFn({ method: "GET" }).handler(async () => 
   const { getMeta } = await import("./catalog.server");
   return getMeta();
 });
+
+export const loadProject = createServerFn({ method: "GET" })
+  .validator((slug: string) => slug)
+  .handler(async ({ data }) => {
+    const { projectPayload } = await import("./catalog.server");
+    return projectPayload(data);
+  });

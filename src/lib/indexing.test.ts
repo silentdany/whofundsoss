@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { companyIndexable, sitemapPaths, type CompanyDetail } from "./indexing.ts";
+import { buildProjectIndex, gatedProjects } from "./projects.ts";
 import { isSpamDenylisted, SPAM_DENYLIST, SPAM_DENYLIST_VERSION } from "./spam-denylist.ts";
 import type { CompanyRow } from "./types.ts";
 
@@ -78,4 +79,17 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 8);
+});
+
+test("sitemap includes gated /project paths and never a sub-gate project", () => {
+  const index = buildProjectIndex(catalog.index, catalog.details);
+  const gated = gatedProjects(index);
+  const projectPaths = gated.map((p) => `/project/${encodeURIComponent(p.slug)}`);
+  const paths = new Set(sitemapPaths(catalog.index, catalog.details, projectPaths));
+  assert.ok(paths.has("/project/webpack"));
+  assert.ok(paths.has("/project/mochajs"));
+  assert.ok(paths.has("/project/socketio"));
+  for (const [slug, rec] of index) {
+    if (rec.sponsorCount < 3) assert.ok(!paths.has(`/project/${slug}`), slug);
+  }
 });

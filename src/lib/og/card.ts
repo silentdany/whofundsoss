@@ -9,6 +9,7 @@ import { parse as parseFont } from "opentype.js/dist/opentype.mjs";
 import catalogFile from "../../data/catalog.json" with { type: "json" };
 import { FONT_SANS, FONT_SANS_BOLD, FONT_SERIF } from "./fonts.ts";
 import { markShapes } from "../brand-mark.ts";
+import { buildProjectIndex, isProjectPublished, projectTitle } from "../projects.ts";
 import { companyTitle } from "../seo.ts";
 import { OG_IMAGE_HEIGHT, OG_IMAGE_TYPE, OG_IMAGE_WIDTH, PAGE_TITLES, SITE_URL } from "../site.ts";
 import type { CompanyRow } from "../types.ts";
@@ -37,6 +38,10 @@ const STATIC_PAGES: Record<string, Omit<OgSpec, "path">> = {
 };
 
 const companyRows = (catalogFile as { index: CompanyRow[] }).index;
+const projectIndex = buildProjectIndex(
+  companyRows,
+  (catalogFile as { details: Record<string, { bySource: import("../types.ts").BySource; sponsorships: import("../types.ts").Sponsorship[] }> }).details,
+);
 
 let rootCache: string | null = null;
 
@@ -72,17 +77,31 @@ export function specForPath(pagePath: string): OgSpec | null {
   const path = pagePath.length > 1 ? pagePath.replace(/\/+$/, "") : "/";
   const staticPage = STATIC_PAGES[path];
   if (staticPage) return { path, ...staticPage };
-  if (!path.startsWith("/company/")) return null;
-  const slug = decodeURIComponent(path.slice("/company/".length));
-  if (!slug || slug.includes("/")) return null;
-  const row = companyRows.find((item) => item.slug === slug);
-  if (!row) return null;
-  return {
-    path,
-    title: companyTitle(row),
-    label: row.name,
-    photo: photoForSlug(slug),
-  };
+  if (path.startsWith("/company/")) {
+    const slug = decodeURIComponent(path.slice("/company/".length));
+    if (!slug || slug.includes("/")) return null;
+    const row = companyRows.find((item) => item.slug === slug);
+    if (!row) return null;
+    return {
+      path,
+      title: companyTitle(row),
+      label: row.name,
+      photo: photoForSlug(slug),
+    };
+  }
+  if (path.startsWith("/project/")) {
+    const slug = decodeURIComponent(path.slice("/project/".length));
+    if (!slug || slug.includes("/")) return null;
+    const project = projectIndex.get(slug.toLowerCase());
+    if (!isProjectPublished(project)) return null;
+    return {
+      path,
+      title: projectTitle(project!.name),
+      label: project!.name,
+      photo: photoForSlug(slug),
+    };
+  }
+  return null;
 }
 
 /** `/og/home.jpg` and `/og/company/posit-dev.jpg` → page path. */

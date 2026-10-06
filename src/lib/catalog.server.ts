@@ -3,6 +3,14 @@ import snapPrev from "@/data/snapshots/2026-10-05.json";
 import snapCurr from "@/data/snapshots/2026-10-06.json";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
+import {
+  buildProjectIndex,
+  companyLinkedProjects,
+  companyNarrativeLead,
+  gatedProjects,
+  isProjectPublished,
+  type ProjectRecord,
+} from "@/lib/projects";
 import type {
   Alliance,
   BySource,
@@ -28,6 +36,9 @@ type CatalogFile = {
 const catalog = raw as CatalogFile;
 
 const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
+const projectIndex = buildProjectIndex(catalog.index, catalog.details);
+const publishedProjects = gatedProjects(projectIndex);
+const publishedProjectSlugs = new Set(publishedProjects.map((p) => p.slug));
 
 export function getMeta(): Meta {
   // Soft Sécu: never dehydrate process notes (e.g. note_triage) into SSR.
@@ -110,7 +121,24 @@ export function companyPayload(slug: string) {
   const row = bySlug.get(slug);
   const detail = catalog.details[slug];
   if (!row || !detail) return null;
-  return { row, detail, meta: getMeta() };
+  const linkedProjects = companyLinkedProjects(detail, publishedProjectSlugs);
+  const narrative = companyNarrativeLead(row, detail, money);
+  return { row, detail, meta: getMeta(), linkedProjects, narrative };
+}
+
+export function projectPayload(slug: string): { project: ProjectRecord; meta: ReturnType<typeof getMeta> } | null {
+  const key = slug.trim().toLowerCase();
+  const project = projectIndex.get(key);
+  if (!isProjectPublished(project)) return null;
+  return { project: project!, meta: getMeta() };
+}
+
+export function listPublishedProjects(): ProjectRecord[] {
+  return publishedProjects;
+}
+
+export function publishedProjectPathList(): string[] {
+  return publishedProjects.map((p) => `/project/${encodeURIComponent(p.slug)}`);
 }
 
 export function movementsPayload(): MovementsPayload {
@@ -152,6 +180,7 @@ export function graphPayload() {
     nodes,
     links: catalog.alliances,
     commons: catalog.commons,
+    publishedProjectSlugs: [...publishedProjectSlugs],
   };
 }
 
@@ -456,6 +485,8 @@ function clampInt(raw: string | null, fallback: number, min: number, max: number
 }
 
 /** Sitemap paths from the catalog (see `sitemapPaths` in indexing.ts). */
-export function catalogSitemapPaths(build: (rows: CompanyRow[], details: CatalogFile["details"]) => string[]): string[] {
-  return build(catalog.index, catalog.details);
+export function catalogSitemapPaths(
+  build: (rows: CompanyRow[], details: CatalogFile["details"], projectPaths?: string[]) => string[],
+): string[] {
+  return build(catalog.index, catalog.details, publishedProjectPathList());
 }
