@@ -1,0 +1,116 @@
+# WhoFundsOSS weekly sponsorship scraper.
+# Cron: Monday 06:17 Europe/Paris in summer (UTC+2) = 04:17 UTC.
+# In winter (UTC+1) the same cron lands at 05:17 Paris — acceptable per CdP.
+# Registered on main so workflow_dispatch works; runs checkout the requested ref.
+name: weekly-scraper
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      max_oc:
+        description: "Optional cap on Open Collective collectives (smoke only; leave empty for FULL coverage = all ~104 collectives)"
+        required: false
+        default: ""
+      max_osp:
+        description: "Optional cap on Open Source Pledge members (smoke only; leave empty for FULL coverage)"
+        required: false
+        default: ""
+      gh_logins:
+        description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set ~281)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: weekly-scraper
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Require WFO_WEEKLY_PAT
+        env:
+          WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${WFO_WEEKLY_PAT}" ]; then
+            echo "::error::Missing repository secret WFO_WEEKLY_PAT (empty)."
+            echo "Create a fine-grained PAT (Contents: R/W, Pull requests: R/W on silentdany/whofundsoss)"
+            echo "and store it as Actions secret WFO_WEEKLY_PAT. Broader scopes not required."
+            exit 1
+          fi
+          echo "WFO_WEEKLY_PAT: present (value not logged)"
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          token: ${{ secrets.WFO_WEEKLY_PAT }}
+
+      - name: Re-check WFO_WEEKLY_PAT via repo script
+        env:
+          WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+        run: bash scripts/weekly/require_pat.sh
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests (no network)
+        run: python3 -m unittest scripts.weekly.test_weekly -v
+
+      - name: Run weekly scraper
+        env:
+          GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT }}
+          GH_SPONSORS_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || '' }}
+        run: |
+          set -euo pipefail
+          DATE=$(date -u +%F)
+          EXTRA=()
+          if [ -n "${{ inputs.max_oc }}" ]; then EXTRA+=(--max-oc "${{ inputs.max_oc }}"); fi
+          if [ -n "${{ inputs.max_osp }}" ]; then EXTRA+=(--max-osp "${{ inputs.max_osp }}"); fi
+          if [ -n "${{ inputs.gh_logins }}" ]; then EXTRA+=(--gh-logins "${{ inputs.gh_logins }}"); fi
+          python3 -m scripts.weekly.run --date "$DATE" "${EXTRA[@]}"
+          ls -la "data/weekly/${DATE}.json" "data/weekly/${DATE}.md"
+          python3 -c "import json,sys; p=json.load(open('data/weekly/'+'$(date -u +%F)'+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st);
+          assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'"
+
+      - name: Upload weekly artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: weekly-${{ github.run_id }}
+          path: |
+            data/weekly/*.json
+            data/weekly/*.md
+          if-no-files-found: error
+
+      - name: Open data PR
+        id: cpr
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          token: ${{ secrets.WFO_WEEKLY_PAT }}
+          commit-message: "data(weekly): scrape ${{ github.run_id }}"
+          branch: data/weekly-run-${{ github.run_id }}
+          delete-branch: true
+          title: "data(weekly): sponsorship scrape ${{ github.run_id }}"
+          body: |
+            Automated weekly scrape (cron `17 4 * * 1` UTC / workflow_dispatch).
+
+            - Artifact: `weekly-${{ github.run_id }}`
+            - Denylist source of truth: `src/lib/spam-denylist.ts` (parsed, not copied)
+            - Exclusions: `data/exclusions/raw-exclusions.csv`
+            - Suspects are **flag-only** (never excluded by keyword)
+            - Disappearances require full source coverage; otherwise see `unverified_partial`
+            - No auto-merge. Consumer: WFOSS Data bot.
+          add-paths: |
+            data/weekly/**
+          labels: |
+            data
+            weekly-scraper
