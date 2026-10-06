@@ -4,14 +4,14 @@ import { PageIntro, Shell } from "@/components/shell";
 import { money } from "@/lib/format";
 import { loadGraph } from "@/lib/queries";
 import { pageHead } from "@/lib/seo";
-import { formatTitle } from "@/lib/site";
+import { PAGE_TITLES } from "@/lib/site";
 
 export const Route = createFileRoute("/graph")({
   loader: () => loadGraph(),
   head: () =>
     pageHead({
       path: "/graph",
-      title: formatTitle("Who funds the same open source projects"),
+      title: PAGE_TITLES.graph,
       description: "Explore which companies co-fund the same open source projects across Open Collective, GitHub Sponsors and the Pledge. Public sources only.",
     }),
   component: GraphPage,

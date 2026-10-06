@@ -4,7 +4,7 @@ import { PageIntro, Shell } from "@/components/shell";
 import { money } from "@/lib/format";
 import { loadWatchlist } from "@/lib/queries";
 import { pageHead } from "@/lib/seo";
-import { formatTitle } from "@/lib/site";
+import { PAGE_TITLES } from "@/lib/site";
 
 const PIN_KEY = "whofundsoss-pins";
 
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/watchlist")({
   head: () =>
     pageHead({
       path: "/watchlist",
-      title: formatTitle("Open source funding watchlist"),
+      title: PAGE_TITLES.watchlist,
       description: "A short, versioned list of companies whose open source funding we track closely, with why each is listed and its public dollars from the latest snapshot.",
     }),
   component: WatchlistPage,

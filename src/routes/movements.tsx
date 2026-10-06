@@ -3,14 +3,14 @@ import { PageIntro, Shell } from "@/components/shell";
 import { collectedLabel } from "@/lib/format";
 import { loadMovements } from "@/lib/queries";
 import { pageHead } from "@/lib/seo";
-import { formatTitle } from "@/lib/site";
+import { PAGE_TITLES } from "@/lib/site";
 
 export const Route = createFileRoute("/movements")({
   loader: () => loadMovements(),
   head: () =>
     pageHead({
       path: "/movements",
-      title: formatTitle("Open source funding changes this month"),
+      title: PAGE_TITLES.movements,
       description: "Which companies started, raised or stopped funding open source since the last monthly snapshot. Public sources only, no forecasts.",
     }),
   component: MovementsPage,

@@ -425,16 +425,27 @@ function insertBeforeHeadClose(html, snippet) {
   return insertAfterHeadOpen(html, snippet);
 }
 
+/**
+ * Absolute path that does not exist. `join("", "public/og.jpg")` is relative
+ * and would stat this process's own public/og.jpg.
+ */
+const UNSET_WORKSPACE = "/__grok_no_workspace__";
+
 export function normalizeHeadContext(ctx = {}) {
-  const cwd = ctx.cwd ?? process.cwd();
-  // Middleware passes a baked `site`. Still consult the workspace so a
-  // public/og.jpg generated after that snapshot (or missed by a wrong cwd)
-  // wins over the og.grok.me placeholder. Vercel has no public/ to read, so
-  // a correct bake is unchanged.
-  const site = applyCustomCardFromFs(
-    ctx.site !== undefined ? ctx.site : snapshotOgIdentity(cwd).site,
-    cwd,
-  );
+  // Filesystem identity (site.json, public/og.jpg) is read only when the
+  // caller names a workspace. The Vite plugin and the preview HTML wrapper
+  // pass cwd. Nitro passes a baked site and cannot stat public/. A caller
+  // that omits cwd — unit tests, a baked deploy — must not inherit whichever
+  // app happens to be process.cwd().
+  const cwd = typeof ctx.cwd === "string" && ctx.cwd.length > 0 ? ctx.cwd : "";
+  const site = cwd
+    ? applyCustomCardFromFs(
+        ctx.site !== undefined ? ctx.site : snapshotOgIdentity(cwd).site,
+        cwd,
+      )
+    : ctx.site !== undefined
+      ? ctx.site
+      : {};
   const appName = resolveOgTitle(site, ctx.appName ?? DEFAULT_APP_NAME, ctx.host ?? "");
   return {
     appName,
@@ -442,7 +453,7 @@ export function normalizeHeadContext(ctx = {}) {
     creator: ctx.creator ?? readXCreator(),
     creatorId: ctx.creatorId ?? readXCreatorId(),
     host: ctx.host ?? "",
-    cwd,
+    cwd: cwd || UNSET_WORKSPACE,
     site,
   };
 }

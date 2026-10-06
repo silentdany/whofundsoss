@@ -6,14 +6,14 @@ import { money, collectedLabel } from "@/lib/format";
 import { loadHome } from "@/lib/queries";
 import { SOURCE_LABEL } from "@/lib/types";
 import { datasetJsonLd, pageHead } from "@/lib/seo";
-import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_TAGLINE, TITLE_SEPARATOR } from "@/lib/site";
+import { DEFAULT_DESCRIPTION, PAGE_TITLES } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   loader: () => loadHome(),
   head: ({ loaderData }) =>
     pageHead({
       path: "/",
-      title: `${SITE_NAME}${TITLE_SEPARATOR}${SITE_TAGLINE}`,
+      title: PAGE_TITLES.home,
       description: DEFAULT_DESCRIPTION,
       jsonLd: loaderData ? [datasetJsonLd(loaderData.meta)] : [],
     }),
@@ -27,62 +27,69 @@ function Home() {
 
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
-      <section className="relative">
-        <img
-          src="/art/hero.jpg"
-          alt=""
-          className="h-[52vh] min-h-[320px] w-full object-cover object-[center_62%] sm:h-[64vh]"
-        />
-        {leader ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-5">
-            <Link
-              to="/company/$slug"
-              params={{ slug: leader.slug }}
-              className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-overlay/80 px-4 py-2 text-sm text-paper backdrop-blur-sm"
-            >
-              <span className="size-2 rounded-[2px] bg-sage-soft" aria-hidden="true" />
-              {leader.name}: {money(leader.publicUsd)} public floor
-              <span aria-hidden="true">›</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="pointer-events-none absolute inset-x-0 bottom-8 flex justify-center px-5">
-            <Link
-              to="/method"
-              className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-overlay/80 px-4 py-2 text-sm text-paper backdrop-blur-sm"
-            >
-              <span className="size-2 rounded-[2px] bg-sage-soft" aria-hidden="true" />
-              Snapshot · {collectedLabel(meta.collectedAt)}
-            </Link>
-          </div>
-        )}
-      </section>
-
-      <section className="mx-auto max-w-[1120px] px-5 pt-10 pb-4 sm:pt-16">
-        <h1 className="max-w-4xl font-serif text-[2.85rem] leading-[1.02] tracking-tight sm:text-7xl">
-          Who really funds open source.
-        </h1>
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-secondary">
-          A row starts at zero. Only a published dollar moves it: a pledge, a collective, a GitHub
-          tier you can actually see. WhoFundsOSS reads the public record once a month. It does not guess.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-          <a
-            href="#brief"
-            className="inline-flex min-h-12 items-center rounded-full bg-ink px-7 text-sm font-medium text-paper"
-          >
-            Read this month
-          </a>
-          <Link to="/ranking" className="text-sm font-medium text-sage">
-            See the ranking
-          </Link>
+      <section className="relative flex min-h-[calc(100svh-4rem)] flex-col">
+        <div className="relative min-h-[240px] flex-1">
+          <img
+            src="/art/hero.jpg"
+            alt=""
+            className="absolute inset-0 size-full object-cover object-[center_62%]"
+          />
+          {leader ? (
+            <div className="pointer-events-none absolute inset-x-0 bottom-16 flex justify-center px-5 sm:bottom-20">
+              <Link
+                to="/company/$slug"
+                params={{ slug: leader.slug }}
+                className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-overlay/80 px-4 py-2 text-sm text-paper backdrop-blur-sm"
+              >
+                <span className="size-2 rounded-[2px] bg-sage-soft" aria-hidden="true" />
+                {leader.name}: {money(leader.publicUsd)} public floor
+                <span aria-hidden="true">›</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="pointer-events-none absolute inset-x-0 bottom-16 flex justify-center px-5 sm:bottom-20">
+              <Link
+                to="/method"
+                className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-overlay/80 px-4 py-2 text-sm text-paper backdrop-blur-sm"
+              >
+                <span className="size-2 rounded-[2px] bg-sage-soft" aria-hidden="true" />
+                Snapshot · {collectedLabel(meta.collectedAt)}
+              </Link>
+            </div>
+          )}
         </div>
-      </section>
 
-      <section className="mx-auto grid max-w-[1120px] grid-cols-3 gap-4 px-5 py-14 sm:py-20">
-        <Stat value={money(meta.publicUsdRanked)} label="Public floor, top 200" />
-        <Stat value={String(meta.ranked)} label="Companies ranked" />
-        <Stat value={String(meta.companies)} label="In the file, after filters" />
+        <div className="relative z-10 mx-auto -mt-12 w-full max-w-[1120px] px-5 pb-8 sm:-mt-16 sm:pb-10">
+          <div className="rounded-[1.75rem] bg-paper px-6 py-6 shadow-[0_22px_50px_-20px_rgba(28,92,86,0.55)] sm:px-10 sm:py-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-14">
+              <h1 className="max-w-xl font-serif text-[2.15rem] leading-[1.08] tracking-tight sm:text-5xl">
+                Who really funds open source.
+              </h1>
+              <div className="max-w-md">
+                <p className="text-base leading-relaxed text-secondary sm:text-lg">
+                  A row starts at zero. Only a published dollar moves it: a pledge, a collective, a GitHub
+                  tier you can actually see. WhoFundsOSS reads the public record once a month. It does not guess.
+                </p>
+                <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+                  <a
+                    href="#brief"
+                    className="inline-flex min-h-12 items-center rounded-full bg-ink px-7 text-sm font-medium text-paper"
+                  >
+                    Read this month
+                  </a>
+                  <Link to="/ranking" className="text-sm font-medium text-sage">
+                    See the ranking
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-x-4 gap-y-3 border-t border-line pt-5 sm:mt-8 sm:pt-6">
+              <Stat value={money(meta.publicUsdRanked)} label="Public floor, top 200" />
+              <Stat value={String(meta.ranked)} label="Companies ranked" />
+              <Stat value={String(meta.companies)} label="In the file, after filters" />
+            </div>
+          </div>
+        </div>
       </section>
 
       <div className="mx-auto max-w-[1120px] px-5">
@@ -388,8 +395,8 @@ function BriefBody({ index, title, text }: { index: number; title: string; text:
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
-      <p className="text-3xl font-semibold tracking-tight tabular-nums sm:text-5xl">{value}</p>
-      <p className="mt-2 text-sm leading-snug text-secondary">{label}</p>
+      <p className="text-2xl font-semibold tracking-tight tabular-nums sm:text-4xl">{value}</p>
+      <p className="mt-1 text-xs leading-snug text-secondary sm:text-sm">{label}</p>
     </div>
   );
 }
