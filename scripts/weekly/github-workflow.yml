@@ -1,0 +1,105 @@
+# WhoFundsOSS weekly sponsorship scraper.
+# Cron: Monday 06:17 Europe/Paris in summer (UTC+2) = 04:17 UTC.
+# In winter (UTC+1) the same cron lands at 05:17 Paris — acceptable per CdP.
+name: weekly-scraper
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      max_oc:
+        description: "Optional cap on Open Collective collectives (smoke)"
+        required: false
+        default: ""
+      max_osp:
+        description: "Optional cap on Open Source Pledge members (smoke)"
+        required: false
+        default: ""
+      gh_logins:
+        description: "Optional comma-separated GitHub logins to re-check"
+        required: false
+        default: ""
+
+# Minimum permissions. Do not broaden.
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: weekly-scraper
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Prefer a PAT that can open PRs when the repo setting
+          # "Allow GitHub Actions to create and approve pull requests" is off.
+          token: ${{ secrets.WFO_WEEKLY_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests (no network)
+        run: python3 -m unittest scripts.weekly.test_weekly -v
+
+      - name: Run weekly scraper
+        env:
+          # Never echo. Masked by Actions when stored as secrets.
+          GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT || secrets.GITHUB_TOKEN }}
+          GH_SPONSORS_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || '' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          DATE=$(date -u +%F)
+          EXTRA=()
+          if [ -n "${{ inputs.max_oc }}" ]; then EXTRA+=(--max-oc "${{ inputs.max_oc }}"); fi
+          if [ -n "${{ inputs.max_osp }}" ]; then EXTRA+=(--max-osp "${{ inputs.max_osp }}"); fi
+          if [ -n "${{ inputs.gh_logins }}" ]; then EXTRA+=(--gh-logins "${{ inputs.gh_logins }}"); fi
+          python3 -m scripts.weekly.run --date "$DATE" "${EXTRA[@]}"
+          ls -la "data/weekly/${DATE}.json" "data/weekly/${DATE}.md"
+          python3 -c "import json,sys; p=json.load(open('data/weekly/'+'$(date -u +%F)'+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st);
+          assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'"
+
+      - name: Upload weekly artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: weekly-${{ github.run_id }}
+          path: |
+            data/weekly/*.json
+            data/weekly/*.md
+          if-no-files-found: error
+
+      - name: Open data PR
+        id: cpr
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          token: ${{ secrets.WFO_WEEKLY_PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "data(weekly): scrape ${{ github.run_id }}"
+          branch: data/weekly-run-${{ github.run_id }}
+          delete-branch: true
+          title: "data(weekly): sponsorship scrape ${{ github.run_id }}"
+          body: |
+            Automated weekly scrape (cron `17 4 * * 1` UTC / workflow_dispatch).
+
+            - Artifact: `weekly-${{ github.run_id }}`
+            - Denylist source of truth: `src/lib/spam-denylist.ts` (parsed, not copied)
+            - Exclusions: `data/exclusions/raw-exclusions.csv`
+            - Suspects are **flag-only** (never excluded by keyword)
+            - No auto-merge. Consumer: WFOSS Data bot.
+
+            If this PR was not created, check:
+            1. Repo setting **Allow GitHub Actions to create and approve pull requests**, or
+            2. Secret `WFO_WEEKLY_PAT` (classic PAT: `repo` scope, or fine-grained: Contents R/W + Pull requests R/W on `silentdany/whofundsoss`).
+          add-paths: |
+            data/weekly/**
+          labels: |
+            data
+            weekly-scraper
