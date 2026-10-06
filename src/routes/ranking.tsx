@@ -7,14 +7,14 @@ import { loadRanking } from "@/lib/queries";
 import { SOURCE_SHORT, type SourceKey } from "@/lib/types";
 import { monthYear } from "@/lib/format";
 import { pageHead } from "@/lib/seo";
-import { formatTitle } from "@/lib/site";
+import { PAGE_TITLES } from "@/lib/site";
 
 export const Route = createFileRoute("/ranking")({
   loader: () => loadRanking(),
   head: ({ loaderData }) =>
     pageHead({
       path: "/ranking",
-      title: formatTitle("Open source funding ranking: top companies"),
+      title: PAGE_TITLES.ranking,
       description: loaderData
         ? `${loaderData.meta.ranked} companies ranked by publicly verifiable open source funding. Pledge, Open Collective and GitHub Sponsors, with sources. Updated ${monthYear(loaderData.meta.collectedAt)}.`
         : undefined,

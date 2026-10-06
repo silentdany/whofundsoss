@@ -3,14 +3,14 @@ import { PageIntro, Shell } from "@/components/shell";
 import { money } from "@/lib/format";
 import { loadMysteries } from "@/lib/queries";
 import { pageHead } from "@/lib/seo";
-import { formatTitle } from "@/lib/site";
+import { PAGE_TITLES } from "@/lib/site";
 
 export const Route = createFileRoute("/mysteries")({
   loader: () => loadMysteries(),
   head: () =>
     pageHead({
       path: "/mysteries",
-      title: formatTitle("Declared but unnamed: pledges without projects"),
+      title: PAGE_TITLES.mysteries,
       description: "Companies that publish open source pledge dollars but name no projects, and GitHub sponsors with no public tier amount. What is public and what is not.",
     }),
   component: MysteriesPage,

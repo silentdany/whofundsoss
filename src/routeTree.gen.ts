@@ -20,6 +20,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
+import { Route as OgSplatRouteImport } from './routes/og/$'
 import { Route as ApiV1DeltasRouteImport } from './routes/api/v1/deltas'
 import { Route as ApiV1LeaderboardRouteImport } from './routes/api/v1/leaderboard'
 import { Route as ApiV1ExportCompaniesRouteImport } from './routes/api/v1/export/companies'
@@ -84,6 +85,11 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
 const CompanySlugRoute = CompanySlugRouteImport.update({
   id: '/company/$slug',
   path: '/company/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OgSplatRoute = OgSplatRouteImport.update({
+  id: '/og/$',
+  path: '/og/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1DeltasRoute = ApiV1DeltasRouteImport.update({
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/watchlist': typeof WatchlistRoute
   '/api/health': typeof ApiHealthRoute
   '/company/$slug': typeof CompanySlugRoute
+  '/og/$': typeof OgSplatRoute
   '/api/v1/deltas': typeof ApiV1DeltasRoute
   '/api/v1/leaderboard': typeof ApiV1LeaderboardRoute
   '/api/v1/export/companies': typeof ApiV1ExportCompaniesRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/watchlist': typeof WatchlistRoute
   '/api/health': typeof ApiHealthRoute
   '/company/$slug': typeof CompanySlugRoute
+  '/og/$': typeof OgSplatRoute
   '/api/v1/deltas': typeof ApiV1DeltasRoute
   '/api/v1/leaderboard': typeof ApiV1LeaderboardRoute
   '/api/v1/export/companies': typeof ApiV1ExportCompaniesRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/watchlist': typeof WatchlistRoute
   '/api/health': typeof ApiHealthRoute
   '/company/$slug': typeof CompanySlugRoute
+  '/og/$': typeof OgSplatRoute
   '/api/v1/deltas': typeof ApiV1DeltasRoute
   '/api/v1/leaderboard': typeof ApiV1LeaderboardRoute
   '/api/v1/export/companies': typeof ApiV1ExportCompaniesRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/watchlist'
     | '/api/health'
     | '/company/$slug'
+    | '/og/$'
     | '/api/v1/deltas'
     | '/api/v1/leaderboard'
     | '/api/v1/export/companies'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/watchlist'
     | '/api/health'
     | '/company/$slug'
+    | '/og/$'
     | '/api/v1/deltas'
     | '/api/v1/leaderboard'
     | '/api/v1/export/companies'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/watchlist'
     | '/api/health'
     | '/company/$slug'
+    | '/og/$'
     | '/api/v1/deltas'
     | '/api/v1/leaderboard'
     | '/api/v1/export/companies'
@@ -293,6 +305,7 @@ export interface RootRouteChildren {
   WatchlistRoute: typeof WatchlistRoute
   ApiHealthRoute: typeof ApiHealthRoute
   CompanySlugRoute: typeof CompanySlugRoute
+  OgSplatRoute: typeof OgSplatRoute
   ApiV1DeltasRoute: typeof ApiV1DeltasRoute
   ApiV1LeaderboardRoute: typeof ApiV1LeaderboardRoute
   ApiV1ExportCompaniesRoute: typeof ApiV1ExportCompaniesRoute
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompanySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/$': {
+      id: '/og/$'
+      path: '/og/$'
+      fullPath: '/og/$'
+      preLoaderRoute: typeof OgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/v1/deltas': {
       id: '/api/v1/deltas'
       path: '/api/v1/deltas'
@@ -469,6 +489,7 @@ const rootRouteChildren: RootRouteChildren = {
   WatchlistRoute: WatchlistRoute,
   ApiHealthRoute: ApiHealthRoute,
   CompanySlugRoute: CompanySlugRoute,
+  OgSplatRoute: OgSplatRoute,
   ApiV1DeltasRoute: ApiV1DeltasRoute,
   ApiV1LeaderboardRoute: ApiV1LeaderboardRoute,
   ApiV1ExportCompaniesRoute: ApiV1ExportCompaniesRoute,

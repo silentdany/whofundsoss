@@ -4,11 +4,10 @@ import {
   absoluteUrl,
   DEFAULT_DESCRIPTION,
   formatTitle,
-  OG_IMAGE_ALT,
   OG_IMAGE_HEIGHT,
-  OG_IMAGE_PATH,
   OG_IMAGE_TYPE,
   OG_IMAGE_WIDTH,
+  ogImagePath,
   REPO_URL,
   SITE_ALT_NAME,
   SITE_NAME,
@@ -36,7 +35,7 @@ export type PageHeadInput = {
 /** Route `head()` payload: title, description, robots, canonical, OG/Twitter, JSON-LD. */
 export function pageHead(input: PageHeadInput): { meta: MetaTag[]; links: LinkTag[] } {
   const url = absoluteUrl(input.path);
-  const image = absoluteUrl(OG_IMAGE_PATH);
+  const image = absoluteUrl(ogImagePath(input.path));
   const description = input.description ?? "";
   const meta: MetaTag[] = [
     { title: input.title },
@@ -52,11 +51,11 @@ export function pageHead(input: PageHeadInput): { meta: MetaTag[]; links: LinkTa
     { property: "og:image:type", content: OG_IMAGE_TYPE },
     { property: "og:image:width", content: String(OG_IMAGE_WIDTH) },
     { property: "og:image:height", content: String(OG_IMAGE_HEIGHT) },
-    { property: "og:image:alt", content: OG_IMAGE_ALT },
+    { property: "og:image:alt", content: input.title },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: input.title },
     { name: "twitter:image", content: image },
-    { name: "twitter:image:alt", content: OG_IMAGE_ALT },
+    { name: "twitter:image:alt", content: input.title },
   );
   if (description) {
     meta.push(

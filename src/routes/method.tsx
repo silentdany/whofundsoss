@@ -3,14 +3,14 @@ import { PageIntro, Shell } from "@/components/shell";
 import { collectedLabel, hashShort, money } from "@/lib/format";
 import { loadMethod } from "@/lib/queries";
 import { datasetJsonLd, pageHead } from "@/lib/seo";
-import { formatTitle } from "@/lib/site";
+import { PAGE_TITLES } from "@/lib/site";
 
 export const Route = createFileRoute("/method")({
   loader: () => loadMethod(),
   head: ({ loaderData }) =>
     pageHead({
       path: "/method",
-      title: formatTitle("Method: how we count open source funding"),
+      title: PAGE_TITLES.method,
       description:
         "How WhoFundsOSS counts public open source funding: sources, exclusions, no annualizing, hidden GitHub tiers stay hidden.",
       jsonLd: loaderData ? [datasetJsonLd(loaderData)] : [],

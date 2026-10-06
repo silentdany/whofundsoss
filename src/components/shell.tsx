@@ -16,20 +16,6 @@ const ABOUT = [
   { to: "/ranking", label: "Full ranking" },
 ] as const;
 
-function Mark({ className = "size-7" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <path
-        d="M12 2.2v19.6M3.4 7.1l17.2 9.8M20.6 7.1 3.4 16.9"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.15"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export function Shell({
   children,
   collectedAt,
@@ -81,7 +67,7 @@ function Header() {
             aria-label="WhoFundsOSS home"
             onClick={() => setOpen(false)}
           >
-            <Mark className="size-7" />
+            <img src="/favicon.svg" alt="" width={28} height={28} className="size-7 shrink-0" />
             <span className="text-[1.15rem] leading-none font-semibold tracking-tight">WhoFundsOSS</span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-secondary md:flex">
