@@ -55,6 +55,14 @@ jobs:
         with:
           token: ${{ secrets.WFO_WEEKLY_PAT }}
 
+      - name: Ensure scraper code is present on this ref
+        run: |
+          set -euo pipefail
+          if [ ! -f scripts/weekly/run.py ]; then
+            echo "::error::scripts/weekly/run.py missing on this ref. Refusing to run."
+            exit 1
+          fi
+
       - name: Re-check WFO_WEEKLY_PAT via repo script
         env:
           WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
@@ -73,17 +81,21 @@ jobs:
           # Never echo. Actions masks secrets; we still avoid printing env.
           GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT }}
           GH_SPONSORS_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || '' }}
+          # User-controlled workflow_dispatch inputs MUST go through env, never
+          # interpolated as ${{ inputs.* }} inside run: (injection risk).
+          INPUT_MAX_OC: ${{ inputs.max_oc }}
+          INPUT_MAX_OSP: ${{ inputs.max_osp }}
+          INPUT_GH_LOGINS: ${{ inputs.gh_logins }}
         run: |
           set -euo pipefail
           DATE=$(date -u +%F)
           EXTRA=()
-          if [ -n "${{ inputs.max_oc }}" ]; then EXTRA+=(--max-oc "${{ inputs.max_oc }}"); fi
-          if [ -n "${{ inputs.max_osp }}" ]; then EXTRA+=(--max-osp "${{ inputs.max_osp }}"); fi
-          if [ -n "${{ inputs.gh_logins }}" ]; then EXTRA+=(--gh-logins "${{ inputs.gh_logins }}"); fi
+          if [ -n "${INPUT_MAX_OC}" ]; then EXTRA+=(--max-oc "${INPUT_MAX_OC}"); fi
+          if [ -n "${INPUT_MAX_OSP}" ]; then EXTRA+=(--max-osp "${INPUT_MAX_OSP}"); fi
+          if [ -n "${INPUT_GH_LOGINS}" ]; then EXTRA+=(--gh-logins "${INPUT_GH_LOGINS}"); fi
           python3 -m scripts.weekly.run --date "$DATE" "${EXTRA[@]}"
           ls -la "data/weekly/${DATE}.json" "data/weekly/${DATE}.md"
-          python3 -c "import json,sys; p=json.load(open('data/weekly/'+'$(date -u +%F)'+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st);
-          assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'"
+          python3 -c "import json,sys; p=json.load(open('data/weekly/'+sys.argv[1]+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st); assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'" "$DATE"
 
       - name: Upload weekly artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -94,27 +106,9 @@ jobs:
             data/weekly/*.md
           if-no-files-found: error
 
-      - name: Open data PR
-        id: cpr
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
-        with:
-          token: ${{ secrets.WFO_WEEKLY_PAT }}
-          base: main
-          commit-message: "data(weekly): scrape ${{ github.run_id }}"
-          branch: data/weekly-run-${{ github.run_id }}
-          delete-branch: true
-          title: "data(weekly): sponsorship scrape ${{ github.run_id }}"
-          body: |
-            Automated weekly scrape (cron `17 4 * * 1` UTC / workflow_dispatch).
-
-            - Artifact: `weekly-${{ github.run_id }}`
-            - Denylist source of truth: `src/lib/spam-denylist.ts` (parsed, not copied)
-            - Exclusions: `data/exclusions/raw-exclusions.csv`
-            - Suspects are **flag-only** (never excluded by keyword)
-            - Disappearances require full source coverage; otherwise see `unverified_partial`
-            - No auto-merge. Consumer: WFOSS Data bot.
-          add-paths: |
-            data/weekly/**
-          labels: |
-            data
-            weekly-scraper
+      - name: Open data-only PR from main
+        env:
+          GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
+          WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+          RUN_ID: ${{ github.run_id }}
+        run: bash scripts/weekly/open_data_pr.sh
