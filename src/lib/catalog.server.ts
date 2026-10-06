@@ -1,11 +1,16 @@
 import raw from "@/data/catalog.json";
+import snapPrev from "@/data/snapshots/2026-10-05.json";
+import snapCurr from "@/data/snapshots/2026-10-06.json";
 import { money } from "@/lib/format";
+import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
 import type {
   Alliance,
   BySource,
   Commons,
   CompanyRow,
   Meta,
+  MovementCompany,
+  MovementsPayload,
   SourceKey,
   Sponsorship,
   WatchItem,
@@ -25,7 +30,10 @@ const catalog = raw as CatalogFile;
 const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
 
 export function getMeta(): Meta {
-  return catalog.meta;
+  // Soft Sécu: never dehydrate process notes (e.g. note_triage) into SSR.
+  const { note_triage: _drop, ...meta } = catalog.meta as Meta & { note_triage?: string };
+  void _drop;
+  return meta;
 }
 
 export function getRow(slug: string): CompanyRow | null {
@@ -86,7 +94,7 @@ export function homePayload() {
   }));
 
   return {
-    meta: catalog.meta,
+    meta: getMeta(),
     brief,
     top: catalog.index.filter((row) => row.rank && row.rank <= 10).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)),
     featured: bySlug.get(catalog.meta.featuredSlug) ?? null,
@@ -95,21 +103,18 @@ export function homePayload() {
 }
 
 export function rankingPayload() {
-  return { meta: catalog.meta, rows: catalog.index };
+  return { meta: getMeta(), rows: catalog.index };
 }
 
 export function companyPayload(slug: string) {
   const row = bySlug.get(slug);
   const detail = catalog.details[slug];
   if (!row || !detail) return null;
-  return { row, detail, meta: catalog.meta };
+  return { row, detail, meta: getMeta() };
 }
 
-export function movementsPayload() {
-  return {
-    meta: catalog.meta,
-    note: "Baseline snapshot. Rank moves, entrants and exits appear after the next collection. Nothing here is a prediction.",
-  };
+export function movementsPayload(): MovementsPayload {
+  return buildMovementsFromSnaps(snapPrev as SnapFile, snapCurr as SnapFile, getMeta());
 }
 
 export function mysteriesPayload() {
@@ -125,7 +130,7 @@ export function mysteriesPayload() {
     })
     .sort((a, b) => b.ghBeneficiaries - a.ghBeneficiaries)
     .slice(0, 12);
-  return { meta: catalog.meta, unitemized, unpriced };
+  return { meta: getMeta(), unitemized, unpriced };
 }
 
 export function graphPayload() {
@@ -143,7 +148,7 @@ export function graphPayload() {
       rank: row.rank,
     }));
   return {
-    meta: catalog.meta,
+    meta: getMeta(),
     nodes,
     links: catalog.alliances,
     commons: catalog.commons,
@@ -162,7 +167,7 @@ export function watchlistPayload() {
     publicUsd: row.publicUsd,
     projects: row.projects,
   }));
-  return { meta: catalog.meta, items, picker };
+  return { meta: getMeta(), items, picker };
 }
 
 export function leaderboardQuery(params: URLSearchParams) {
@@ -281,13 +286,34 @@ export function sponsorshipsQuery(slug: string, params: URLSearchParams) {
 }
 
 export function deltasPayload(params: URLSearchParams) {
+  const move = movementsPayload();
+  const from = params.get("from") ?? move.from.collectedAt;
+  const to = params.get("to") ?? move.to.collectedAt;
+  const companies = [...move.climbers, ...move.fallers]
+    .filter((row) => row.deltaRank != null && Math.abs(row.deltaRank) > 5)
+    .map((row) => ({
+      slug: row.slug,
+      name: row.name,
+      rank: row.rank,
+      previous_rank: row.previousRank,
+      delta_rank: row.deltaRank,
+      public_usd: row.publicUsd,
+      previous_public_usd: row.previousPublicUsd,
+      delta_usd: row.deltaUsd,
+    }));
   return {
-    from: params.get("from"),
-    to: params.get("to") ?? catalog.meta.collectedAt,
-    companies: [],
-    summary: { risers: 0, fallers: 0, new_entrants: 0, exits: 0 },
+    from,
+    to,
+    companies,
+    summary: {
+      risers: move.summary.climbers,
+      fallers: move.summary.fallers,
+      new_entrants: move.summary.newCompanies,
+      exits: move.summary.leftCompanies,
+    },
     notable_rule: "A rank move of more than 5 positions is notable.",
-    note: "Baseline snapshot 2026-10-05. No earlier collection is stored, so there is nothing to compare. No forecast is implied.",
+    note: move.note,
+    hashes: { from: move.from.hash, to: move.to.hash },
   };
 }
 
@@ -335,7 +361,7 @@ export function alertsPayload(params: URLSearchParams) {
     since: params.get("since"),
     collected_at: catalog.meta.collectedAt,
     alerts: [],
-    note: "No prior snapshot, so no rank move, new sponsorship, or exit can be asserted.",
+    note: "Compare /movements for the 2026-10-05 → 2026-10-06 catalog delta.",
   };
 }
 
@@ -399,17 +425,22 @@ export function sponsorshipsCsv(): string {
 
 export function snapshotsCsv(): string {
   const header = ["collected_at", "hash", "companies", "sponsorships", "ranked", "public_usd_ranked", "public_usd_all"];
-  const meta = catalog.meta;
-  const row = [
-    meta.collectedAt,
-    meta.hash,
-    meta.companies,
-    meta.sponsorships,
-    meta.ranked,
-    meta.publicUsdRanked,
-    meta.publicUsdAll,
-  ].map(csvCell);
-  return [header.join(","), row.join(",")].join("\n");
+  const prev = snapPrev as SnapFile;
+  const curr = snapCurr as SnapFile;
+  const rows = [prev.meta, curr.meta].map((m) =>
+    [
+      m.collectedAt,
+      m.hash,
+      m.companies,
+      m.sponsorships,
+      m.ranked,
+      m.publicUsdRanked,
+      m.publicUsdAll,
+    ]
+      .map(csvCell)
+      .join(","),
+  );
+  return [header.join(","), ...rows].join("\n");
 }
 
 function csvCell(value: unknown): string {

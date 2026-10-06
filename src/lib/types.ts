@@ -43,6 +43,10 @@ export type Meta = {
   featuredSlug: string;
   cron: string;
   hash: string;
+  /** Prior snapshot date (catalog movements). */
+  previousCollectedAt?: string;
+  /** Prior snapshot content hash (verifiable). */
+  previousHash?: string;
   exclusions: {
     spamCompanies: number;
     spamUsd: number;
@@ -50,6 +54,42 @@ export type Meta = {
     selfFundUsd: number;
     note: string;
   };
+};
+
+export type MovementCompany = {
+  slug: string;
+  name: string;
+  rank: number | null;
+  previousRank: number | null;
+  publicUsd: number;
+  previousPublicUsd: number | null;
+  deltaUsd: number;
+  deltaRank: number | null;
+};
+
+export type MovementsPayload = {
+  meta: Meta;
+  from: { collectedAt: string; hash: string; companies: number; publicUsdAll: number };
+  to: { collectedAt: string; hash: string; companies: number; publicUsdAll: number };
+  summary: {
+    deltaUsd: number;
+    deltaCompanies: number;
+    climbers: number;
+    fallers: number;
+    newTop200: number;
+    leftTop200: number;
+    newCompanies: number;
+    leftCompanies: number;
+    unchangedLeaders: number;
+  };
+  climbers: MovementCompany[];
+  fallers: MovementCompany[];
+  newTop200: MovementCompany[];
+  leftTop200: MovementCompany[];
+  newCompanies: MovementCompany[];
+  leftCompanies: MovementCompany[];
+  unchangedLeaders: MovementCompany[];
+  note: string;
 };
 
 export type BriefLine = {
