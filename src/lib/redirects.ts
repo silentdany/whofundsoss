@@ -1,5 +1,6 @@
 /**
- * Permanent (308) redirects. Old French slugs → English slugs, plus the
+ * Permanent (308) redirects. Old French slugs → English slugs, trailing slash and
+ * upper-case page paths → their canonical form, plus the
  * host hop to SITE_URL once a custom domain is live. Always a single hop:
  * `whofundsoss.vercel.app/classement` goes straight to `{SITE_URL}/ranking`.
  */
@@ -32,7 +33,10 @@ export function redirectTarget(requestUrl: URL, hostHeader: string, siteUrl: str
   const rawPath = requestUrl.pathname;
   const trimmed = rawPath.length > 1 ? rawPath.replace(/\/+$/, "") : rawPath;
   const slugTarget = SLUG_REDIRECTS[trimmed.toLowerCase()];
-  const path = slugTarget ?? rawPath;
+  // Page routes are lowercase with no trailing slash. API, card and file URLs are left alone.
+  const isPage = !/^\/(api|og|_)/i.test(trimmed) && !/\.[a-z0-9]+$/i.test(trimmed);
+  const normalized = isPage ? trimmed.toLowerCase() : rawPath;
+  const path = slugTarget ?? normalized;
 
   const hostHop =
     (host === LEGACY_PROD_HOST && siteHost !== LEGACY_PROD_HOST) ||
@@ -40,5 +44,6 @@ export function redirectTarget(requestUrl: URL, hostHeader: string, siteUrl: str
 
   if (hostHop) return `${site.origin}${path}${requestUrl.search}`;
   if (slugTarget) return `${requestUrl.origin}${slugTarget}${requestUrl.search}`;
+  if (isPage && normalized !== rawPath) return `${requestUrl.origin}${normalized}${requestUrl.search}`;
   return null;
 }
