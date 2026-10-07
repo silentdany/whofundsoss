@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { useMemo, useState } from "react";
 import { Shell } from "@/components/shell";
 import { collectedLabel, hashShort, money } from "@/lib/format";
@@ -53,6 +54,7 @@ function ProjectMissing() {
 
 function ProjectPage() {
   const { project, meta } = Route.useLoaderData();
+  const posthog = usePostHog();
   const [expanded, setExpanded] = useState(false);
   const visible = useMemo(
     () => (expanded ? project.sponsors : project.sponsors.slice(0, 40)),
@@ -134,7 +136,17 @@ function ProjectPage() {
           </table>
         </div>
         {project.sponsors.length > 40 && !expanded ? (
-          <button type="button" className="mt-4 text-sm text-sage" onClick={() => setExpanded(true)}>
+          <button
+            type="button"
+            className="mt-4 text-sm text-sage"
+            onClick={() => {
+              posthog?.capture("project_sponsors_expanded", {
+                project_slug: project.slug,
+                sponsor_count: project.sponsors.length,
+              });
+              setExpanded(true);
+            }}
+          >
             Show all {project.sponsors.length}
           </button>
         ) : null}

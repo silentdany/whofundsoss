@@ -1,3 +1,7 @@
+import {
+  sentryGlobalFunctionMiddleware,
+  sentryGlobalRequestMiddleware,
+} from "@sentry/tanstackstart-react";
 import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/react-start";
 import { redirectTarget } from "@/lib/redirects";
 import { SITE_URL } from "@/lib/site";
@@ -29,5 +33,7 @@ const seoMiddleware = createMiddleware({ type: "request" }).server(async ({ requ
 });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [csrfMiddleware, seoMiddleware],
+  // Sentry stays first so it observes failures from the middleware after it.
+  requestMiddleware: [sentryGlobalRequestMiddleware, csrfMiddleware, seoMiddleware],
+  functionMiddleware: [sentryGlobalFunctionMiddleware],
 }));

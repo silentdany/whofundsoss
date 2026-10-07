@@ -1,4 +1,5 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
+import { PostHogProvider } from "posthog-js/react";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { CompanySearch } from "@/components/company-search";
@@ -6,6 +7,21 @@ import { Shell } from "@/components/shell";
 import { notFoundHead, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
 import appCss from "../styles.css?url";
+
+const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN;
+const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
+
+if (import.meta.env.DEV && !posthogKey) {
+  throw new Error(
+    "VITE_PUBLIC_POSTHOG_PROJECT_TOKEN variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_PUBLIC_POSTHOG_PROJECT_TOKEN is configured",
+  );
+}
+
+if (import.meta.env.DEV && !posthogHost) {
+  throw new Error(
+    "VITE_PUBLIC_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_PUBLIC_POSTHOG_HOST is configured",
+  );
+}
 
 export const Route = createRootRoute({
   head: ({ matches }) => {
@@ -39,20 +55,43 @@ export const Route = createRootRoute({
     };
   },
   notFoundComponent: NotFound,
-  component: () => (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-      </head>
-      <body>
+  component: () => {
+    const app = (
+      <>
         <PreviewHostBridge />
         <AuthProvider>
           <Outlet />
         </AuthProvider>
-        <Scripts />
-      </body>
-    </html>
-  ),
+      </>
+    );
+
+    return (
+      <html lang="en" className="antialiased" suppressHydrationWarning>
+        <head>
+          <HeadContent />
+        </head>
+        <body>
+          {posthogKey && posthogHost ? (
+            <PostHogProvider
+              apiKey={posthogKey}
+              options={{
+                api_host: posthogHost,
+                defaults: "2025-05-24",
+                capture_exceptions: true,
+                debug: import.meta.env.DEV,
+                tracing_headers: typeof window !== "undefined" ? [window.location.hostname] : [],
+              }}
+            >
+              {app}
+            </PostHogProvider>
+          ) : (
+            app
+          )}
+          <Scripts />
+        </body>
+      </html>
+    );
+  },
 });
 
 function NotFound() {

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useMemo, useState } from "react";
 import { PageIntro, Shell } from "@/components/shell";
 import { collectedLabel, money } from "@/lib/format";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/watchlist")({
 
 function WatchlistPage() {
   const { meta, items, picker } = Route.useLoaderData();
+  const posthog = usePostHog();
   const [pins, setPins] = useState<string[]>([]);
   const [query, setQuery] = useState("");
 
@@ -35,7 +37,13 @@ function WatchlistPage() {
 
   function toggle(slug: string) {
     setPins((current) => {
-      const next = current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug];
+      const isPinned = current.includes(slug);
+      const next = isPinned ? current.filter((item) => item !== slug) : [...current, slug];
+      posthog?.capture("watchlist_pin_updated", {
+        company_slug: slug,
+        action: isPinned ? "unpinned" : "pinned",
+        pin_count: next.length,
+      });
       localStorage.setItem(PIN_KEY, JSON.stringify(next));
       return next;
     });
@@ -79,7 +87,7 @@ function WatchlistPage() {
       </section>
       <section className="mx-auto max-w-[1120px] px-5 pb-16">
         <h2 className="font-serif text-2xl">Your pins</h2>
-        <p className="mt-2 text-sm text-secondary">Saved in this browser only. Nothing is sent anywhere.</p>
+        <p className="mt-2 text-sm text-secondary">Pins are saved in this browser only.</p>
         <label className="mt-4 block max-w-md">
           <span className="sr-only">Find a company to pin</span>
           <input

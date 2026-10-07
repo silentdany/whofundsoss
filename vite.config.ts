@@ -3,6 +3,7 @@ import { join } from "node:path";
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
@@ -184,5 +185,16 @@ export default defineConfig(({ command, isPreview }) => ({
         ]
       : []),
     viteReact(),
+    // Last, so source-map upload sees the final build.
+    sentryTanstackStart({
+      org: "accura-9m",
+      project: "whofundsoss",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      sourcemaps: {
+        // Nitro's Vercel preset writes under `.vercel/`, which the plugin's
+        // default `./**/*.map` glob does not enter.
+        filesToDeleteAfterUpload: ["./.vercel/output/**/*.map", "./.output/**/*.map"],
+      },
+    }),
   ],
 }));

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { useMemo, useState } from "react";
 import { CompanySearch } from "@/components/company-search";
 import { Shell } from "@/components/shell";
@@ -71,6 +72,7 @@ function CompanyMissing() {
 
 function CompanyPage() {
   const { row, detail, meta, linkedProjects, narrative } = Route.useLoaderData();
+  const posthog = usePostHog();
   const [source, setSource] = useState<SourceKey | "all">("all");
   const [expanded, setExpanded] = useState(false);
 
@@ -293,7 +295,17 @@ function CompanyPage() {
           </table>
         </div>
         {lines.length > 40 && !expanded ? (
-          <button type="button" className="mt-4 text-sm text-sage" onClick={() => setExpanded(true)}>
+          <button
+            type="button"
+            className="mt-4 text-sm text-sage"
+            onClick={() => {
+              posthog?.capture("company_funding_lines_expanded", {
+                company_slug: row.slug,
+                funding_line_count: lines.length,
+              });
+              setExpanded(true);
+            }}
+          >
             Show all {lines.length}
           </button>
         ) : null}

@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { money } from "@/lib/format";
 import { searchCompanies } from "@/lib/queries";
@@ -16,6 +17,7 @@ export function CompanySearch({
   className?: string;
 }) {
   const navigate = useNavigate();
+  const posthog = usePostHog();
   const listId = useId();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
@@ -47,6 +49,10 @@ export function CompanySearch({
   }, [query]);
 
   function go(hit: Hit) {
+    posthog?.capture("company_search_result_selected", {
+      company_slug: hit.slug,
+      result_rank: hit.rank,
+    });
     setOpen(false);
     void navigate({ to: "/company/$slug", params: { slug: hit.slug } });
   }

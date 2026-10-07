@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { money } from "@/lib/format";
 
@@ -6,6 +7,7 @@ type Node = { id: string; name: string; publicUsd: number; rank: number | null }
 type Link = { a: string; b: string; shared: number; projects: string[] };
 
 export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }) {
+  const posthog = usePostHog();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const positions = useRef<Map<string, { x: number; y: number }>>(new Map());
@@ -153,6 +155,14 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
         .sort((a, b) => b.shared - a.shared)
     : [];
 
+  function selectCompany(companySlug: string, selectionMethod: "canvas" | "list" | "related") {
+    posthog?.capture("graph_company_selected", {
+      company_slug: companySlug,
+      selection_method: selectionMethod,
+    });
+    setActive(companySlug);
+  }
+
   function pick(event: React.PointerEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -168,7 +178,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
         bestDist = dist;
       }
     }
-    if (best) setActive(best);
+    if (best) selectCompany(best, "canvas");
   }
 
   return (
@@ -193,7 +203,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
               key={node.id}
               type="button"
               aria-pressed={node.id === active}
-              onClick={() => setActive(node.id)}
+              onClick={() => selectCompany(node.id, "list")}
               className={`min-h-11 rounded-full px-4 text-sm transition-colors ${
                 node.id === active ? "bg-ink text-paper" : "bg-sand hover:bg-line"
               }`}
@@ -225,7 +235,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
               const other = nodes.find((node) => node.id === otherId);
               return (
                 <li key={`${link.a}-${link.b}`}>
-                  <button type="button" className="min-h-8 text-left hover:text-ink" onClick={() => setActive(otherId)}>
+                  <button type="button" className="min-h-8 text-left hover:text-ink" onClick={() => selectCompany(otherId, "related")}>
                     <span className="font-medium text-ink underline decoration-line underline-offset-4">
                       {other?.name ?? otherId}
                     </span>{" "}
