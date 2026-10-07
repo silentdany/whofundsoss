@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { Navigate } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { GROK_PROVIDERS, authEnabled, signIn, signOut } from "./client";
 import { hasGateSessionMarker } from "./gate-session-marker";
 import { resolveSignInGateState } from "./sign-in-gate";
@@ -64,13 +65,18 @@ export function SignInGate({
 }
 
 export function SignInButtons() {
+  const posthog = usePostHog();
+
   return (
     <div className="flex w-full max-w-sm flex-col gap-2">
       {GROK_PROVIDERS.map((p) => (
         <button
           key={p.providerId}
           type="button"
-          onClick={() => signIn(p.providerId, { callbackURL: "/" })}
+          onClick={() => {
+            posthog?.capture("sign_in_started", { provider: p.providerId });
+            void signIn(p.providerId, { callbackURL: "/" });
+          }}
           className="w-full cursor-pointer rounded-md border border-neutral-300 px-4 py-2 hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-900"
         >
           Continue with {p.label}
@@ -89,6 +95,7 @@ export function SignInButtons() {
  */
 export function UserButton() {
   const user = useCurrentUser();
+  const posthog = usePostHog();
   // Sign-out can take a moment (and can fail when deployed), so the control
   // shows it is working and cannot be fired twice.
   const [signingOut, setSigningOut] = useState(false);
@@ -120,7 +127,10 @@ export function UserButton() {
           onClick={() => {
             setSigningOut(true);
             // Success navigates away; on failure re-enable so it can be retried.
-            void signOut().catch(() => setSigningOut(false));
+            void signOut("/", () => {
+              posthog?.capture("signed_out");
+              posthog?.reset();
+            }).catch(() => setSigningOut(false));
           }}
           className="cursor-pointer text-sm underline-offset-4 opacity-70 hover:underline disabled:cursor-wait disabled:no-underline"
         >

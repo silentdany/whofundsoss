@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { usePostHog } from "posthog-js/react";
 import { useMemo, useState } from "react";
 import { PageIntro, Shell } from "@/components/shell";
 import { RankTable } from "@/components/rank-table";
@@ -27,6 +28,7 @@ type SortKey = "publicUsd" | "projects" | "ghBeneficiaries";
 
 function RankingPage() {
   const { meta, rows } = Route.useLoaderData();
+  const posthog = usePostHog();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("publicUsd");
   const [source, setSource] = useState<SourceKey | "all">("all");
@@ -48,7 +50,14 @@ function RankingPage() {
   }, [rows, query, sort, source, whales, scope]);
 
   const filtersActive = query !== "" || source !== "all" || !whales || scope !== "ranked" || sort !== "publicUsd";
+  const captureFilterUpdate = (filterType: "source" | "sort" | "scope" | "include_whales" | "reset", filterValue: string | boolean) => {
+    posthog?.capture("ranking_filters_updated", {
+      filter_type: filterType,
+      filter_value: filterValue,
+    });
+  };
   const reset = () => {
+    captureFilterUpdate("reset", "all");
     setQuery("");
     setSource("all");
     setWhales(true);
@@ -76,34 +85,83 @@ function RankingPage() {
         </label>
         <div className="mt-5 space-y-4">
           <FilterGroup label="Source">
-            <Chip active={source === "all"} onClick={() => setSource("all")}>
+            <Chip
+              active={source === "all"}
+              onClick={() => {
+                captureFilterUpdate("source", "all");
+                setSource("all");
+              }}
+            >
               All
             </Chip>
             {(Object.keys(SOURCE_SHORT) as SourceKey[]).map((key) => (
-              <Chip key={key} active={source === key} onClick={() => setSource(key)}>
+              <Chip
+                key={key}
+                active={source === key}
+                onClick={() => {
+                  captureFilterUpdate("source", key);
+                  setSource(key);
+                }}
+              >
                 {SOURCE_SHORT[key]}
               </Chip>
             ))}
           </FilterGroup>
           <FilterGroup label="Sort by">
-            <Chip active={sort === "publicUsd"} onClick={() => setSort("publicUsd")}>
+            <Chip
+              active={sort === "publicUsd"}
+              onClick={() => {
+                captureFilterUpdate("sort", "publicUsd");
+                setSort("publicUsd");
+              }}
+            >
               Public dollars
             </Chip>
-            <Chip active={sort === "projects"} onClick={() => setSort("projects")}>
+            <Chip
+              active={sort === "projects"}
+              onClick={() => {
+                captureFilterUpdate("sort", "projects");
+                setSort("projects");
+              }}
+            >
               Named projects
             </Chip>
-            <Chip active={sort === "ghBeneficiaries"} onClick={() => setSort("ghBeneficiaries")}>
+            <Chip
+              active={sort === "ghBeneficiaries"}
+              onClick={() => {
+                captureFilterUpdate("sort", "ghBeneficiaries");
+                setSort("ghBeneficiaries");
+              }}
+            >
               Maintainers sponsored on GitHub
             </Chip>
           </FilterGroup>
           <FilterGroup label="Show">
-            <Chip active={scope === "ranked"} onClick={() => setScope("ranked")}>
+            <Chip
+              active={scope === "ranked"}
+              onClick={() => {
+                captureFilterUpdate("scope", "ranked");
+                setScope("ranked");
+              }}
+            >
               Top {meta.ranked}
             </Chip>
-            <Chip active={scope === "all"} onClick={() => setScope("all")}>
+            <Chip
+              active={scope === "all"}
+              onClick={() => {
+                captureFilterUpdate("scope", "all");
+                setScope("all");
+              }}
+            >
               All {meta.companies}
             </Chip>
-            <Toggle checked={whales} onChange={setWhales}>
+            <Toggle
+              checked={whales}
+              onChange={(next) => {
+                captureFilterUpdate("include_whales", next);
+                setWhales(next);
+              }}
+            >
               Include companies above $100k
             </Toggle>
           </FilterGroup>
