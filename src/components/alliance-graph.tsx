@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { money } from "@/lib/format";
 
@@ -39,7 +40,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
     const draw = () => {
       const width = wrap.clientWidth;
       if (!width) return;
-      const height = Math.max(420, Math.min(520, Math.round(width * 1.05)));
+      const height = Math.max(380, Math.min(560, Math.round(width * 0.95)));
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -62,7 +63,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
 
       const cx = width / 2;
       const cy = height / 2;
-      const radius = Math.min(width, height) * 0.32;
+      const radius = Math.min(width * 0.28, height * 0.36);
       const placed = new Map<string, { x: number; y: number }>();
       ordered.forEach((node, index) => {
         const angle = -Math.PI / 2 + (index / Math.max(ordered.length, 1)) * Math.PI * 2;
@@ -88,7 +89,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
         if (!a || !b) continue;
         const hot = Boolean(active && (link.a === active || link.b === active));
         ctx.strokeStyle = hot ? sage : line;
-        ctx.globalAlpha = hot ? 1 : 0.9;
+        ctx.globalAlpha = hot ? 1 : active ? 0.55 : 0.9;
         ctx.lineWidth = hot ? 1.75 : 1;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -97,12 +98,12 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
       }
       ctx.globalAlpha = 1;
 
-      const labeled = new Set(
-        [...nodes]
-          .sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0))
-          .slice(0, 5)
-          .map((node) => node.id),
-      );
+      const labeled = new Set(nodes.length <= 24 ? nodes.map((node) => node.id) : []);
+      if (nodes.length > 24) {
+        for (const node of [...nodes].sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0)).slice(0, 8)) {
+          labeled.add(node.id);
+        }
+      }
       if (active) labeled.add(active);
 
       for (const node of ordered) {
@@ -110,12 +111,12 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
         if (!point) continue;
         const hot = node.id === active;
         ctx.beginPath();
-        ctx.fillStyle = hot ? sage : neighbor.has(node.id) ? ink : muted;
-        ctx.arc(point.x, point.y, hot ? 7 : 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = hot ? sage : neighbor.has(node.id) ? ink : "#b9b6b1";
+        ctx.arc(point.x, point.y, hot ? 8 : neighbor.has(node.id) ? 6 : 4.5, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      ctx.font = "12px Manrope, sans-serif";
+      ctx.font = "13px Manrope, sans-serif";
       ctx.textBaseline = "middle";
       for (const id of labeled) {
         const point = placed.get(id);
@@ -126,7 +127,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
         const len = Math.hypot(outwardX, outwardY) || 1;
         const lx = point.x + (outwardX / len) * 16;
         const ly = point.y + (outwardY / len) * 14;
-        const label = node.name.length > 16 ? `${node.name.slice(0, 15)}…` : node.name;
+        const label = node.name.length > 18 ? `${node.name.slice(0, 17)}…` : node.name;
         const widthText = ctx.measureText(label).width;
         const left = outwardX < -8;
         const boxX = left ? lx - widthText - 8 : lx - (Math.abs(outwardX) < 8 ? widthText / 2 : 0);
@@ -134,7 +135,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
         ctx.beginPath();
         ctx.roundRect(boxX - 4, ly - 9, widthText + 8, 18, 8);
         ctx.fill();
-        ctx.fillStyle = id === active ? ink : muted;
+        ctx.fillStyle = id === active || neighbor.has(id) ? ink : muted;
         ctx.textAlign = "left";
         ctx.fillText(label, boxX, ly);
       }
@@ -171,40 +172,71 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
   }
 
   return (
-    <div>
-      <div ref={wrapRef} className="px-5">
-        <canvas
-          ref={canvasRef}
-          className="w-full touch-manipulation rounded-card"
-          onPointerDown={pick}
-          role="img"
-          aria-label="Companies linked when they fund the same distinctive projects"
-        />
+    <div className="mx-auto grid max-w-[1120px] gap-6 px-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div>
+        <div ref={wrapRef}>
+          <canvas
+            ref={canvasRef}
+            className="w-full touch-manipulation rounded-card"
+            onPointerDown={pick}
+            role="img"
+            aria-label="Circle diagram: companies linked when they sponsor the same distinctive projects. A text version follows below."
+          />
+        </div>
+        <p className="mt-3 text-sm text-secondary">
+          Each dot is a company. A line means the two sponsor the same projects. Tap a dot, or pick a
+          company below, to see who it is linked to.
+        </p>
+        <div role="group" aria-label="Pick a company" className="mt-3 flex flex-wrap gap-2">
+          {ordered.map((node) => (
+            <button
+              key={node.id}
+              type="button"
+              aria-pressed={node.id === active}
+              onClick={() => setActive(node.id)}
+              className={`min-h-11 rounded-full px-4 text-sm transition-colors ${
+                node.id === active ? "bg-ink text-paper" : "bg-sand hover:bg-line"
+              }`}
+            >
+              {node.name}
+            </button>
+          ))}
+        </div>
       </div>
-      <p className="mx-5 mt-3 text-sm text-muted">Tap a point. The five busiest names stay labeled.</p>
       {selected ? (
-        <div className="mx-5 mt-4 rounded-card bg-sand px-5 py-4">
-          <p className="font-medium">{selected.name}</p>
+        <aside className="h-fit rounded-card bg-sand px-6 py-6 lg:sticky lg:top-24" aria-live="polite">
+          <p className="eyebrow">Selected</p>
+          <h2 className="mt-1 font-serif text-3xl">{selected.name}</h2>
           <p className="mt-1 text-sm text-secondary tabular-nums">
-            {money(selected.publicUsd)} public
+            {selected.publicUsd > 0 ? `${money(selected.publicUsd)} public` : "No public dollar amount"}
             {selected.rank ? ` · rank ${selected.rank}` : ""}
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-secondary">
+          <Link
+            to="/company/$slug"
+            params={{ slug: selected.id }}
+            className="mt-3 inline-block text-sm font-medium text-sage"
+          >
+            Open the company page <span aria-hidden="true">›</span>
+          </Link>
+          <h3 className="mt-6 text-sm font-semibold">Shares projects with</h3>
+          <ul className="mt-3 space-y-3 text-sm text-secondary">
             {related.slice(0, 6).map((link) => {
               const otherId = link.a === selected.id ? link.b : link.a;
               const other = nodes.find((node) => node.id === otherId);
               return (
                 <li key={`${link.a}-${link.b}`}>
-                  <button type="button" className="text-left hover:text-ink" onClick={() => setActive(otherId)}>
-                    <span className="text-ink">{other?.name ?? otherId}</span>
-                    {" · "}
-                    {link.shared} shared · {link.projects.slice(0, 3).join(", ")}
+                  <button type="button" className="min-h-8 text-left hover:text-ink" onClick={() => setActive(otherId)}>
+                    <span className="font-medium text-ink underline decoration-line underline-offset-4">
+                      {other?.name ?? otherId}
+                    </span>{" "}
+                    · {link.shared} in common
+                    <span className="block text-xs text-muted">{link.projects.slice(0, 3).join(", ")}</span>
                   </button>
                 </li>
               );
             })}
           </ul>
-        </div>
+        </aside>
       ) : null}
     </div>
   );

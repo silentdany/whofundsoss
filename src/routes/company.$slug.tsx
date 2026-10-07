@@ -1,6 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { CompanySearch } from "@/components/company-search";
 import { Shell } from "@/components/shell";
+import { Chip } from "@/components/ui";
 import { money, scoreLabel } from "@/lib/format";
 import { loadCompany } from "@/lib/queries";
 import {
@@ -55,8 +57,12 @@ function CompanyMissing() {
     <Shell>
       <div className="mx-auto max-w-[1120px] px-5 py-24">
         <h1 className="font-serif text-4xl">No such company in this file.</h1>
-        <Link to="/ranking" className="mt-6 inline-block text-sage">
-          Back to the ranking
+        <p className="mt-3 max-w-lg text-secondary">
+          It may be spelled differently, or it may simply not publish any figure. Try another search.
+        </p>
+        <CompanySearch className="mt-6 max-w-xl" autoFocus />
+        <Link to="/ranking" className="mt-6 inline-block font-medium text-sage">
+          Or browse the full ranking
         </Link>
       </div>
     </Shell>
@@ -80,7 +86,7 @@ function CompanyPage() {
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <article className="mx-auto max-w-[1120px] px-5 pt-8 pb-16 sm:pt-12">
-        <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted">
+        <nav aria-label="Breadcrumb" className="mb-5 text-sm text-secondary">
           <ol className="flex flex-wrap items-center gap-x-2">
             <li>
               <Link to="/" className="hover:text-ink">
@@ -99,28 +105,54 @@ function CompanyPage() {
             </li>
           </ol>
         </nav>
-        <p className="text-sm text-muted">
-          {row.rank ? `Rank ${row.rank} by public dollars` : "Outside the top 200"}
+        <p className="eyebrow">
+          {row.rank ? `Rank ${row.rank} of ${meta.ranked}` : `Outside the top ${meta.ranked}`}
           {row.sector ? ` · ${row.sector}` : ""}
-          {" · "}
-          Snapshot {meta.collectedAt}
         </p>
-        <h1 className="mt-3 font-serif text-5xl tracking-tight sm:text-6xl">{row.name}.</h1>
+        <h1 className="mt-3 font-serif text-5xl tracking-tight sm:text-6xl">{row.name}</h1>
         {row.site ? (
-          <a href={row.site} className="mt-4 inline-block text-sage" rel="noreferrer" target="_blank">
-            {row.site.replace(/^https?:\/\//, "")}
+          <a href={row.site} className="mt-3 inline-block text-sage underline-offset-4 hover:underline" rel="noreferrer" target="_blank">
+            {row.site.replace(/^https?:\/\//, "")} <span aria-hidden="true">↗</span>
           </a>
         ) : null}
 
+        <div className="mt-8 grid gap-4 sm:grid-cols-[1.2fr_1fr]">
+          <div className="rounded-card bg-sand p-6 sm:p-8">
+            <p className="text-sm text-secondary">Public funding found</p>
+            <p className="mt-1 font-serif text-5xl tabular-nums sm:text-6xl">{money(row.publicUsd)}</p>
+            <p className="mt-3 text-sm leading-relaxed text-secondary">
+              A floor, not a total: only amounts the company has made public.
+              {row.lowVolume ? " Low volume, so read the score below with care." : ""}
+            </p>
+          </div>
+          <div className="flex flex-col justify-between rounded-card border border-line p-6 sm:p-8">
+            <div>
+              <p className="text-sm text-secondary">Transparency score</p>
+              <p className="mt-1 font-serif text-5xl tabular-nums">
+                {scoreLabel(row.transparency)}
+                <span className="ml-1 text-xl text-muted">/ 1</span>
+              </p>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-secondary">
+              {row.projectsWithAmount} of {row.projects} named sponsorships show a public amount.{" "}
+              <Link to="/method" className="font-medium text-sage">
+                How it is computed
+              </Link>
+            </p>
+          </div>
+        </div>
+
         <div className="mt-8 max-w-2xl space-y-3 text-lg leading-relaxed text-secondary">
-          {narrative.map((sentence) => (
+          {narrative
+            .filter((sentence) => !/^Rank \d+ by public dollars|^Named projects: \d+/.test(sentence))
+            .map((sentence) => (
             <p key={sentence}>{sentence}</p>
           ))}
         </div>
 
         {linkedProjects.length ? (
           <section className="mt-10 max-w-2xl">
-            <h2 className="font-serif text-2xl text-ink">Named projects in this file</h2>
+            <h2 className="font-serif text-2xl text-ink">Projects it funds</h2>
             <p className="mt-3 text-sm leading-relaxed text-secondary">
               {linkedProjects.map((p, i) => (
                 <span key={p.slug}>
@@ -134,21 +166,6 @@ function CompanyPage() {
           </section>
         ) : null}
 
-        <div className="mt-10 grid gap-8 border-y border-line py-8 sm:grid-cols-[auto_1fr] sm:items-end">
-          <div>
-            <p className="font-serif text-5xl tabular-nums">{scoreLabel(row.transparency)}</p>
-            <p className="mt-1 text-sm text-muted">Transparency, 0 to 1</p>
-          </div>
-          <div>
-            <p className="font-serif text-3xl tabular-nums">{money(row.publicUsd)} public</p>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-secondary">
-              60% is this total against the leader ({money(meta.maxPublicUsd)}). 40% is how many
-              named sponsorships carry a public amount ({row.projectsWithAmount} of {row.projects}).
-              {row.lowVolume ? " Low volume: do not read the score without the dollars." : ""}
-            </p>
-          </div>
-        </div>
-
         {row.dedupedPledge ? (
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-secondary">
             An own-program line repeats the pledge. The total counts those dollars once.
@@ -156,18 +173,18 @@ function CompanyPage() {
         ) : null}
 
         <section className="mt-10 max-w-2xl">
-          <h2 className="font-serif text-2xl text-ink">Sources</h2>
+          <h2 className="font-serif text-2xl text-ink">Where the money comes from</h2>
           <p className="mt-3 text-sm text-secondary">
             {SOURCE_ORDER.filter((key) => row.sources.includes(key))
               .map((key) => SOURCE_LABEL[key])
               .join(" · ")}
-            . Same pledge dollar is not counted twice.
+            . A pledge dollar is never counted twice.
           </p>
         </section>
 
         {row.unitemized ? (
-          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-warn">
-            Dollars are declared and no project is named. Coverage of the score stays at zero. See{" "}
+          <p className="mt-6 max-w-2xl rounded-card bg-sand px-5 py-4 text-sm leading-relaxed text-warn">
+            Dollars are declared but no project is named, so the project side of the score stays at zero. See{" "}
             <Link to="/mysteries" className="text-sage">
               Mysteries
             </Link>
@@ -188,7 +205,7 @@ function CompanyPage() {
                     <div className="h-full bg-sage" style={{ width: `${Math.max(2, (amount / maxBar) * 100)}%` }} />
                   </div>
                   {key === "oc" ? (
-                    <p className="mt-1 text-xs text-muted">Cumulative historical gifts, not a run-rate.</p>
+                    <p className="mt-1 text-xs text-secondary">Cumulative gifts to date, not a yearly figure.</p>
                   ) : null}
                 </li>
               );
@@ -196,7 +213,8 @@ function CompanyPage() {
           </ul>
         )}
 
-        <div className="mt-14 flex flex-wrap gap-2">
+        <h2 className="mt-14 font-serif text-2xl text-ink">Every funding line</h2>
+        <div role="group" aria-label="Filter by source" className="mt-4 flex flex-wrap gap-2">
           <Chip active={source === "all"} onClick={() => setSource("all")}>
             All lines
           </Chip>
@@ -206,14 +224,14 @@ function CompanyPage() {
             </Chip>
           ))}
         </div>
-        <p className="mt-4 text-sm text-muted tabular-nums">{lines.length} lines</p>
+        <p className="mt-4 text-sm text-secondary tabular-nums">{lines.length} {lines.length === 1 ? "line" : "lines"}</p>
         <div className="mt-2 overflow-x-auto">
-          <table className="w-full min-w-[36rem] text-left">
+          <table className="w-full text-left">
             <thead>
               <tr className="text-xs tracking-wide text-muted uppercase">
-                <th className="py-3 font-medium">Project</th>
-                <th className="py-3 font-medium">Source</th>
-                <th className="py-3 text-right font-medium">Amount</th>
+                <th scope="col" className="py-3 font-medium">Project</th>
+                <th scope="col" className="py-3 font-medium">Source</th>
+                <th scope="col" className="py-3 text-right font-medium">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -263,7 +281,7 @@ function CompanyPage() {
                     </td>
                     <td className="py-3 text-sm text-secondary">{SOURCE_LABEL[item.source]}</td>
                     <td className="py-3 text-right tabular-nums">
-                      {item.amountUsd == null ? "Not public" : money(item.amountUsd)}
+                      {item.amountUsd == null ? <span className="text-secondary">Not public</span> : money(item.amountUsd)}
                       {item.cumulative && item.amountUsd != null ? (
                         <span className="mt-0.5 block text-xs font-normal text-muted">Cumulative</span>
                       ) : null}
@@ -280,43 +298,18 @@ function CompanyPage() {
           </button>
         ) : null}
 
-        <p className="mt-12 max-w-xl text-sm text-secondary">
-          Rank is the dollar rank. Featured placement, if any, is labeled and does not move rank.
-          Method:{" "}
-          <Link to="/method" className="text-sage">
-            Method
-          </Link>
-          . Movements:{" "}
-          <Link to="/movements" className="text-sage">
-            /movements
+        <p className="mt-12 max-w-xl text-sm leading-relaxed text-secondary">
+          Rank always follows public dollars. Featured placements are labeled and never change a rank. See{" "}
+          <Link to="/method" className="font-medium text-sage">
+            how we count
+          </Link>{" "}
+          or{" "}
+          <Link to="/movements" className="font-medium text-sage">
+            what changed since the last snapshot
           </Link>
           .
         </p>
       </article>
     </Shell>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        active
-          ? "min-h-11 rounded-full bg-ink px-4 text-sm text-paper"
-          : "min-h-11 rounded-full bg-sand px-4 text-sm"
-      }
-    >
-      {children}
-    </button>
   );
 }

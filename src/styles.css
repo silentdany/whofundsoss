@@ -8,15 +8,17 @@
   --color-paper: #ffffff;
   --color-sand: #f3f1ee;
   --color-ink: #1a1a1a;
-  --color-secondary: #6b6b6b;
-  --color-muted: #9a9a9a;
+  --color-secondary: #555555;
+  --color-muted: #6e6e6e;
   --color-sage: #3d7a6a;
   --color-sage-soft: #e8f2ef;
-  --color-rise: #2f7d4f;
-  --color-fall: #b85c38;
-  --color-warn: #c4922a;
+  --color-rise: #27703f;
+  --color-fall: #a8492a;
+  --color-warn: #8f6200;
   --color-line: #e8e6e3;
   --color-overlay: #1c5c56;
+  --color-rise-soft: #e6f2ea;
+  --color-fall-soft: #f8ebe5;
 
   --radius-card: 1.25rem;
   --radius-control: 0.5rem;
@@ -60,5 +62,25 @@
 
   p {
     text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  .eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

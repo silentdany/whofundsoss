@@ -2,18 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { collectedLabel, hashShort } from "@/lib/format";
 
-const RECORD = [
-  { to: "/", label: "Home" },
-  { to: "/ranking", label: "Ranking" },
-  { to: "/movements", label: "Movements" },
-  { to: "/mysteries", label: "Mysteries" },
-  { to: "/graph", label: "Graph" },
-  { to: "/watchlist", label: "Watchlist" },
-] as const;
-
-const ABOUT = [
-  { to: "/method", label: "Method" },
-  { to: "/ranking", label: "Full ranking" },
+const NAV = [
+  { to: "/ranking", label: "Ranking", hint: "Who gives the most" },
+  { to: "/movements", label: "Movements", hint: "What changed since last time" },
+  { to: "/graph", label: "Graph", hint: "Who funds the same projects" },
+  { to: "/mysteries", label: "Mysteries", hint: "Numbers that don't add up" },
+  { to: "/watchlist", label: "Watchlist", hint: "Companies worth following" },
+  { to: "/method", label: "Method", hint: "How we count" },
 ] as const;
 
 export function Shell({
@@ -63,23 +58,24 @@ function Header() {
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-5">
           <Link
             to="/"
-            className="flex items-center gap-2 text-ink"
+            className="flex min-h-11 items-center gap-2 text-ink"
             aria-label="WhoFundsOSS home"
             onClick={() => setOpen(false)}
           >
             <img src="/favicon.svg" alt="" width={28} height={28} className="size-7 shrink-0" />
             <span className="text-[1.15rem] leading-none font-semibold tracking-tight">WhoFundsOSS</span>
           </Link>
-          <nav className="hidden items-center gap-8 text-sm text-secondary md:flex">
-            <Link to="/ranking" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
-              Ranking
-            </Link>
-            <Link to="/movements" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
-              Movements
-            </Link>
-            <Link to="/method" className="hover:text-ink" activeProps={{ className: "text-ink" }}>
-              Method
-            </Link>
+          <nav aria-label="Main" className="hidden items-center gap-1 text-sm md:flex">
+            {NAV.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="rounded-full px-3 py-2 text-secondary transition-colors hover:bg-sand hover:text-ink"
+                activeProps={{ className: "bg-sand text-ink font-medium", "aria-current": "page" }}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
           <button
             type="button"
@@ -99,9 +95,9 @@ function Header() {
         <div className="fixed inset-0 z-50 text-paper" role="dialog" aria-modal="true" aria-label="Menu">
           <img src="/art/meadow.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-[center_62%]" />
           <div className="absolute inset-0 bg-gradient-to-b from-overlay/88 via-overlay/62 to-overlay/25" />
-          <div className="relative mx-auto flex h-full max-w-[1120px] flex-col px-5 pt-5">
+          <div className="relative mx-auto flex h-full max-w-[1120px] flex-col overflow-y-auto px-5 pt-5 pb-8">
             <div className="flex items-center justify-between">
-              <span className="text-sm tracking-tight">WhoFundsOSS</span>
+              <span className="text-lg font-semibold tracking-tight">WhoFundsOSS</span>
               <button
                 type="button"
                 className="flex size-11 items-center justify-center text-2xl leading-none"
@@ -111,40 +107,23 @@ function Header() {
                 ×
               </button>
             </div>
-            <div className="mt-10 grid gap-10 sm:grid-cols-2">
-              <div>
-                <p className="text-sm text-paper/70">Record</p>
-                <ul className="mt-4 space-y-1">
-                  {RECORD.map((item) => (
-                    <li key={item.to}>
-                      <Link
-                        to={item.to}
-                        className="block py-2 font-serif text-4xl leading-none"
-                        onClick={() => setOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="text-sm text-paper/70">About</p>
-                <ul className="mt-4 space-y-1">
-                  {ABOUT.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        to={item.to}
-                        className="block py-2 text-2xl"
-                        onClick={() => setOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            <nav aria-label="Menu" className="mt-8">
+              <ul className="space-y-1">
+                {NAV.map((item) => (
+                  <li key={item.to}>
+                    <Link
+                      to={item.to}
+                      className="block py-2.5"
+                      activeProps={{ "aria-current": "page" }}
+                      onClick={() => setOpen(false)}
+                    >
+                      <span className="block font-serif text-4xl leading-none">{item.label}</span>
+                      <span className="mt-1 block text-sm text-paper/75">{item.hint}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
       ) : null}
@@ -154,53 +133,63 @@ function Header() {
 
 function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) {
   return (
-    <footer className="relative mt-4 min-h-[34rem] text-paper">
+    <footer className="relative mt-16 text-paper">
       <img
         src="/art/meadow.jpg"
         alt=""
+        loading="lazy"
         className="absolute inset-0 h-full w-full object-cover object-[center_58%]"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-overlay/90 via-overlay/55 to-overlay/20" />
-      <div className="relative mx-auto grid max-w-[1120px] gap-12 px-5 pt-12 sm:grid-cols-2 sm:pt-16">
+      <div className="absolute inset-0 bg-gradient-to-b from-overlay/92 via-overlay/70 to-overlay/45" />
+      <div className="relative mx-auto grid max-w-[1120px] gap-10 px-5 pt-14 sm:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <p className="font-serif text-3xl">Record</p>
-          <ul className="mt-5 space-y-3 text-lg">
-            {RECORD.slice(1).map((item) => (
-              <li key={item.to}>
-                <Link to={item.to} className="inline-flex min-h-11 items-center hover:underline">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <p className="font-serif text-2xl">WhoFundsOSS</p>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-paper/85">
+            A public record of who funds open source. Amounts are a floor: only dollars someone has
+            already published. Refreshed once a month.
+          </p>
         </div>
-        <div>
-          <p className="font-serif text-3xl">About</p>
-          <ul className="mt-5 space-y-3 text-lg">
-            <li>
-              <Link to="/method" className="inline-flex min-h-11 items-center hover:underline">
-                Method
-              </Link>
-            </li>
-            <li>
-              <Link to="/mysteries" className="inline-flex min-h-11 items-center hover:underline">
-                Mysteries
-              </Link>
-            </li>
-            <li>
-              <Link to="/watchlist" className="inline-flex min-h-11 items-center hover:underline">
-                Watchlist
-              </Link>
-            </li>
-          </ul>
-        </div>
+        <FooterColumn
+          title="Explore"
+          links={[
+            { to: "/ranking", label: "Ranking" },
+            { to: "/movements", label: "Movements" },
+            { to: "/graph", label: "Graph" },
+          ]}
+        />
+        <FooterColumn
+          title="Understand"
+          links={[
+            { to: "/method", label: "Method" },
+            { to: "/mysteries", label: "Mysteries" },
+            { to: "/watchlist", label: "Watchlist" },
+            { to: "/denylist", label: "Spam denylist" },
+          ]}
+        />
       </div>
-      <div className="relative mx-auto flex max-w-[1120px] flex-wrap gap-x-6 gap-y-2 px-5 pt-16 pb-8 text-sm text-paper/90">
+      <div className="relative mx-auto flex max-w-[1120px] flex-wrap gap-x-6 gap-y-2 px-5 pt-12 pb-8 text-sm text-paper/90">
         <span>© {collectedAt?.slice(0, 4) ?? "2026"} WhoFundsOSS</span>
-        {collectedAt ? <span>Collected {collectedLabel(collectedAt)}</span> : null}
+        {collectedAt ? <span>Data collected {collectedLabel(collectedAt)}</span> : null}
         {hash ? <span className="tabular-nums">Snapshot {hashShort(hash)}</span> : null}
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({ title, links }: { title: string; links: { to: string; label: string }[] }) {
+  return (
+    <div>
+      <p className="text-sm font-semibold tracking-wide text-paper/70 uppercase">{title}</p>
+      <ul className="mt-3 space-y-1">
+        {links.map((item) => (
+          <li key={item.to}>
+            <Link to={item.to} className="inline-flex min-h-11 items-center text-lg hover:underline">
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -214,8 +203,8 @@ export function PageIntro({
   lede: string;
 }) {
   return (
-    <header className="mx-auto max-w-[1120px] px-5 pt-8 pb-6 sm:pt-12">
-      <p className="text-sm text-muted">{eyebrow}</p>
+    <header className="mx-auto max-w-[1120px] px-5 pt-8 pb-8 sm:pt-12">
+      <p className="eyebrow">{eyebrow}</p>
       <h1 className="mt-3 max-w-3xl font-serif text-4xl leading-[1.08] tracking-tight sm:text-5xl">
         {title}
       </h1>

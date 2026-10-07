@@ -1,3 +1,4 @@
+import { isSpamDenylisted } from "./spam-denylist";
 import raw from "@/data/catalog.json";
 import snapPrev from "@/data/snapshots/2026-10-05.json";
 import snapCurr from "@/data/snapshots/2026-10-06.json";
@@ -72,7 +73,7 @@ export function homePayload() {
       href: "company" as const,
       slug: posit.slug,
       title: posit.name,
-      text: `Leads the public record at ${money(posit.publicUsd)}. ${money(positDetail.bySource.osp)} of that is the 2025 pledge. ${money(positDetail.bySource.oc)} is cumulative Open Collective, not a yearly run-rate.`,
+      text: `Leads the ranking at ${money(posit.publicUsd)} in public funding. ${money(positDetail.bySource.osp)} of that is its 2025 Open Source Pledge; ${money(positDetail.bySource.oc)} is cumulative Open Collective giving, not a yearly figure.`,
     });
   }
   if (sentry) {
@@ -80,15 +81,15 @@ export function homePayload() {
       href: "company" as const,
       slug: sentry.slug,
       title: sentry.name,
-      text: `${money(sentry.publicUsd)} through the Open Source Pledge, and ${sentry.ghBeneficiaries} GitHub beneficiaries. None of those tiers publish an amount. The pledge is not counted a second time.`,
+      text: `${money(sentry.publicUsd)} through the Open Source Pledge, and it sponsors ${sentry.ghBeneficiaries} maintainers on GitHub without publishing any amounts. The pledge is not counted a second time.`,
     });
   }
   if (ghosts.length) {
     brief.push({
       href: "mysteries" as const,
       slug: null,
-      title: "Named nowhere",
-      text: `${ghosts.map((row) => row.name).join(", ")} publish pledge dollars and name zero projects.`,
+      title: "Money declared, no project named",
+      text: `${ghosts.map((row) => row.name).join(", ")} publish pledge dollars but name no project.`,
     });
   }
   if (microsoft) {
@@ -96,7 +97,7 @@ export function homePayload() {
       href: "company" as const,
       slug: microsoft.slug,
       title: microsoft.name,
-      text: `The public total is ${money(microsoft.publicUsd)}, a cumulative gift to webpack. The score sits next to that number on purpose. Alone, it lies.`,
+      text: `The public total is only ${money(microsoft.publicUsd)}: a cumulative gift to webpack. Big companies can fund a lot privately, so a low number here is a floor, not a verdict.`,
     });
   }
 
@@ -498,4 +499,21 @@ export function catalogSitemapPaths(
   build: (rows: CompanyRow[], details: CatalogFile["details"], projectPaths?: string[]) => string[],
 ): string[] {
   return build(catalog.index, catalog.details, publishedProjectPathList());
+}
+
+export type SearchHit = { slug: string; name: string; rank: number | null; publicUsd: number };
+
+/** Name search for the company picker. Spam-denylisted pages are never suggested. */
+export function searchCompanies(query: string, limit = 6): SearchHit[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  return catalog.index
+    .filter((row) => !isSpamDenylisted(row.slug) && (row.name.toLowerCase().includes(q) || row.slug.includes(q)))
+    .sort((a, b) => {
+      const as = a.name.toLowerCase().startsWith(q) ? 0 : 1;
+      const bs = b.name.toLowerCase().startsWith(q) ? 0 : 1;
+      return as - bs || b.publicUsd - a.publicUsd;
+    })
+    .slice(0, limit)
+    .map((row) => ({ slug: row.slug, name: row.name, rank: row.rank, publicUsd: row.publicUsd }));
 }

@@ -48,3 +48,10 @@ export const loadProject = createServerFn({ method: "GET" })
     const { projectPayload } = await import("./catalog.server");
     return projectPayload(data);
   });
+
+export const searchCompanies = createServerFn({ method: "GET" })
+  .validator((query: string) => query)
+  .handler(async ({ data }) => {
+    const { searchCompanies: run } = await import("./catalog.server");
+    return run(data.slice(0, 60));
+  });

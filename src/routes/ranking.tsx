@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageIntro, Shell } from "@/components/shell";
 import { RankTable } from "@/components/rank-table";
+import { Chip, FilterGroup, Toggle } from "@/components/ui";
 import { collectedLabel } from "@/lib/format";
 import { loadRanking } from "@/lib/queries";
 import { SOURCE_SHORT, type SourceKey } from "@/lib/types";
@@ -46,79 +47,81 @@ function RankingPage() {
     return next;
   }, [rows, query, sort, source, whales, scope]);
 
+  const filtersActive = query !== "" || source !== "all" || !whales || scope !== "ranked" || sort !== "publicUsd";
+  const reset = () => {
+    setQuery("");
+    setSource("all");
+    setWhales(true);
+    setScope("ranked");
+    setSort("publicUsd");
+  };
+
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <PageIntro
-        eyebrow={`Collected ${collectedLabel(meta.collectedAt)}`}
+        eyebrow={`Data collected ${collectedLabel(meta.collectedAt)}`}
         title="The public ranking."
-        lede="Sorted by dollars that are already public. Rank is the dollar rank. Changing the sort does not invent a new one. Open Collective amounts are cumulative."
+        lede="Companies sorted by the dollars they have publicly put into open source. The rank always follows the dollars, whichever sort you pick. Open Collective amounts are cumulative, not yearly."
       />
       <div className="mx-auto max-w-[1120px] px-5 pb-4">
         <label className="block">
           <span className="sr-only">Search companies</span>
           <input
+            type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search a company"
-            className="w-full rounded-full border border-line bg-paper px-5 py-3 text-base outline-none focus:border-sage"
+            placeholder="Filter by company name"
+            className="min-h-14 w-full rounded-full border border-line bg-paper px-6 text-base shadow-sm outline-none focus:border-sage"
           />
         </label>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <FilterChip active={source === "all"} onClick={() => setSource("all")}>
-            All sources
-          </FilterChip>
-          {(Object.keys(SOURCE_SHORT) as SourceKey[]).map((key) => (
-            <FilterChip key={key} active={source === key} onClick={() => setSource(key)}>
-              {SOURCE_SHORT[key]}
-            </FilterChip>
-          ))}
+        <div className="mt-5 space-y-4">
+          <FilterGroup label="Source">
+            <Chip active={source === "all"} onClick={() => setSource("all")}>
+              All
+            </Chip>
+            {(Object.keys(SOURCE_SHORT) as SourceKey[]).map((key) => (
+              <Chip key={key} active={source === key} onClick={() => setSource(key)}>
+                {SOURCE_SHORT[key]}
+              </Chip>
+            ))}
+          </FilterGroup>
+          <FilterGroup label="Sort by">
+            <Chip active={sort === "publicUsd"} onClick={() => setSort("publicUsd")}>
+              Public dollars
+            </Chip>
+            <Chip active={sort === "projects"} onClick={() => setSort("projects")}>
+              Named projects
+            </Chip>
+            <Chip active={sort === "ghBeneficiaries"} onClick={() => setSort("ghBeneficiaries")}>
+              Maintainers sponsored on GitHub
+            </Chip>
+          </FilterGroup>
+          <FilterGroup label="Show">
+            <Chip active={scope === "ranked"} onClick={() => setScope("ranked")}>
+              Top {meta.ranked}
+            </Chip>
+            <Chip active={scope === "all"} onClick={() => setScope("all")}>
+              All {meta.companies}
+            </Chip>
+            <Toggle checked={whales} onChange={setWhales}>
+              Include companies above $100k
+            </Toggle>
+          </FilterGroup>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-          <FilterChip active={sort === "publicUsd"} onClick={() => setSort("publicUsd")}>
-            Public $
-          </FilterChip>
-          <FilterChip active={sort === "projects"} onClick={() => setSort("projects")}>
-            Projects
-          </FilterChip>
-          <FilterChip active={sort === "ghBeneficiaries"} onClick={() => setSort("ghBeneficiaries")}>
-            GitHub beneficiaries
-          </FilterChip>
-          <FilterChip active={!whales} onClick={() => setWhales((value) => !value)}>
-            {whales ? "Hide $100k+" : "$100k+ hidden"}
-          </FilterChip>
-          <FilterChip active={scope === "all"} onClick={() => setScope((value) => (value === "all" ? "ranked" : "all"))}>
-            {scope === "ranked" ? "Top 200" : "All in file"}
-          </FilterChip>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-secondary tabular-nums" aria-live="polite">
+            {filtered.length} {filtered.length === 1 ? "company" : "companies"}
+          </p>
+          {filtersActive ? (
+            <button type="button" onClick={reset} className="min-h-11 text-sm font-medium text-sage">
+              Reset filters
+            </button>
+          ) : null}
         </div>
-        <p className="mt-4 text-sm text-muted tabular-nums">{filtered.length} companies</p>
       </div>
       <div className="mx-auto max-w-[1120px] pb-16">
         <RankTable rows={filtered} />
       </div>
     </Shell>
-  );
-}
-
-function FilterChip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        active
-          ? "min-h-11 rounded-full bg-ink px-4 text-sm text-paper"
-          : "min-h-11 rounded-full bg-sand px-4 text-sm text-ink"
-      }
-    >
-      {children}
-    </button>
   );
 }
