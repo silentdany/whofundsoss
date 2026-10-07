@@ -1,6 +1,7 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { CompanySearch } from "@/components/company-search";
 import { Shell } from "@/components/shell";
 import { notFoundHead, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
@@ -58,10 +59,24 @@ function NotFound() {
   return (
     <Shell>
       <div className="mx-auto max-w-[1120px] px-5 py-24">
-        <h1 className="font-serif text-4xl">Page not found.</h1>
-        <Link to="/ranking" className="mt-6 inline-block text-sage">
-          See the ranking
-        </Link>
+        <h1 className="font-serif text-4xl sm:text-5xl">This page does not exist.</h1>
+        <p className="mt-3 max-w-lg text-secondary">
+          The link may be old or mistyped. Look up a company instead, or head to one of these pages.
+        </p>
+        <CompanySearch className="mt-6 max-w-xl" />
+        <ul className="mt-8 flex flex-wrap gap-3">
+          {[
+            ["/ranking", "Ranking"],
+            ["/movements", "What changed"],
+            ["/method", "How we count"],
+          ].map(([to, label]) => (
+            <li key={to}>
+              <Link to={to} className="inline-flex min-h-11 items-center rounded-full bg-sand px-5 text-sm font-medium hover:bg-line">
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </Shell>
   );

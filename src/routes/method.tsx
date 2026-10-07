@@ -28,19 +28,18 @@ function MethodPage() {
       <PageIntro
         eyebrow={`Freshness ${collectedLabel(meta.collectedAt)}`}
         title="How a number gets onto this site."
-        lede="Known public total, per company, is the sum of amounts that were already public. Nothing is annualized. Nothing private is inferred. The same pledge dollar is not counted twice."
+        lede="A company's public total is the sum of amounts it has already made public. Nothing is annualized, nothing private is inferred, and no dollar is counted twice."
       />
       <article className="mx-auto max-w-[720px] space-y-10 px-5 pb-20 text-base leading-relaxed text-secondary">
         <section>
           <h2 className="font-serif text-2xl text-ink">The four sources</h2>
           <ul className="mt-4 space-y-3">
             <li>
-              Open Collective — historical <span className="text-ink">totalAmountDonated</span>, often
-              multi-year. Not a run-rate.
+              <strong className="font-semibold text-ink">Open Collective:</strong> the total donated so far, often over several years. Not a yearly figure.
             </li>
-            <li>Open Source Pledge — annual payment from the latest public report, devs times dollars per dev.</li>
-            <li>GitHub Sponsors — a monthly amount only when the tier is public. That is rare. It is not multiplied by twelve.</li>
-            <li>Own programs — a figure from a public page, or a name with no figure.</li>
+            <li><strong className="font-semibold text-ink">Open Source Pledge:</strong> the yearly payment from the latest public report (developers times dollars per developer).</li>
+            <li><strong className="font-semibold text-ink">GitHub Sponsors:</strong> a monthly amount, only when the tier is public. That is rare, and it is never multiplied by twelve.</li>
+            <li><strong className="font-semibold text-ink">Own programs:</strong> a figure from the company's public page, or just the program's name when no figure is given.</li>
           </ul>
         </section>
         <section id="exclusions">
@@ -50,9 +49,9 @@ function MethodPage() {
             {ex.selfFundCompanies} self-fund (Supabase, {money(ex.selfFundUsd)}). {ex.note}
           </p>
           <p className="mt-3">
-            Supabase appears as a backer of its own collective. That was read as money moving through
-            the project, not as classic outbound sponsoring, and kept out of the ranking until a manual
-            review says otherwise.
+            Supabase appears as a backer of its own collective. We read that as money moving through its own
+            project rather than outbound sponsoring, and keep it out of the ranking until a manual review
+            says otherwise.
           </p>
           <p className="mt-3">
             A separate, versioned{" "}
@@ -69,11 +68,11 @@ function MethodPage() {
           </p>
         </section>
         <section>
-          <h2 className="font-serif text-2xl text-ink">Transparency, in one sentence</h2>
+          <h2 className="font-serif text-2xl text-ink">The transparency score</h2>
           <p className="mt-4">
-            Score = 0.6 × (public dollars ÷ the leader) + 0.4 × (sponsorships with a public amount ÷
-            sponsorships). The leader this collection is {money(meta.maxPublicUsd)}. A high score on a
-            small total is labeled low volume. The score is never shown alone.
+            Score = 0.6 × (public dollars ÷ the leader's dollars) + 0.4 × (sponsorships with a public amount ÷
+            all sponsorships). The current leader is at {money(meta.maxPublicUsd)}. A high score on a
+            small total is labeled "low volume". The score is never shown without the dollars next to it.
           </p>
         </section>
         <section>
@@ -81,17 +80,17 @@ function MethodPage() {
           <p className="mt-4">
             This build holds snapshot {collectedLabel(meta.collectedAt)}, hash {hashShort(meta.hash)}{meta.previousCollectedAt ? `, with prior ${collectedLabel(meta.previousCollectedAt)} (${hashShort(meta.previousHash ?? "")})` : ""}.{" "}
             {meta.companies} companies, {meta.sponsorships.toLocaleString("en-US")} sponsorship lines,{" "}
-            {money(meta.publicUsdRanked)} in the top {meta.ranked}. {meta.cron}. Deltas compare two
-            hashes. They do not forecast the next one.
+            {money(meta.publicUsdRanked)} in the top {meta.ranked}. Comparisons between two snapshots
+            describe what changed. They never forecast what comes next.
           </p>
         </section>
-        <section>
-          <h2 className="font-serif text-2xl text-ink">Internal API</h2>
+        <details>
+          <summary className="cursor-pointer font-serif text-2xl text-ink">For developers: internal API</summary>
           <p className="mt-4">
-            Read-only. Preview key, header <code className="text-ink">X-API-Key: wfo_preview_floor</code>.
+            Read-only. Preview key, sent as the header <code className="break-all text-ink">X-API-Key: wfo_preview_floor</code>.
             Health is open. The rest refuse a missing key.
           </p>
-          <ul className="mt-4 space-y-1 text-sm text-ink">
+          <ul className="mt-4 space-y-2 text-sm break-all text-ink">
             <li>GET /api/health</li>
             <li>GET /api/v1/leaderboard?sort=public_usd|projects|gh&limit=50&offset=0&include_whales=false</li>
             <li>GET /api/v1/companies/:slug</li>
@@ -104,7 +103,7 @@ function MethodPage() {
             <li>GET /api/v1/export/sponsorships</li>
             <li>GET /api/v1/export/snapshots</li>
           </ul>
-        </section>
+        </details>
       </article>
     </Shell>
   );

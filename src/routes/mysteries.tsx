@@ -22,57 +22,60 @@ function MysteriesPage() {
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <PageIntro
-        eyebrow="Inconsistencies, not accusations"
-        title="Declared, not itemized."
-        lede="Some companies publish a dollar figure and name no project. Others name many GitHub beneficiaries and publish no tier amount. Both can be true. Neither is filled in here."
+        eyebrow="Mysteries · inconsistencies, not accusations"
+        title="Numbers that don't add up yet."
+        lede="Some companies publish a dollar figure but name no project. Others name many maintainers they sponsor but never publish what they pay. Both can be perfectly legitimate. We flag the gap and never fill it in."
       />
-      <section className="mx-auto max-w-[1120px] px-5 pb-8">
-        <h2 className="font-serif text-2xl">Pledge dollars, zero named projects</h2>
-        <p className="mt-2 max-w-2xl text-sm text-secondary">
-          A possible reading: the pledge is real and the project list was never itemized. Another:
-          the figure is an organization-level promise. The file cannot tell them apart.
+      <section className="mx-auto max-w-[1120px] px-5 pb-10">
+        <h2 className="font-serif text-2xl">Money declared, no project named</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">
+          One reading: the pledge is real and the project list was never published. Another: the figure
+          is a general commitment by the organization. The public record cannot tell them apart.
         </p>
-        <ul className="mt-6 divide-y divide-line border-y border-line">
-          {unitemized.map((row) => (
-            <li key={row.slug}>
-              <Link
-                to="/company/$slug"
-                params={{ slug: row.slug }}
-                className="flex items-baseline justify-between gap-4 py-4"
-              >
-                <span>
-                  <span className="font-medium">{row.name}</span>
-                  {row.rank ? <span className="ml-2 text-sm text-muted">Rank {row.rank}</span> : null}
-                </span>
-                <span className="tabular-nums">{money(row.publicUsd)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {unitemized.length ? (
+          <ul className="mt-6 divide-y divide-line border-y border-line">
+            {unitemized.map((row) => (
+              <MysteryRow key={row.slug} slug={row.slug} name={row.name}>
+                {row.rank ? <span className="text-muted">Rank {row.rank} · </span> : null}
+                <span className="font-semibold text-ink tabular-nums">{money(row.publicUsd)}</span>
+              </MysteryRow>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-6 rounded-card bg-sand px-5 py-4 text-secondary">
+            Nothing to flag here in this snapshot. Every company that declares dollars also names at least
+            one project.
+          </p>
+        )}
       </section>
       <section className="mx-auto max-w-[1120px] px-5 pt-6 pb-16">
-        <h2 className="font-serif text-2xl">Named on GitHub, amount not public</h2>
-        <p className="mt-2 max-w-2xl text-sm text-secondary">
-          Eight or more GitHub beneficiaries, and a GitHub total of zero. The relationship is public.
-          The price is not. No monthly figure is turned into a year.
+        <h2 className="font-serif text-2xl">Maintainers named, price hidden</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">
+          These companies sponsor eight or more maintainers on GitHub, yet no sponsorship tier shows an
+          amount. The relationship is public; the price is not. We never turn a monthly figure into a year.
         </p>
         <ul className="mt-6 divide-y divide-line border-y border-line">
           {unpriced.map((row) => (
-            <li key={row.slug}>
-              <Link
-                to="/company/$slug"
-                params={{ slug: row.slug }}
-                className="flex items-baseline justify-between gap-4 py-4"
-              >
-                <span className="font-medium">{row.name}</span>
-                <span className="text-sm text-secondary tabular-nums">
-                  {row.ghBeneficiaries} beneficiaries · {money(row.publicUsd)} elsewhere
-                </span>
-              </Link>
-            </li>
+            <MysteryRow key={row.slug} slug={row.slug} name={row.name}>
+              <span className="tabular-nums">
+                {row.ghBeneficiaries} maintainers sponsored ·{" "}
+                {row.publicUsd > 0 ? `${money(row.publicUsd)} public elsewhere` : "no public dollars"}
+              </span>
+            </MysteryRow>
           ))}
         </ul>
       </section>
     </Shell>
+  );
+}
+
+function MysteryRow({ slug, name, children }: { slug: string; name: string; children: React.ReactNode }) {
+  return (
+    <li className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-4 transition-colors hover:bg-sand/60">
+      <Link to="/company/$slug" params={{ slug }} className="font-medium after:absolute after:inset-0">
+        {name}
+      </Link>
+      <span className="text-sm text-secondary">{children}</span>
+    </li>
   );
 }

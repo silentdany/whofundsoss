@@ -126,10 +126,10 @@ export const SOURCE_LABEL: Record<SourceKey, string> = {
 };
 
 export const SOURCE_SHORT: Record<SourceKey, string> = {
-  oc: "OC",
+  oc: "Open Collective",
   osp: "Pledge",
   gh: "GitHub",
-  own: "Program",
+  own: "Own program",
 };
 
 export const SOURCE_ORDER: SourceKey[] = ["oc", "osp", "gh", "own"];

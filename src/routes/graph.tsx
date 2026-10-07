@@ -25,26 +25,26 @@ function GraphPage() {
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <PageIntro
-        eyebrow="Co-sponsorships"
+        eyebrow="Graph · co-sponsorships"
         title="Who funds the same work."
-        lede="Edges connect companies that share at least two distinctive projects: projects with between 2 and 15 sponsors. Webpack and Babel are left out of the drawing on purpose. Everyone funds them, so the picture would be a knot."
+        lede="Companies are linked when they back at least two of the same projects. Projects almost everyone funds, like webpack and Babel, are left out on purpose: they would turn the picture into a knot."
       />
       <AllianceGraph nodes={nodes} links={links} />
-      <section className="mx-auto max-w-[1120px] px-5 pt-12 pb-6">
-        <h2 className="font-serif text-2xl">Alliances, as a list</h2>
+      <section className="mx-auto max-w-[1120px] px-5 pt-14 pb-6">
+        <h2 className="font-serif text-2xl">The same links, as a list</h2>
         <ul className="mt-4 divide-y divide-line border-y border-line">
           {links.slice(0, 12).map((link) => (
             <li key={`${link.a}-${link.b}`} className="py-4 text-sm leading-relaxed">
               <Link to="/company/$slug" params={{ slug: link.a }} className="font-medium">
                 {names.get(link.a) ?? link.a}
               </Link>
-              <span className="text-muted"> × </span>
+              <span className="text-muted"> and </span>
               <Link to="/company/$slug" params={{ slug: link.b }} className="font-medium">
                 {names.get(link.b) ?? link.b}
               </Link>
               <span className="text-secondary">
                 {" "}
-                · {link.shared} shared ·{" "}
+                · {link.shared} in common ·{" "}
                 {link.projects.slice(0, 4).map((project, i) => {
                   const slug = project.trim().toLowerCase();
                   const sep = i > 0 ? ", " : "";
@@ -93,7 +93,7 @@ function GraphPage() {
                     item.project
                   )}
                 </h3>
-                <p className="text-sm text-muted tabular-nums">{item.sponsors} sponsors</p>
+                <p className="text-sm text-secondary tabular-nums">{item.sponsors} sponsors</p>
               </div>
               <ul className="mt-3 space-y-1 text-sm">
                 {item.funders.length ? (
