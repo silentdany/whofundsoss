@@ -44,3 +44,20 @@ test("dropped catalog slug nx-by-nrwl 308s to nrwl", () => {
   const withSlash = new URL(`${VERCEL}/company/nx-by-nrwl/`);
   assert.equal(redirectTarget(withSlash, withSlash.host, VERCEL), `${VERCEL}/company/nrwl`);
 });
+
+test("page paths are normalized to lowercase without a trailing slash, files and APIs are not", () => {
+  const cases: [string, string | null][] = [
+    ["/Ranking", `${VERCEL}/ranking`],
+    ["/company/posit-dev/", `${VERCEL}/company/posit-dev`],
+    ["/Company/Posit-Dev/?x=1", `${VERCEL}/company/posit-dev?x=1`],
+    ["/", null],
+    ["/api/v1/leaderboard", null],
+    ["/og/company/posit-dev.jpg", null],
+    ["/sitemap.xml", null],
+    ["/manifest.webmanifest", null],
+  ];
+  for (const [path, expected] of cases) {
+    const url = new URL(`${VERCEL}${path}`);
+    assert.equal(redirectTarget(url, url.host, VERCEL), expected, path);
+  }
+});
