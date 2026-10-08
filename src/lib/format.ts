@@ -29,6 +29,14 @@ export function money(value: number): string {
   return `${sign}$${Math.round(v).toLocaleString("en-US")}`;
 }
 
+/**
+ * A company's public total. Every listed company funds something, so zero means
+ * the amounts exist but are not published (e.g. private GitHub tiers), never "gives nothing".
+ */
+export function publicTotal(value: number): string {
+  return value > 0 ? money(value) : "Not public";
+}
+
 export function collectedLabel(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d) return iso;

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useMemo, useState } from "react";
 import { PageIntro, Shell } from "@/components/shell";
-import { collectedLabel, money } from "@/lib/format";
+import { collectedLabel, publicTotal } from "@/lib/format";
 import { loadWatchlist } from "@/lib/queries";
 import { pageHead } from "@/lib/seo";
 import { PAGE_TITLES } from "@/lib/site";
@@ -75,7 +75,7 @@ function WatchlistPage() {
                   {item.row?.name ?? item.slug}
                 </Link>
                 <span className="text-sm tabular-nums text-secondary">
-                  {item.row ? money(item.row.publicUsd) : "n/a"}
+                  {item.row ? publicTotal(item.row.publicUsd) : "n/a"}
                   {item.row?.rank ? ` · #${item.row.rank}` : ""}
                 </span>
               </div>

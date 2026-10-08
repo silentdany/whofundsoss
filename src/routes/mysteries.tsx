@@ -59,7 +59,7 @@ function MysteriesPage() {
             <MysteryRow key={row.slug} slug={row.slug} name={row.name}>
               <span className="tabular-nums">
                 {row.ghBeneficiaries} maintainers sponsored ·{" "}
-                {row.publicUsd > 0 ? `${money(row.publicUsd)} public elsewhere` : "no public dollars"}
+                {row.publicUsd > 0 ? `${money(row.publicUsd)} public elsewhere` : "amount not public"}
               </span>
             </MysteryRow>
           ))}

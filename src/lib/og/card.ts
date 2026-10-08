@@ -153,7 +153,7 @@ export function specForPath(pagePath: string): OgSpec | null {
       stat:
         row.publicUsd > 0
           ? `${money(row.publicUsd)} in public open source funding`
-          : "No public dollar amount found",
+          : "Amount not public",
       photo: photoForSlug(slug),
     };
   }

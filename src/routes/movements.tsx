@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageIntro, Shell } from "@/components/shell";
 import { Delta } from "@/components/ui";
 import { isSpamDenylisted } from "@/lib/spam-denylist";
-import { collectedLabel, money } from "@/lib/format";
+import { collectedLabel, money, publicTotal } from "@/lib/format";
 import { loadMovements } from "@/lib/queries";
 import { pageHead } from "@/lib/seo";
 import { PAGE_TITLES } from "@/lib/site";
@@ -193,7 +193,7 @@ function formatRow(row: MovementCompany, mode: Mode): string {
           : "";
     return `${signedMoney(row.deltaUsd)}${rankBit}`;
   }
-  if (mode === "enter") return `${money(row.publicUsd)}${row.rank != null ? ` · rank ${row.rank}` : ""}`;
+  if (mode === "enter") return `${publicTotal(row.publicUsd)}${row.rank != null ? ` · rank ${row.rank}` : ""}`;
   if (mode === "exit") return `${money(row.previousPublicUsd ?? 0)} was public`;
   if (mode === "rank") {
     if (row.previousRank == null && row.rank != null) return `entered at ${row.rank}`;

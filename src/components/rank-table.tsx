@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { money } from "@/lib/format";
+import { publicTotal } from "@/lib/format";
 import { SOURCE_SHORT, type CompanyRow } from "@/lib/types";
 
 function SourceBadges({ sources }: { sources: CompanyRow["sources"] }) {
@@ -44,7 +44,7 @@ export function RankTable({ rows }: { rows: CompanyRow[] }) {
                   : `${row.projects} named project${row.projects === 1 ? "" : "s"}`}
               </p>
             </div>
-            <span className="shrink-0 font-semibold tabular-nums">{money(row.publicUsd)}</span>
+            <span className="shrink-0 font-semibold tabular-nums">{publicTotal(row.publicUsd)}</span>
           </li>
         ))}
       </ul>
@@ -85,7 +85,7 @@ export function RankTable({ rows }: { rows: CompanyRow[] }) {
                   {row.unitemized ? <span className="mt-0.5 block text-xs text-warn">No named projects</span> : null}
                 </td>
                 <td className="px-3 py-3.5 text-right tabular-nums">{row.projects}</td>
-                <td className="px-3 py-3.5 text-right font-semibold tabular-nums">{money(row.publicUsd)}</td>
+                <td className="px-3 py-3.5 text-right font-semibold tabular-nums">{publicTotal(row.publicUsd)}</td>
                 <td className="px-5 py-3.5">
                   <SourceBadges sources={row.sources} />
                 </td>

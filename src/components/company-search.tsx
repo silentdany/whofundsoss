@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useId, useRef, useState } from "react";
-import { money } from "@/lib/format";
+import { publicTotal } from "@/lib/format";
 import { searchCompanies } from "@/lib/queries";
 
 type Hit = { slug: string; name: string; rank: number | null; publicUsd: number };
@@ -132,7 +132,7 @@ export function CompanySearch({
                 <span className="font-medium">{hit.name}</span>
                 <span className="text-sm text-secondary tabular-nums">
                   {hit.rank ? `#${hit.rank} · ` : ""}
-                  {money(hit.publicUsd)}
+                  {publicTotal(hit.publicUsd)}
                 </span>
               </li>
             ))
