@@ -2,8 +2,9 @@
  * SEO spam denylist (versioned, explicit, no heuristic).
  *
  * Company pages listed here are rendered `noindex,follow` and left out of
- * sitemap.xml. They are NOT removed from the data: they stay in the ranking,
- * the company page still renders, and every number is unchanged.
+ * sitemap.xml. They never get a rank and are not counted in ranked totals
+ * (scripts/data/apply-denylist.py). Their row and company page stay, with the
+ * published figures, so the call can be checked.
  *
  * Scope: gambling / casino / betting, sellers of followers, likes, views,
  * reviews or traffic, link spam, piracy guides, adult. Add or remove a slug

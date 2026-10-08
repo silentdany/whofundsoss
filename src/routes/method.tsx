@@ -59,8 +59,9 @@ function MethodPage() {
               public spam denylist
             </Link>{" "}
             (v{SPAM_DENYLIST_VERSION}) marks company pages with noindex,follow and drops them from
-            sitemap.xml. Criteria, counts, and the entry list are public. Ranking dollars and company
-            pages stay; nothing is invented by a heuristic. Machine copy:{" "}
+            sitemap.xml, and keeps them out of the ranking and its totals. Criteria, counts, and the entry
+            list are public, and each listed page still shows its published figures. Nothing is decided by
+            a heuristic. Machine copy:{" "}
             <a className="text-sage" href="/denylist.json">
               denylist.json
             </a>
@@ -84,8 +85,27 @@ function MethodPage() {
             describe what changed. They never forecast what comes next.
           </p>
         </section>
+        <section id="about">
+          <h2 className="font-serif text-2xl text-ink">Who runs this</h2>
+          <p className="mt-4">
+            WhoFundsOSS is a side project by Dany, a solo developer based in France. It is not affiliated
+            with any company in the ranking, any foundation, or any of the four sources. There are no ads
+            and no paid placements: nobody pays to appear or to move up.
+          </p>
+          <p className="mt-3">
+            The code is MIT licensed and the data is CC BY 4.0, both on{" "}
+            <a className="text-sage" href="https://github.com/silentdany/whofundsoss">
+              GitHub
+            </a>
+            . Spotted a wrong number or a missing company? Open an issue there or write to{" "}
+            <a className="text-sage" href="https://x.com/MajorBaguette">
+              @MajorBaguette
+            </a>{" "}
+            on X. Corrections land in the next snapshot.
+          </p>
+        </section>
         <details>
-          <summary className="cursor-pointer font-serif text-2xl text-ink">For developers: internal API</summary>
+          <summary className="cursor-pointer font-serif text-2xl text-ink">For developers: API</summary>
           <p className="mt-4">
             Read-only. Preview key, sent as the header <code className="break-all text-ink">X-API-Key: wfo_preview_floor</code>.
             Health is open. The rest refuse a missing key.

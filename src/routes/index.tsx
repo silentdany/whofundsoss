@@ -185,13 +185,9 @@ function Home() {
       </section>
 
       <section className="mx-auto max-w-[1120px] px-5 py-12">
-        <h2 className="text-sm font-semibold text-ink">About paid placements</h2>
+        <h2 className="text-sm font-semibold text-ink">No ads, no paid placements</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">
-          {data.featured
-            ? `This collection's featured company is ${data.featured.name}. A featured line is always labeled and never changes a rank. `
-            : null}
-          Featured placement costs $199 to $399 for 7 days, and a sponsored audit $490 or $990.
-          Neither can add a number that was not already public.
+          Nobody pays to appear here or to move up. The rank follows public dollars and nothing else.
         </p>
       </section>
     </Shell>
