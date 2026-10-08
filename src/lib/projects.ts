@@ -211,7 +211,9 @@ export function companyNarrativeLead(
     const sources = row.sources
       .map((k) => (k === "oc" ? "Open Collective" : k === "osp" ? "Pledge" : k === "gh" ? "GitHub" : "Own program"))
       .join(" · ");
-    sentences.push(`Public total this snapshot: ${total}. Named projects: ${named}. Sources: ${sources}.`);
+    const totalPart =
+      row.publicUsd > 0 ? `Public total this snapshot: ${total}.` : "Funds open source, but no amount is published.";
+    sentences.push(`${totalPart} Named projects: ${named}. Sources: ${sources}.`);
   }
 
   // Flatten to ≤3 sentences (templates already pack 3 into one string with periods).
