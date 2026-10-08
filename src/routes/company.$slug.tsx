@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { CompanySearch } from "@/components/company-search";
 import { Shell } from "@/components/shell";
 import { Chip } from "@/components/ui";
-import { money, scoreLabel } from "@/lib/format";
+import { money, publicTotal, scoreLabel } from "@/lib/format";
 import { loadCompany } from "@/lib/queries";
 import {
   breadcrumbJsonLd,
@@ -121,9 +121,11 @@ function CompanyPage() {
         <div className="mt-8 grid gap-4 sm:grid-cols-[1.2fr_1fr]">
           <div className="rounded-card bg-sand p-6 sm:p-8">
             <p className="text-sm text-secondary">Public funding found</p>
-            <p className="mt-1 font-serif text-5xl tabular-nums sm:text-6xl">{money(row.publicUsd)}</p>
+            <p className="mt-1 font-serif text-5xl tabular-nums sm:text-6xl">{publicTotal(row.publicUsd)}</p>
             <p className="mt-3 text-sm leading-relaxed text-secondary">
-              A floor, not a total: only amounts the company has made public.
+              {row.publicUsd > 0
+                ? "A floor, not a total: only amounts the company has made public."
+                : "This company funds open source, but none of the amounts below are published."}
               {row.lowVolume ? " Low volume, so read the score below with care." : ""}
             </p>
           </div>

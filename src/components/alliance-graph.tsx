@@ -218,7 +218,7 @@ export function AllianceGraph({ nodes, links }: { nodes: Node[]; links: Link[] }
           <p className="eyebrow">Selected</p>
           <h2 className="mt-1 font-serif text-3xl">{selected.name}</h2>
           <p className="mt-1 text-sm text-secondary tabular-nums">
-            {selected.publicUsd > 0 ? `${money(selected.publicUsd)} public` : "No public dollar amount"}
+            {selected.publicUsd > 0 ? `${money(selected.publicUsd)} public` : "Amount not public"}
             {selected.rank ? ` · rank ${selected.rank}` : ""}
           </p>
           <Link
