@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Turn the publishable WhoFundsOSS JSON into one catalog the site and API share."""
+"""Turn the publishable WhoFundsOSS JSON into one catalog the site and API share.
+
+Run scripts/data/apply-denylist.py afterwards so spam never gets a rank.
+"""
 
 import hashlib
 import json
@@ -211,7 +214,6 @@ def main():
             "publicUsdAll": round(sum(r["publicUsd"] for r in index), 2),
             "whales": sum(1 for r in index if r["whale"]),
             "maxPublicUsd": round(max_usd, 2),
-            "featuredSlug": "posit-dev",
             "cron": "baseline — next full collection is the 1st of the month",
             "exclusions": {
                 "spamCompanies": 119,

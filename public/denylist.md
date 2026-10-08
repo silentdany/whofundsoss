@@ -2,7 +2,7 @@
 
 **Version** 2026-10-06.5 · as of 2026-10-06 · **99** entries
 
-Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They stay in the ranking and on their company page; every public dollar figure is unchanged. Entries are added one by one with an explicit reason. There is no automatic heuristic.
+Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
 ## Counts by category
 

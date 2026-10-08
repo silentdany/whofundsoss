@@ -182,12 +182,19 @@ def build_companies(entreprises, sponsorings):
     return companies
 
 
+def denylisted_slugs() -> set:
+    """Spam-denylisted companies keep their row and page but never get a rank."""
+    data = json.loads((ROOT / "src/data/public-spam-denylist.json").read_text())
+    return {entry["slug"] for entry in data["entries"]}
+
+
 def build_catalog(companies: dict, collected_at: str, exclusions_note: str, excl_counts: dict):
+    deny = denylisted_slugs()
     ranked_slugs = sorted(
-        companies.keys(),
+        (slug for slug in companies.keys() if slug not in deny),
         key=lambda s: (-float(companies[s].get("totalPublicUsd") or 0), companies[s].get("name", "").lower()),
     )
-    # Top 200 by public $ get a rank (site convention).
+    # Top 200 non-denylisted companies by public $ get a rank (site convention).
     rank_of = {slug: i + 1 for i, slug in enumerate(ranked_slugs[:200])}
 
     max_usd = max((c.get("totalPublicUsd") or 0) for c in companies.values()) or 1
@@ -336,7 +343,6 @@ def build_catalog(companies: dict, collected_at: str, exclusions_note: str, excl
             "publicUsdAll": round(sum(r["publicUsd"] for r in index), 2),
             "whales": sum(1 for r in index if r["whale"]),
             "maxPublicUsd": round(max_usd, 2),
-            "featuredSlug": "posit-dev",
             "cron": "snapshots 2026-10-05 → 2026-10-06 — weekly scraper ≠ catalog",
             "exclusions": {
                 "spamCompanies": excl_counts["spam"],

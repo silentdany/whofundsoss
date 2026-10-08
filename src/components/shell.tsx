@@ -171,6 +171,12 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
         <span>© {collectedAt?.slice(0, 4) ?? "2026"} WhoFundsOSS</span>
         {collectedAt ? <span>Data collected {collectedLabel(collectedAt)}</span> : null}
         {hash ? <span className="tabular-nums">Snapshot {hashShort(hash)}</span> : null}
+        <Link to="/method" hash="about" className="hover:underline">
+          About
+        </Link>
+        <a href="https://github.com/silentdany/whofundsoss" className="hover:underline">
+          Source on GitHub
+        </a>
       </div>
     </footer>
   );

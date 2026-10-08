@@ -153,7 +153,7 @@ function RankingPage() {
                 setScope("all");
               }}
             >
-              All {meta.companies}
+              All {rows.length}
             </Chip>
             <Toggle
               checked={whales}

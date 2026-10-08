@@ -43,12 +43,13 @@ test("2026-10-06 Data triage slugs are denylisted (source=data)", () => {
   }
 });
 
-test("denylisted slugs stay in the ranking with their rank and dollars", () => {
+test("denylisted slugs keep their row and dollars but never get a rank", () => {
   const ranked = catalog.index.filter((row) => row.rank != null);
   assert.equal(ranked.length, 200);
+  for (const row of ranked) assert.equal(isSpamDenylisted(row.slug), false, `${row.slug} is denylisted but ranked`);
   for (const slug of NAMED_BY_CDP) {
     const row = bySlug.get(slug)!;
-    assert.ok(row.rank != null, `${slug} should still be ranked`);
+    assert.equal(row.rank, null, `${slug} should not be ranked`);
     assert.ok(row.publicUsd > 0);
   }
 });

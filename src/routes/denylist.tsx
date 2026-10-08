@@ -24,7 +24,7 @@ export const Route = createFileRoute("/denylist")({
       path: "/denylist",
       title: PAGE_TITLES.denylist,
       description:
-        "Public spam denylist for WhoFundsOSS: noindex company pages, criteria, counts, and versioned entries. Ranking dollars are unchanged.",
+        "Public spam denylist for WhoFundsOSS: noindex company pages left out of the ranking, with criteria, counts, and versioned entries.",
     }),
   component: DenylistPage,
 });
@@ -93,8 +93,8 @@ function DenylistPage() {
         <section id="entries">
           <h2 className="font-serif text-2xl text-ink">Entries</h2>
           <p className="mt-3 text-sm">
-            Listed companies stay in the ranking. Their company page is served with noindex,follow and
-            is omitted from sitemap.xml. Every public dollar figure is unchanged.
+            Listed companies are left out of the ranking and its totals. Their company page still shows
+            the published figures, served with noindex,follow and omitted from sitemap.xml.
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[36rem] text-left text-sm">

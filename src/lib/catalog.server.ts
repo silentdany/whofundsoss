@@ -38,6 +38,8 @@ type CatalogFile = {
 const catalog = raw as CatalogFile;
 
 const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
+/** Rows shown in rankings and lists. Spam-denylisted companies keep a page but are never listed. */
+const listedRows = catalog.index.filter((row) => !isSpamDenylisted(row.slug));
 const projectIndex = buildProjectIndex(catalog.index, catalog.details);
 const publishedProjects = gatedProjects(projectIndex);
 const publishedProjectSlugs = new Set(publishedProjects.map((p) => p.slug));
@@ -110,13 +112,12 @@ export function homePayload() {
     meta: getMeta(),
     brief,
     top: catalog.index.filter((row) => row.rank && row.rank <= 10).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)),
-    featured: bySlug.get(catalog.meta.featuredSlug) ?? null,
     mix,
   };
 }
 
 export function rankingPayload() {
-  return { meta: getMeta(), rows: catalog.index };
+  return { meta: getMeta(), rows: listedRows };
 }
 
 export function companyPayload(slug: string) {
@@ -156,8 +157,8 @@ export function movementsPayload(): MovementsPayload {
 }
 
 export function mysteriesPayload() {
-  const unitemized = catalog.index.filter((row) => row.unitemized);
-  const unpriced = catalog.index
+  const unitemized = listedRows.filter((row) => row.unitemized);
+  const unpriced = listedRows
     .filter((row) => {
       const detail = catalog.details[row.slug];
       return (
@@ -199,7 +200,7 @@ export function watchlistPayload() {
     ...item,
     row: bySlug.get(item.slug) ?? null,
   }));
-  const picker = catalog.index.map((row) => ({
+  const picker = listedRows.map((row) => ({
     slug: row.slug,
     name: row.name,
     rank: row.rank,
@@ -215,7 +216,7 @@ export function leaderboardQuery(params: URLSearchParams) {
   const offset = clampInt(params.get("offset"), 0, 0, 10_000);
   const includeWhales = params.get("include_whales") !== "false";
   const source = params.get("source");
-  let rows = catalog.index.slice();
+  let rows = listedRows.slice();
   if (!includeWhales) rows = rows.filter((row) => !row.whale);
   if (source === "oc" || source === "osp" || source === "gh" || source === "own") {
     rows = rows.filter((row) => row.sources.includes(source));
@@ -417,6 +418,7 @@ export function companiesCsv(): string {
     "whale",
     "unitemized",
     "website",
+    "spam_denylisted",
   ];
   const lines = catalog.index.map((row) =>
     [
@@ -431,6 +433,7 @@ export function companiesCsv(): string {
       row.whale,
       row.unitemized,
       row.site ?? "",
+      isSpamDenylisted(row.slug),
     ].map(csvCell),
   );
   return [header.join(","), ...lines.map((line) => line.join(","))].join("\n");

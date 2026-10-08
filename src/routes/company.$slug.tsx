@@ -311,7 +311,7 @@ function CompanyPage() {
         ) : null}
 
         <p className="mt-12 max-w-xl text-sm leading-relaxed text-secondary">
-          Rank always follows public dollars. Featured placements are labeled and never change a rank. See{" "}
+          Rank always follows public dollars. Nobody pays to appear or move up. See{" "}
           <Link to="/method" className="font-medium text-sage">
             how we count
           </Link>{" "}

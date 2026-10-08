@@ -40,7 +40,6 @@ export type Meta = {
   publicUsdAll: number;
   whales: number;
   maxPublicUsd: number;
-  featuredSlug: string;
   cron: string;
   hash: string;
   /** Prior snapshot date (catalog movements). */
