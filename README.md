@@ -1,29 +1,48 @@
 # WhoFundsOSS
 
-Public record of who funds open source. Amounts are a floor, read once a month.
+**Who really funds open source, and how much?**
 
-Live at [whofundsoss.com](https://whofundsoss.com). How the numbers are counted: [whofundsoss.com/method](https://whofundsoss.com/method).
+[whofundsoss.com](https://whofundsoss.com) is a public ranking of companies that put money into open source. It counts only the dollars a company has already made public. No estimates, no guesses, no paid placements.
 
-No ads, no paid placements. Nobody pays to appear in the ranking or to move up.
+## Why
 
-## Run it
+Plenty of companies say they "support open source". Very few say how much. WhoFundsOSS gathers every published figure in one place, so anyone can see who backs the projects they depend on, and who doesn't show it.
 
-```bash
-npm install
-npm run dev
-```
+## What it counts
 
-Built with TanStack Start (ranking, movements, mysteries, graph, watchlist, method, API). API spec and design notes live in `docs/`.
+Four public sources, read once a month:
 
-SEO: see `SEO-NOTES.md` (env `SITE_URL`, redirects, indexing gate, `npm run seo:check`).
+- **Open Source Pledge**: the yearly payment from the company's latest public report.
+- **Open Collective**: the total a company has donated to open source collectives. Often cumulative over several years, and labeled as such.
+- **GitHub Sponsors**: monthly sponsorships, only when the tier amount is public. That is rare.
+- **Own programs**: a figure a company publishes about its own open source fund.
 
-## Data
+## The rules
 
-The shipped data is in `src/data/`: `catalog.json` for the live snapshot and `snapshots/` for the previous ones. Companies on the public spam denylist (`src/data/public-spam-denylist.json`) never get a rank; `scripts/data/apply-denylist.py` enforces that.
+- Only published dollars count. A private GitHub tier stays at zero, it is never guessed.
+- Nothing is annualized. A monthly amount is never multiplied by twelve.
+- Each dollar is counted once. A pledge repeated as an own program is not counted twice.
+- Spam is kept out of the ranking. Casinos, follower sellers, link farms and the like are listed on a public, versioned [spam denylist](https://whofundsoss.com/denylist), each with a reason.
+- Self-funding is kept out. A company backing its own collective is not outbound sponsoring.
 
-Corrections: open an issue with the company, the figure and a public link to its source.
+Every total is a floor, not a verdict. A big company can fund a lot privately, through foundation memberships or paid staff, and still show a small number here.
+
+## What's on the site
+
+- [Ranking](https://whofundsoss.com/ranking): the top 200 companies by public dollars, with the sources behind each figure.
+- Company pages: every sponsorship line, by source and by project.
+- [Movements](https://whofundsoss.com/movements): what changed between two monthly snapshots.
+- [Mysteries](https://whofundsoss.com/mysteries): companies that sponsor many maintainers but never publish an amount.
+- [Graph](https://whofundsoss.com/graph): companies that fund the same projects.
+- [Method](https://whofundsoss.com/method): exactly how a number gets onto the site, plus the API.
+
+## Corrections
+
+A figure is wrong or a company is missing? Open an issue with the company, the amount and a public link to the source. Corrections land in the next snapshot.
 
 ## License
 
 - Code: [MIT](LICENSE).
 - Data (`src/data/`, `data/`, the exports and the API output): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Credit "WhoFundsOSS" with a link to whofundsoss.com. The underlying figures come from public pages of Open Collective, the Open Source Pledge, GitHub Sponsors and the companies themselves.
+
+Made by Dany ([@MajorBaguette](https://x.com/MajorBaguette)), a solo developer in France.
