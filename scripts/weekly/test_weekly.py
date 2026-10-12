@@ -366,7 +366,7 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         "combining_acute_after_a": "Coinsmania\u0301",
         "combining_inside": "Co\u0308insmania",
         "precomposed_o_acute": "C\u00f3insmania",
-        "armenian_se": "Coin\u057dmania",
+        "armenian_oh": "C\u0585insmania",
         "cherokee_c": "\u13dfoinsmania",
         "mixed_marks_and_homoglyphs": "\u0421\u00f3ins\u200bmani\u0430\u0301",
     }
@@ -415,6 +415,28 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         # No slug churn for live denylisted names
         self.assertEqual(slugify("Funrize\u2122 Social Casino"), "funrize-social-casino")
 
+    def test_armenian_seh_is_u_not_s(self):
+        # QA 5ecce2e: Fսn88 (U+057D) became 'fsn88', a duplicate next to fun88.
+        from scripts.weekly.normalize import CONFUSABLES_VERSION, canonical_text
+        self.assertTrue(CONFUSABLES_VERSION)
+        self.assertEqual(canonical_text("F\u057dn88"), "Fun88")
+        self.assertEqual(slugify("F\u057dn88"), "fun88")
+        _, dl = parse_spam_denylist()
+        if "fun88" in dl:
+            self.assertIsNotNone(is_excluded(slug=slugify("F\u057dn88"), name="F\u057dn88", denylist=dl, exclusions=[]))
+        if CATALOG.exists():
+            idx = build_catalog_index(CATALOG)
+            if "fun88" in idx.by_slug:
+                self.assertEqual(idx.resolve(name="F\u057dn88"), "fun88")
+
+    def test_confusables_table_drives_mapping(self):
+        from scripts.weekly.normalize import canonical_text
+        # From UTS #39, not the old hand map: Armenian vo/oh, Cherokee, Latin-I fix.
+        self.assertEqual(canonical_text("C\u0585\u0578fig"), "Config")
+        self.assertEqual(canonical_text("\u13dfasino"), "Casino")
+        self.assertEqual(canonical_text("\u0406nfo"), "Info")  # Cyrillic I -> I, not l
+        self.assertEqual(slugify("\u0399nfo"), "info")  # Greek Iota
+
     def test_accent_slug_change_still_hits_old_denylist_key(self):
         # Denylist key predates mark stripping: 'ilmaiset-pitk-vetovihjeet'.
         _, dl = parse_spam_denylist()
@@ -426,7 +448,7 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
     def test_mark_variants_hit_denylist_slug_without_exclusion_rows(self):
         from scripts.weekly.denylist import DenylistEntry
         dl = {"coinsmania": DenylistEntry(slug="coinsmania", category="gambling", source="data", reason="casino")}
-        for v in ("Coinsmania\u0301", "C\u00f3insmania", "Coin\u057dmania"):
+        for v in ("Coinsmania\u0301", "C\u00f3insmania", "C\u0585insmania"):
             self.assertIsNotNone(is_excluded(slug=slugify(v), name=v, denylist=dl, exclusions=[]), v)
 
 
@@ -626,3 +648,23 @@ class TestOpenDataPrGuard(unittest.TestCase):
         self.assertIn("data/weekly/", script)
         self.assertIn("outside data/weekly", script)
         self.assertNotIn("--force", script)
+
+
+class TestSlugRenames(unittest.TestCase):
+    """QA 5ecce2e: every slug that canonical_text changes has a 308 entry."""
+
+    def test_rename_map_is_complete_and_committed(self):
+        import json
+        from scripts.weekly import slug_renames
+        committed = json.loads(slug_renames.OUT.read_text(encoding="utf-8"))["renames"]
+        self.assertEqual(committed, slug_renames.compute())
+        for old, new in {"et-reo": "etereo", "b-rkert-werke-gmbh-co-kg": "burkert-werke-gmbh-co-kg",
+                         "sch-co": "schuco", "t-mavera": "timavera"}.items():
+            self.assertEqual(committed.get(old), new)
+
+    def test_index_resolves_old_and_new_name_slugs(self):
+        from scripts.weekly.normalize import legacy_slugify
+        idx = build_catalog_index({"index": [{"slug": "et-reo", "name": "Et\u00e9reo"}]})
+        self.assertEqual(idx.resolve(name="Et\u00e9reo"), "et-reo")
+        self.assertEqual(idx.aliases.get(legacy_slugify("Et\u00e9reo")), "et-reo")
+        self.assertEqual(idx.aliases.get("etereo"), "et-reo")

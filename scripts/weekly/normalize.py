@@ -51,27 +51,34 @@ OSP_SLUG_ALIASES: dict[str, str] = {
 
 # Cyrillic / Greek letters that render like Latin ones. Used to defeat
 # mixed-script spoofing (e.g. "Сoinsmania" with a Cyrillic С, U+0421).
-_HOMOGLYPHS = {
-    # Cyrillic uppercase
-    "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H", "О": "O", "Р": "P",
-    "С": "C", "Т": "T", "Х": "X", "У": "Y", "І": "I", "Ј": "J", "Ѕ": "S", "Ԛ": "Q", "Ԝ": "W",
-    # Cyrillic lowercase
-    "а": "a", "в": "b", "е": "e", "к": "k", "м": "m", "н": "h", "о": "o", "р": "p",
-    "с": "c", "т": "t", "х": "x", "у": "y", "і": "i", "ј": "j", "ѕ": "s", "ԛ": "q", "ԝ": "w",
-    "ё": "e", "һ": "h", "ӏ": "l", "ԁ": "d", "ɡ": "g",
-    # Greek
-    "Α": "A", "Β": "B", "Ε": "E", "Ζ": "Z", "Η": "H", "Ι": "I", "Κ": "K", "Μ": "M",
-    "Ν": "N", "Ο": "O", "Ρ": "P", "Τ": "T", "Υ": "Y", "Χ": "X",
-    "ο": "o", "α": "a", "ι": "i", "κ": "k", "ν": "v", "ρ": "p", "τ": "t", "υ": "u", "χ": "x",
-    # Armenian / Cherokee confusables
-    "ս": "s", "օ": "o", "ո": "n", "հ": "h", "ց": "g", "ա": "w", "ք": "p", "զ": "q", "Տ": "S", "Օ": "O",
-    "Ꮯ": "C", "Ꭺ": "A", "Ꭼ": "E", "Ꮋ": "H", "Ꭵ": "i", "Ꮃ": "W", "Ꮪ": "S", "Ꭲ": "T", "Ꮇ": "M",
-    # Greek lunate sigma / yot (not touched by NFKC)
-    "Ϲ": "C", "ϲ": "c", "Ϳ": "J", "ϳ": "j",
-    # Letterlike symbols that survive NFKC
-    "℮": "e", "Ⅽ": "C", "ⅽ": "c", "Ⅰ": "I", "ⅰ": "i", "Ⅴ": "V", "ⅴ": "v", "Ⅹ": "X", "ⅹ": "x",
-    "Ⅼ": "L", "ⅼ": "l", "Ⅾ": "D", "ⅾ": "d", "Ⅿ": "M", "ⅿ": "m",
+# Base table: Unicode UTS #39 confusables (skeleton), restricted to non-ASCII
+# sources that look like ASCII letters/digits. Generated, versioned.
+from .confusables_latin import CONFUSABLES_LATIN, CONFUSABLES_VERSION  # noqa: E402
+
+
+def _letter_i_fix(table: dict[str, str]) -> dict[str, str]:
+    """UTS #39 maps capital I lookalikes to 'l' because it also folds ASCII
+    'I' to 'l'. We never rewrite ASCII, so map I-lookalikes back to 'I'
+    (Cyrillic I, Greek Iota, Roman numeral one ...), otherwise 'Іnfo' != 'Info'."""
+    import unicodedata as _u
+
+    out = dict(table)
+    for ch, tgt in table.items():
+        if tgt != "l":
+            continue
+        name = _u.name(ch, "")
+        if (name.endswith(" I") or " LETTER I " in f"{name} " or "IOTA" in name or "DOTLESS I" in name
+                or "NUMERAL ONE" in name) and "LETTER L" not in name:
+            out[ch] = "I"
+    return out
+
+
+# Lookalikes that confusables.txt does not list (small-cap style Cyrillic/Greek).
+_SUPPLEMENT = {
+    "в": "b", "к": "k", "м": "m", "н": "h", "т": "t", "ё": "e",
+    "κ": "k", "τ": "t", "χ": "x",
 }
+_HOMOGLYPHS = {**_letter_i_fix(CONFUSABLES_LATIN), **_SUPPLEMENT}
 _HOMOGLYPH_TABLE = str.maketrans(_HOMOGLYPHS)
 _PRE_NFKC = str.maketrans({"\u2122": "", "\u00ae": "", "\u00a9": "", "\u2120": "", "\u03f9": "\u0421", "\u03f2": "\u0441", "\u037f": "\u0408", "\u03f3": "\u0458"})
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
@@ -249,6 +256,10 @@ def build_catalog_index(catalog: dict[str, Any] | Path) -> CatalogIndex:
         name_slug = slugify(row.get("name") or "")
         if name_slug:
             idx.aliases.setdefault(name_slug, slug)
+        # Pre-canonical name slug (e.g. 'et-reo') keeps resolving to the row.
+        legacy = legacy_slugify(row.get("name") or "")
+        if legacy:
+            idx.aliases.setdefault(legacy, slug)
         domain = normalize_domain(row.get("site"))
         if domain:
             # Exact domain only — first catalog row wins; never overwrite.
