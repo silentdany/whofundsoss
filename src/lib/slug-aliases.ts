@@ -21,3 +21,10 @@ export function slugEquivalents(slug: string): string[] {
 export function hasSlugKey(keys: { has(k: string): boolean }, slug: string): boolean {
   return slugEquivalents(slug).some((k) => keys.has(k));
 }
+
+/** Set with every key plus its rename equivalent, so `.has()` matches both forms. */
+export function expandSlugs(keys: Iterable<string>): Set<string> {
+  const out = new Set<string>();
+  for (const k of keys) for (const e of slugEquivalents(k)) out.add(e);
+  return out;
+}

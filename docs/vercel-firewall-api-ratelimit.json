@@ -1,0 +1,16 @@
+{
+  "_note": "PREPARED, NOT APPLIED. Vercel Firewall custom rule for a global (cross-instance) rate limit on /api/*. Apply in Vercel > whofundsoss > Firewall > Custom rules, or via update_firewall_config action rules.insert, only after approval. The in-code limiter stays as a per-instance backstop.",
+  "name": "public-api-rate-limit",
+  "description": "60 requests per minute per IP on /api/* (global, at the edge)",
+  "active": true,
+  "conditionGroup": [
+    { "conditions": [{ "type": "path", "op": "pre", "value": "/api/" }] }
+  ],
+  "action": {
+    "mitigate": {
+      "action": "rate_limit",
+      "rateLimit": { "algo": "fixed_window", "window": 60, "limit": 60, "keys": ["ip"], "action": "deny" },
+      "actionDuration": null
+    }
+  }
+}

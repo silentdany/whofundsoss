@@ -151,7 +151,8 @@ def is_excluded(
             from .normalize import normalize_domain
             d1 = normalize_domain(site_l)
             d2 = normalize_domain(row.site)
-            if d1 and d2 and d1 == d2:
+            # Exact host or a subdomain of the excluded host (app.example.com).
+            if d1 and d2 and (d1 == d2 or d1.endswith("." + d2)):
                 return f"exclusion:{row.exclusion_raison}"
             # Exact full-URL equality (after strip trailing slash) as fallback
             if site_l.rstrip("/") == row.site.lower().rstrip("/"):
