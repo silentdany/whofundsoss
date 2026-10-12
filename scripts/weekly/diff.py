@@ -388,19 +388,62 @@ def explain_new_against_catalog(new_sponsors: list[dict], catalog_path: Path) ->
 DEFAULT_HOLDS_CSV = Path(__file__).resolve().parents[2] / "data" / "holds" / "weekly-holds.csv"
 
 
-def load_holds(path: Path | None = None) -> list[dict]:
-    """Read data/holds/weekly-holds.csv. Missing file → no holds."""
-    import csv
+HOLDS_HEADER = ("slug", "source", "reason", "decided_by", "since", "review_on")
 
+
+class HoldsFileError(ValueError):
+    """Raised when weekly-holds.csv has a missing or wrong header."""
+
+
+def load_holds(path: Path | None = None) -> list[dict]:
+    """Read data/holds/weekly-holds.csv. Missing file → no holds.
+
+    - utf-8-sig so a BOM written by a spreadsheet editor is ignored;
+    - header must be exactly HOLDS_HEADER, else HoldsFileError;
+    - slug and review_on (ISO YYYY-MM-DD) are required; an invalid row is
+      skipped with a logged warning naming its line number;
+    - parsed with csv.DictReader, so quoted fields may contain commas.
+    """
+    import csv
+    import logging
+    from datetime import date
+
+    log = logging.getLogger(__name__)
     path = path or DEFAULT_HOLDS_CSV
     if not path.exists():
         return []
-    with path.open(encoding="utf-8", newline="") as fh:
-        return [
-            {k: (v or "").strip() for k, v in row.items()}
-            for row in csv.DictReader(fh)
-            if (row.get("slug") or "").strip()
-        ]
+    out: list[dict] = []
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        header = tuple((h or "").strip() for h in (reader.fieldnames or []))
+        if header != HOLDS_HEADER:
+            raise HoldsFileError(
+                f"{path}: invalid header {list(header)!r}; expected {list(HOLDS_HEADER)!r}"
+            )
+        for row in reader:
+            line = reader.line_num
+            if None in row or any(v is None for v in row.values()):
+                log.warning("%s line %d: wrong number of columns, row ignored: %r", path, line, row)
+                continue
+            clean = {k.strip(): (v or "").strip() for k, v in row.items()}
+            if not any(clean.values()):
+                continue
+            if not clean["slug"]:
+                log.warning("%s line %d: missing slug, row ignored", path, line)
+                continue
+            review_on = clean["review_on"]
+            try:
+                ok = len(review_on) == 10 and date.fromisoformat(review_on).isoformat() == review_on
+            except ValueError:
+                ok = False
+            if not ok:
+                log.warning(
+                    "%s line %d (slug %s): review_on %r is missing or not an ISO YYYY-MM-DD date, row ignored",
+                    path, line, clean["slug"], review_on,
+                )
+                continue
+            out.append(clean)
+    return out
 
 
 def apply_holds(
