@@ -13602,8 +13602,13 @@
         "gh": null,
         "own": null
       },
-      "ghBeneficiaries": 2,
+      "ghBeneficiaries": 5,
       "beneficiaries": [
+        {
+          "login": "gosom",
+          "name": "Georgios Komninos",
+          "type": "user"
+        },
         {
           "login": "KATT",
           "name": "Alex / KATT",
@@ -13612,6 +13617,16 @@
         {
           "login": "tannerlinsley",
           "name": "Tanner Linsley",
+          "type": "user"
+        },
+        {
+          "login": "D4Vinci",
+          "name": "Karim shoair",
+          "type": "user"
+        },
+        {
+          "login": "daijro",
+          "name": null,
           "type": "user"
         }
       ],
@@ -20619,7 +20634,7 @@
         "gh": null,
         "own": null
       },
-      "ghBeneficiaries": 15,
+      "ghBeneficiaries": 50,
       "beneficiaries": [
         {
           "login": "zkat",
@@ -20695,6 +20710,181 @@
           "login": "sirosen",
           "name": "Stephen Rosen",
           "type": "user"
+        },
+        {
+          "login": "hugovk",
+          "name": "Hugo van Kemenade",
+          "type": "user"
+        },
+        {
+          "login": "ZacSweers",
+          "name": "Zac Sweers",
+          "type": "user"
+        },
+        {
+          "login": "eifinger",
+          "name": "Kevin Stillhammer",
+          "type": "user"
+        },
+        {
+          "login": "messense",
+          "name": "messense",
+          "type": "user"
+        },
+        {
+          "login": "asottile",
+          "name": "anthony sottile",
+          "type": "user"
+        },
+        {
+          "login": "dtolnay",
+          "name": "David Tolnay",
+          "type": "user"
+        },
+        {
+          "login": "HerringtonDarkholme",
+          "name": "Herrington Darkholme",
+          "type": "user"
+        },
+        {
+          "login": "GuillaumeGomez",
+          "name": "Guillaume Gomez",
+          "type": "user"
+        },
+        {
+          "login": "jhpratt",
+          "name": "Jacob Pratt",
+          "type": "user"
+        },
+        {
+          "login": "Pierre-Sassoulas",
+          "name": "Pierre Sassoulas",
+          "type": "user"
+        },
+        {
+          "login": "aio-libs",
+          "name": "aio-libs",
+          "type": "org"
+        },
+        {
+          "login": "ofek",
+          "name": "Ofek Lev",
+          "type": "user"
+        },
+        {
+          "login": "nvzqz",
+          "name": "Nikolai Vazquez",
+          "type": "user"
+        },
+        {
+          "login": "richfelker",
+          "name": "Rich Felker",
+          "type": "user"
+        },
+        {
+          "login": "tqdm",
+          "name": "tqdm developers",
+          "type": "org"
+        },
+        {
+          "login": "weihanglo",
+          "name": "Weihang Lo",
+          "type": "user"
+        },
+        {
+          "login": "tree-sitter",
+          "name": "tree-sitter",
+          "type": "org"
+        },
+        {
+          "login": "encode",
+          "name": "Encode",
+          "type": "org"
+        },
+        {
+          "login": "tokio-rs",
+          "name": "Tokio",
+          "type": "org"
+        },
+        {
+          "login": "pnpm",
+          "name": "pnpm",
+          "type": "org"
+        },
+        {
+          "login": "jyn514",
+          "name": "jyn",
+          "type": "user"
+        },
+        {
+          "login": "prettier",
+          "name": "Prettier",
+          "type": "org"
+        },
+        {
+          "login": "python-trio",
+          "name": "python-trio",
+          "type": "org"
+        },
+        {
+          "login": "lcnr",
+          "name": null,
+          "type": "user"
+        },
+        {
+          "login": "NobodyXu",
+          "name": "Jiahao XU",
+          "type": "user"
+        },
+        {
+          "login": "telepresenceio",
+          "name": "Telepresence",
+          "type": "org"
+        },
+        {
+          "login": "clap-rs",
+          "name": "clap-rs",
+          "type": "org"
+        },
+        {
+          "login": "taiki-e",
+          "name": "Taiki Endo",
+          "type": "user"
+        },
+        {
+          "login": "rust-analyzer",
+          "name": "rust-analyzer",
+          "type": "org"
+        },
+        {
+          "login": "15r10nk",
+          "name": "Frank Hoffmann",
+          "type": "user"
+        },
+        {
+          "login": "ichard26",
+          "name": "Richard Si",
+          "type": "user"
+        },
+        {
+          "login": "rkyv",
+          "name": "rkyv",
+          "type": "org"
+        },
+        {
+          "login": "karpetrosyan",
+          "name": "Kar Petrosyan",
+          "type": "user"
+        },
+        {
+          "login": "pydantic",
+          "name": "Pydantic",
+          "type": "org"
+        },
+        {
+          "login": "python-websockets",
+          "name": "python-websockets",
+          "type": "org"
         }
       ],
       "collectives": [],
@@ -30928,7 +31118,7 @@
       ]
     },
     {
-      "slug": "solcellsf-retag",
+      "slug": "solcellsforetag",
       "name": "Solcellsföretag",
       "login": null,
       "site": "https://solcellsforetag.se/",
@@ -32667,7 +32857,7 @@
       ]
     },
     {
-      "slug": "b-rkert-werke-gmbh-co-kg",
+      "slug": "burkert-werke-gmbh-co-kg",
       "name": "Bürkert Werke GmbH & Co KG",
       "login": null,
       "site": "https://www.burkert.com/",
@@ -33986,7 +34176,7 @@
       ]
     },
     {
-      "slug": "neuland-b-ro-f-r-informatik",
+      "slug": "neuland-buro-fur-informatik",
       "name": "neuland - Büro für Informatik",
       "login": "neuland",
       "site": "https://www.neuland-bfi.de/",
@@ -40023,7 +40213,7 @@
       ]
     },
     {
-      "slug": "et-reo",
+      "slug": "etereo",
       "name": "Etéreo",
       "login": "etereo-io",
       "site": "https://etereo.io",
@@ -40829,7 +41019,7 @@
       ]
     },
     {
-      "slug": "ilmaiset-pitk-vetovihjeet",
+      "slug": "ilmaiset-pitkavetovihjeet",
       "name": "Ilmaiset Pitkävetovihjeet",
       "login": null,
       "site": "https://www.vedonlyontibonukset.com/pitkavetovihjeet",
@@ -41111,7 +41301,7 @@
       ]
     },
     {
-      "slug": "oinsmania",
+      "slug": "coinsmania",
       "name": "Сoinsmania",
       "login": null,
       "site": "https://coinsmania.com/",
@@ -42844,7 +43034,7 @@
       ]
     },
     {
-      "slug": "sm-l-n-uten-sikkerhet",
+      "slug": "smalan-uten-sikkerhet",
       "name": "smålån uten sikkerhet",
       "login": null,
       "site": "https://xn--smlnutensikkerhet-9qbb.com",
@@ -44277,7 +44467,7 @@
       "slug": "voidzero-dev",
       "name": "VoidZero",
       "login": null,
-      "site": "https://fosstodon.org/@opensourcepledge",
+      "site": "https://voidzero.dev",
       "sources": [
         "osp"
       ],
@@ -44531,8 +44721,8 @@
       "unverified_partial": 0,
       "new_sponsorships": 10,
       "amount_changes": 2,
-      "beneficiary_changes": 10,
-      "held": 1,
+      "beneficiary_changes": 8,
+      "held": 3,
       "renamed": 4
     },
     "new_sponsors": [],
@@ -44636,22 +44826,10 @@
         "to": 10
       },
       {
-        "slug": "proxidize",
-        "name": "Proxidize",
-        "from": 5,
-        "to": 2
-      },
-      {
         "slug": "loops-so",
         "name": "Loops",
         "from": 4,
         "to": 3
-      },
-      {
-        "slug": "openai",
-        "name": "OpenAI",
-        "from": 50,
-        "to": 15
       },
       {
         "slug": "pfoundation",
@@ -44671,6 +44849,24 @@
         "hold_reason": "first zero reading; a disappearance is published only after 2 consecutive zero readings",
         "review_on": null,
         "hold_kind": "zero_reading"
+      },
+      {
+        "slug": "proxidize",
+        "name": "Proxidize",
+        "from": 5,
+        "to": 2,
+        "hold_reason": "count dropped by more than 50%; published only after 2 consecutive readings",
+        "review_on": null,
+        "hold_kind": "sharp_drop"
+      },
+      {
+        "slug": "openai",
+        "name": "OpenAI",
+        "from": 50,
+        "to": 15,
+        "hold_reason": "count dropped by more than 50%; published only after 2 consecutive readings",
+        "review_on": null,
+        "hold_kind": "sharp_drop"
       }
     ],
     "renamed": [
@@ -45439,7 +45635,7 @@
       "reason": "exclusion:spam_casino"
     },
     {
-      "slug": "ilmaiset-pitk-vetovihjeet",
+      "slug": "ilmaiset-pitkavetovihjeet",
       "reason": "denylist:gambling:betting tips / betting bonuses"
     },
     {
@@ -45479,7 +45675,7 @@
       "reason": "exclusion:spam_casino"
     },
     {
-      "slug": "oinsmania",
+      "slug": "coinsmania",
       "reason": "denylist:gambling:social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
     },
     {
@@ -45515,7 +45711,7 @@
       "reason": "exclusion:platform_pass_through"
     },
     {
-      "slug": "sm-l-n-uten-sikkerhet",
+      "slug": "smalan-uten-sikkerhet",
       "reason": "denylist:commercial-unrelated:loans"
     },
     {

@@ -37,7 +37,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `creditcaptain-leading-ai-credit-repair-service` | commercial-unrelated | credit repair |
 | `releaf-medical-cannabis-glossary` | commercial-unrelated | cannabis shop |
 | `releaf-medizinischer-cannabis-shop` | commercial-unrelated | cannabis shop |
-| `sm-l-n-uten-sikkerhet` | commercial-unrelated | loans |
+| `smalan-uten-sikkerhet` | commercial-unrelated | loans |
 | `blastup` | fake-engagement | sells followers / likes |
 | `bulkoid` | fake-engagement | sells followers / likes |
 | `bulkviews` | fake-engagement | sells YouTube views |
@@ -100,7 +100,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `funrize-social-casino` | gambling | social casino (funrize.com) |
 | `hollandsegokken-nl` | gambling | Dutch online gambling |
 | `https-chicken-roadd-com` | gambling | crash gambling game |
-| `ilmaiset-pitk-vetovihjeet` | gambling | betting tips / betting bonuses |
+| `ilmaiset-pitkavetovihjeet` | gambling | betting tips / betting bonuses |
 | `kajino-com` | gambling | online casino |
 | `kasinohai-com` | gambling | Finnish online casino listing |
 | `kasinosivut` | gambling | Finnish online casino listing |
@@ -111,7 +111,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `nettikasinot` | gambling | Finnish online casino listing |
 | `nettikasinot-media` | gambling | Finnish online casino listing |
 | `nettikasinot-org` | gambling | Finnish online casino listing |
-| `oinsmania` | gambling | social casino (coinsmania.com); name uses a Cyrillic С homoglyph |
+| `coinsmania` | gambling | social casino (coinsmania.com); name uses a Cyrillic С homoglyph |
 | `ok-win` | gambling | colour prediction gambling app |
 | `parhaatnettikasinot-com` | gambling | Finnish online casino listing |
 | `parimatch` | gambling | sportsbook / casino |
