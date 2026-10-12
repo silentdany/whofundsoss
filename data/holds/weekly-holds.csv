@@ -1,0 +1,2 @@
+slug,source,reason,decided_by,since,review_on
+openai,gh,"GitHub Sponsors sponsoring list read as empty on a single run (2026-10-12); keep last known value until the next Monday run confirms",CdP,2026-10-12,2026-10-19

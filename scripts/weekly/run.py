@@ -25,9 +25,11 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts.weekly.denylist import is_excluded, load_raw_exclusions, parse_spam_denylist
 from scripts.weekly.diff import (
+    apply_holds,
     diff_snapshots,
     explain_new_against_catalog,
     load_baseline,
+    load_holds,
 )
 from scripts.weekly.normalize import build_catalog_index
 from scripts.weekly.report import (
@@ -249,6 +251,12 @@ def main(argv: list[str] | None = None) -> int:
     diff.amount_changes = [r for r in diff.amount_changes if not _row_excluded(r)]
     diff.beneficiary_changes = [r for r in diff.beneficiary_changes if not _row_excluded(r)]
     diff.new_sponsorships = [r for r in diff.new_sponsorships if not _row_excluded(r)]
+
+    # Holds (data/holds/weekly-holds.csv): a held disappearance is not published on a
+    # single reading; the last known record is carried forward instead.
+    companies = apply_holds(
+        diff, companies, baseline_companies, load_holds(), run_date=run_date.isoformat()
+    )
 
     # Recompute suspicious after filtering
     diff.suspicious = False

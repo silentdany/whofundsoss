@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-10-06.5 · as of 2026-10-06 · **99** entries
+**Version** 2026-10-12.1 · as of 2026-10-12 · **101** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -12,10 +12,10 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | fake-engagement | 27 |
 | fake-reviews | 3 |
 | fake-traffic | 8 |
-| gambling | 52 |
+| gambling | 54 |
 | link-spam | 5 |
 | piracy | 3 |
-| **Total** | **99** |
+| **Total** | **101** |
 
 ## Criteria
 
@@ -91,6 +91,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `fortune-tiger` | gambling | slot gambling game |
 | `fruityking-nz` | gambling | online casino |
 | `fun88` | gambling | online casino / sportsbook |
+| `funrize-social-casino` | gambling | social casino (funrize.com) |
 | `hollandsegokken-nl` | gambling | Dutch online gambling |
 | `https-chicken-roadd-com` | gambling | crash gambling game |
 | `ilmaiset-pitk-vetovihjeet` | gambling | betting tips / betting bonuses |
@@ -104,6 +105,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `nettikasinot` | gambling | Finnish online casino listing |
 | `nettikasinot-media` | gambling | Finnish online casino listing |
 | `nettikasinot-org` | gambling | Finnish online casino listing |
+| `oinsmania` | gambling | social casino (coinsmania.com); name uses a Cyrillic С homoglyph |
 | `ok-win` | gambling | colour prediction gambling app |
 | `parhaatnettikasinot-com` | gambling | Finnish online casino listing |
 | `parimatch` | gambling | sportsbook / casino |

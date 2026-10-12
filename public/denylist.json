@@ -1,16 +1,16 @@
 {
   "title": "WhoFundsOSS public spam denylist",
-  "version": "2026-10-06.5",
-  "as_of": "2026-10-06",
+  "version": "2026-10-12.1",
+  "as_of": "2026-10-12",
   "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
   "counts": {
-    "total": 99,
+    "total": 101,
     "by_category": {
       "adult": 1,
       "fake-engagement": 27,
       "fake-reviews": 3,
       "fake-traffic": 8,
-      "gambling": 52,
+      "gambling": 54,
       "link-spam": 5,
       "piracy": 3
     }
@@ -326,6 +326,11 @@
       "reason": "online casino / sportsbook"
     },
     {
+      "slug": "funrize-social-casino",
+      "category": "gambling",
+      "reason": "social casino (funrize.com)"
+    },
+    {
       "slug": "hollandsegokken-nl",
       "category": "gambling",
       "reason": "Dutch online gambling"
@@ -389,6 +394,11 @@
       "slug": "nettikasinot-org",
       "category": "gambling",
       "reason": "Finnish online casino listing"
+    },
+    {
+      "slug": "oinsmania",
+      "category": "gambling",
+      "reason": "social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
     },
     {
       "slug": "ok-win",

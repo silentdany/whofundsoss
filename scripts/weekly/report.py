@@ -340,6 +340,11 @@ def render_markdown(payload: dict[str, Any]) -> str:
             f"{', '.join(r.get('unverified_because') or [])}"
         ),
     )
+    _section(
+        "Held (disappearance not published; last known value kept)",
+        diff.get("held") or [],
+        lambda r: f"`{r['slug']}` · {r.get('name') or ''} · review on {r.get('review_on') or '?'} · {r.get('hold_reason') or ''}",
+    )
     _section("New sponsorships", diff["new_sponsorships"], lambda r: f"`{r['sponsor']}` → `{r['beneficiary']}`")
     _section(
         "Amount changes (like-with-like)",
