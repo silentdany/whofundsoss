@@ -117,7 +117,9 @@ def is_excluded(
     """
     slug_l = (slug or "").strip().lower()
     login_l = (login or slug_l).strip().lower()
-    name_l = (name or "").strip().lower()
+    from .normalize import fold_homoglyphs
+
+    name_l = fold_homoglyphs((name or "").strip()).lower()
     site_l = (site or "").strip().lower()
 
     if denylist is not None and slug_l in denylist:
@@ -129,7 +131,7 @@ def is_excluded(
     for row in exclusions:
         if login_l and row.login_github and row.login_github.lower() == login_l:
             return f"exclusion:{row.exclusion_raison}"
-        if name_l and row.entreprise and row.entreprise.lower() == name_l:
+        if name_l and row.entreprise and fold_homoglyphs(row.entreprise.strip()).lower() == name_l:
             return f"exclusion:{row.exclusion_raison}"
         if site_l and row.site:
             from .normalize import normalize_domain

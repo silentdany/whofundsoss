@@ -1,0 +1,69 @@
+diff --git a/.github/workflows/weekly-scraper.yml b/.github/workflows/weekly-scraper.yml
+index 9d80dea..f7e7bf7 100644
+--- a/.github/workflows/weekly-scraper.yml
++++ b/.github/workflows/weekly-scraper.yml
+@@ -20,6 +20,11 @@ on:
+         description: "Optional comma-separated GitHub logins (smoke only; leave empty for FULL catalog GH set ~281)"
+         required: false
+         default: ""
++      force:
++        description: "Run even if a data PR (open or merged) already exists for today's date"
++        type: boolean
++        required: false
++        default: false
+ 
+ # Minimum permissions. Do not broaden.
+ permissions:
+@@ -74,10 +79,36 @@ jobs:
+         with:
+           python-version: "3.12"
+ 
++      # A late cron (e.g. run 38246276121, 14:00 Paris) must not open a second
++      # data PR for a date that already has one. Closed, unmerged PRs do not count.
++      - name: Skip if a data PR already exists for this date
++        id: dedupe
++        env:
++          GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
++          INPUT_FORCE: ${{ inputs.force }}
++        run: |
++          set -euo pipefail
++          DATE=$(date -u +%F)
++          if [ "${INPUT_FORCE:-false}" = "true" ]; then
++            echo "force=true: not checking for an existing data PR"
++            echo "skip=false" >> "$GITHUB_OUTPUT"
++            exit 0
++          fi
++          gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit 50 \
++            --search "head:data/weekly-run-" \
++            --json number,url,state,headRefName,files > "$RUNNER_TEMP/prs.json"
++          if EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" < "$RUNNER_TEMP/prs.json"); then
++            echo "::notice::Data PR for ${DATE} already exists (${EXISTING}). Skipping this run."
++            echo "skip=true" >> "$GITHUB_OUTPUT"
++          else
++            echo "skip=false" >> "$GITHUB_OUTPUT"
++          fi
++
+       - name: Unit tests (no network)
+         run: python3 -m unittest scripts.weekly.test_weekly scripts.weekly.test_qa_blockers -v
+ 
+       - name: Run weekly scraper
++        if: steps.dedupe.outputs.skip != 'true'
+         env:
+           # Never echo. Actions masks secrets; we still avoid printing env.
+           GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT }}
+@@ -100,6 +131,7 @@ jobs:
+           python3 -c "import json,sys; p=json.load(open('data/weekly/'+sys.argv[1]+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st); assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'" "$DATE"
+ 
+       - name: Upload weekly artifact
++        if: steps.dedupe.outputs.skip != 'true'
+         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+         with:
+           name: weekly-${{ github.run_id }}
+@@ -109,6 +141,7 @@ jobs:
+           if-no-files-found: error
+ 
+       - name: Open data-only PR from main
++        if: steps.dedupe.outputs.skip != 'true'
+         env:
+           GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
+           WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}

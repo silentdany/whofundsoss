@@ -49,6 +49,49 @@ OSP_SLUG_ALIASES: dict[str, str] = {
 }
 
 
+# Cyrillic / Greek letters that render like Latin ones. Used to defeat
+# mixed-script spoofing (e.g. "Сoinsmania" with a Cyrillic С, U+0421).
+_HOMOGLYPHS = {
+    # Cyrillic uppercase
+    "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H", "О": "O", "Р": "P",
+    "С": "C", "Т": "T", "Х": "X", "У": "Y", "І": "I", "Ј": "J", "Ѕ": "S", "Ԛ": "Q", "Ԝ": "W",
+    # Cyrillic lowercase
+    "а": "a", "в": "b", "е": "e", "к": "k", "м": "m", "н": "h", "о": "o", "р": "p",
+    "с": "c", "т": "t", "х": "x", "у": "y", "і": "i", "ј": "j", "ѕ": "s", "ԛ": "q", "ԝ": "w",
+    "ё": "e", "һ": "h", "ӏ": "l", "ԁ": "d", "ɡ": "g",
+    # Greek
+    "Α": "A", "Β": "B", "Ε": "E", "Ζ": "Z", "Η": "H", "Ι": "I", "Κ": "K", "Μ": "M",
+    "Ν": "N", "Ο": "O", "Ρ": "P", "Τ": "T", "Υ": "Y", "Χ": "X",
+    "ο": "o", "α": "a", "ι": "i", "κ": "k", "ν": "v", "ρ": "p", "τ": "t", "υ": "u", "χ": "x",
+}
+_HOMOGLYPH_TABLE = str.maketrans(_HOMOGLYPHS)
+_WORD_RE = re.compile(r"\w+", re.UNICODE)
+_LATIN_RE = re.compile(r"[A-Za-z]")
+
+
+def fold_homoglyphs(text: str) -> str:
+    """Map Cyrillic/Greek lookalikes to Latin, but only inside mixed-script words.
+
+    A word that already contains a Latin letter and also a lookalike is a
+    spoof ("Сoinsmania", "саsino"); it is folded to pure Latin. A word with
+    no Latin letter at all ("казино") is left untouched so the native-script
+    patterns still match it.
+    """
+    if not text:
+        return text or ""
+
+    def _fold(m: re.Match[str]) -> str:
+        word = m.group(0)
+        folded = word.translate(_HOMOGLYPH_TABLE)
+        if folded == word:
+            return word
+        if _LATIN_RE.search(word) or not re.search(r"[^\x00-\x7f]", folded):
+            return folded
+        return word
+
+    return _WORD_RE.sub(_fold, text)
+
+
 def slugify(text: str) -> str:
     """ASCII kebab-case, same spirit as the catalog name→slug path."""
     s = (text or "").strip().lower()

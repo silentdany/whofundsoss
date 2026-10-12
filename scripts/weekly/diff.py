@@ -43,6 +43,7 @@ class DiffResult:
     amount_changes: list[dict] = field(default_factory=list)
     beneficiary_changes: list[dict] = field(default_factory=list)
     held: list[dict] = field(default_factory=list)
+    renamed: list[dict] = field(default_factory=list)
     suspicious: bool = False
     suspicious_reasons: list[str] = field(default_factory=list)
     baseline_size: int = 0
@@ -62,6 +63,7 @@ class DiffResult:
                 "amount_changes": len(self.amount_changes),
                 "beneficiary_changes": len(self.beneficiary_changes),
                 "held": len(self.held),
+                "renamed": len(self.renamed),
             },
             "new_sponsors": self.new_sponsors,
             "disappeared_sponsors": self.disappeared_sponsors,
@@ -70,6 +72,7 @@ class DiffResult:
             "amount_changes": self.amount_changes,
             "beneficiary_changes": self.beneficiary_changes,
             "held": self.held,
+            "renamed": self.renamed,
         }
 
 
@@ -228,6 +231,63 @@ def _coverage_allows_disappearance(
     return (len(missing) == 0), missing
 
 
+def stable_ids(company: dict) -> set[str]:
+    """Slug-independent identity keys. Open Collective account slugs are stable."""
+    ids = {f"oc:{a.strip().lower()}" for a in (company.get("ocAccounts") or []) if a and a.strip()}
+    login = (company.get("login") or "").strip().lower()
+    if login:
+        ids.add(f"gh:{login}")
+    osp = (company.get("ospSlug") or "").strip().lower()
+    if osp:
+        ids.add(f"osp:{osp}")
+    return ids
+
+
+def _oc_fallback_id(company: dict) -> str | None:
+    """For baselines written before ocAccounts existed: OC-only rows match on
+    exact site domain + name (both must be present)."""
+    if set(company.get("sources") or []) != {"oc"}:
+        return None
+    from .normalize import normalize_domain
+
+    domain = normalize_domain(company.get("site"))
+    name = (company.get("name") or "").strip().casefold()
+    if not domain or not name:
+        return None
+    return f"ocsite:{domain}|{name}"
+
+
+def match_renames(cur: dict[str, dict], base: dict[str, dict]) -> dict[str, str]:
+    """Map baseline key -> current key for entities present under a new slug."""
+    only_base = [k for k in base if k not in cur]
+    only_cur = [k for k in cur if k not in base]
+    if not only_base or not only_cur:
+        return {}
+    by_id: dict[str, list[str]] = {}
+    for k in only_cur:
+        keys = set(stable_ids(cur[k]))
+        fb = _oc_fallback_id(cur[k])
+        if fb:
+            keys.add(fb)
+        for i in keys:
+            by_id.setdefault(i, []).append(k)
+    out: dict[str, str] = {}
+    taken: set[str] = set()
+    for k in only_base:
+        b = base[k]
+        keys = stable_ids(b)
+        if not (b.get("ocAccounts")):
+            fb = _oc_fallback_id(b)
+            if fb:
+                keys = keys | {fb}
+        hits = {c for i in keys for c in by_id.get(i, [])} - taken
+        if len(hits) == 1:
+            new_key = hits.pop()
+            out[k] = new_key
+            taken.add(new_key)
+    return out
+
+
 def _amount_by_source(company: dict) -> dict[str, float | None]:
     by = dict(company.get("publicUsdBySource") or {})
     # Ensure keys exist
@@ -253,6 +313,19 @@ def diff_snapshots(
         baseline_path=baseline_path,
         baseline_size=len(base),
     )
+
+    # Stable identity: a company whose slug changed between runs (e.g. an
+    # Open Collective org first slugged "unknown", now "sxl-cn") is the same
+    # entity, not one disappearance plus one new sponsor.
+    for old_key, new_key in match_renames(cur, base).items():
+        b = base.pop(old_key)
+        base[new_key] = b
+        result.renamed.append({
+            "from": old_key,
+            "to": new_key,
+            "name": cur[new_key].get("name"),
+            "matchedBy": stable_ids(cur[new_key]) & stable_ids(b) and "oc_account" or "oc_site_name",
+        })
 
     for key, c in cur.items():
         if key not in base:
@@ -403,6 +476,13 @@ def load_holds(path: Path | None = None) -> list[dict]:
         ]
 
 
+ZERO_READINGS_TO_PUBLISH = 2
+AUTO_HOLD_REASON = (
+    "first zero reading; a disappearance is published only after "
+    f"{ZERO_READINGS_TO_PUBLISH} consecutive zero readings"
+)
+
+
 def apply_holds(
     diff: DiffResult,
     companies: list[dict],
@@ -410,36 +490,63 @@ def apply_holds(
     holds: list[dict],
     *,
     run_date: str,
+    require_two_zero: bool = True,
 ) -> list[dict]:
-    """Keep the last known record of held companies instead of publishing a disappearance.
+    """Keep the last known record instead of publishing a disappearance.
 
-    A hold is active while run_date < review_on. Returns the (possibly extended)
-    companies list; mutates diff (disappeared_sponsors → held).
+    Two mechanisms, both carrying the baseline record forward (tagged `hold`)
+    so the next run still has it in its baseline:
+
+    - Manual holds (data/holds/weekly-holds.csv), active while run_date < review_on.
+    - Generic rule (require_two_zero): a verified disappearance needs 2 consecutive
+      zero readings. The first one is held automatically. If the baseline record
+      already carries a `hold` (i.e. last week was already a zero reading) and no
+      manual hold is active, the disappearance is published.
+
+    Returns the (possibly extended) companies list; mutates diff
+    (disappeared_sponsors -> held).
     """
     active = {
         h["slug"].lower(): h
         for h in holds
         if h.get("slug") and (not h.get("review_on") or run_date < h["review_on"])
     }
-    if not active:
+    if not active and not require_two_zero:
         return companies
     base = _index_companies(baseline)
     kept_disappeared = []
     out = list(companies)
     for row in diff.disappeared_sponsors:
-        hold = active.get((row.get("slug") or "").lower())
-        if hold is None or row.get("slug") not in base:
+        key = (row.get("slug") or "").lower()
+        prev = base.get(key)
+        hold = active.get(key)
+        if prev is None:
             kept_disappeared.append(row)
             continue
-        carried = dict(base[row["slug"]])
+        if hold is not None:
+            tag = {
+                "kind": "manual",
+                "reason": hold.get("reason"),
+                "since": hold.get("since"),
+                "review_on": hold.get("review_on"),
+            }
+        elif require_two_zero and not prev.get("hold"):
+            tag = {
+                "kind": "zero_reading",
+                "reason": AUTO_HOLD_REASON,
+                "since": run_date,
+                "review_on": None,
+                "zeroReadings": 1,
+            }
+        else:
+            # Second consecutive zero reading (or rule disabled): publish.
+            kept_disappeared.append(row)
+            continue
+        carried = dict(prev)
         carried.pop("hold", None)
-        carried["hold"] = {
-            "reason": hold.get("reason"),
-            "since": hold.get("since"),
-            "review_on": hold.get("review_on"),
-            "carriedFrom": diff.baseline_path,
-        }
+        tag["carriedFrom"] = diff.baseline_path
+        carried["hold"] = tag
         out.append(carried)
-        diff.held.append({**row, "hold_reason": hold.get("reason"), "review_on": hold.get("review_on")})
+        diff.held.append({**row, "hold_reason": tag["reason"], "review_on": tag["review_on"], "hold_kind": tag["kind"]})
     diff.disappeared_sponsors = kept_disappeared
     return out
