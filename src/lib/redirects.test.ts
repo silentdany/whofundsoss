@@ -113,3 +113,18 @@ test("after the catalog rebuild every renamed old slug 308s to the new slug (nev
   const hop = redirectTarget(new URL("https://x.test/company/oinsmania"), "x.test", "https://x.test", exists);
   assert.equal(hop, "https://x.test/company/coinsmania");
 });
+
+test("API: /api/sponsors/<old-slug> 308s to the new slug; page-only fallback never applies to the API", async () => {
+  const { companyRenameTarget } = await import("./redirects.ts");
+  const has = (s: string) => s === "coinsmania";
+  assert.equal(companyRenameTarget("/api/sponsors/oinsmania", has), "/api/sponsors/coinsmania");
+  assert.equal(companyRenameTarget("/api/v1/companies/oinsmania", has), "/api/v1/companies/coinsmania");
+  assert.equal(
+    companyRenameTarget("/api/v1/companies/oinsmania/sponsorships", has),
+    "/api/v1/companies/coinsmania/sponsorships",
+  );
+  assert.equal(companyRenameTarget("/api/sponsors/coinsmania", has), null);
+  assert.equal(companyRenameTarget("/api/sponsors/coinsmania", (s) => s === "oinsmania"), null);
+  const hop = redirectTarget(new URL("https://x.test/api/sponsors/oinsmania?x=1"), "x.test", "https://x.test", has);
+  assert.equal(hop, "https://x.test/api/sponsors/coinsmania?x=1");
+});
