@@ -416,10 +416,11 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         if not CATALOG.exists():
             self.skipTest("catalog.json missing")
         idx = build_catalog_index(CATALOG)
-        if "oinsmania" not in idx.by_slug:
-            self.skipTest("oinsmania not in catalog")
+        # Catalog rebuild 2026-10-12: canonical slug is coinsmania (was oinsmania).
+        self.assertIn("coinsmania", idx.by_slug)
+        self.assertNotIn("oinsmania", idx.by_slug)
         for label, v in self.VARIANTS.items():
-            self.assertEqual(idx.resolve(name=v), "oinsmania", label)
+            self.assertEqual(idx.resolve(name=v), "coinsmania", label)
 
     def test_native_script_untouched(self):
         from scripts.weekly.normalize import canonical_text
@@ -452,10 +453,11 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         self.assertEqual(canonical_text("\u0406nfo"), "Info")  # Cyrillic I -> I, not l
         self.assertEqual(slugify("\u0399nfo"), "info")  # Greek Iota
 
-    def test_accent_slug_change_still_hits_old_denylist_key(self):
-        # Denylist key predates mark stripping: 'ilmaiset-pitk-vetovihjeet'.
+    def test_accent_slug_change_still_hits_denylist_key(self):
+        # Key was 'ilmaiset-pitk-vetovihjeet' before mark stripping; migrate-slug-keys
+        # moves it to the new slug, lookups accept both forms.
         _, dl = parse_spam_denylist()
-        self.assertIn("ilmaiset-pitk-vetovihjeet", dl)
+        self.assertTrue({"ilmaiset-pitk-vetovihjeet", "ilmaiset-pitkavetovihjeet"} & set(dl))
         name = "Ilmaiset Pitk\u00e4vetovihjeet"
         self.assertEqual(slugify(name), "ilmaiset-pitkavetovihjeet")
         self.assertIsNotNone(is_excluded(slug=slugify(name), name=name, denylist=dl, exclusions=[]))

@@ -14,8 +14,8 @@ import { slugEquivalents } from "@/lib/slug-aliases";
  *
  * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam), sxl-cn (Strikingly / sxl.cn, OC backer of babel, vuejs, webpack; kept in the ranking 2026-10-12).
  *
- * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-12.3).
- * v2026-10-12.3 · as of 2026-10-12
+ * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-12.4).
+ * v2026-10-12.4 · as of 2026-10-12
  */
 export type SpamCategory =
   | "gambling"
@@ -27,7 +27,7 @@ export type SpamCategory =
   | "adult"
   | "commercial-unrelated";
 
-export const SPAM_DENYLIST_VERSION = "2026-10-12.3";
+export const SPAM_DENYLIST_VERSION = "2026-10-12.4";
 
 /** Who flagged it: "qa" = QA sitemap review, "dev" = Dev pass, "data" = Data triage. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -58,7 +58,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "funrize-social-casino": { category: "gambling", source: "data", reason: "social casino (funrize.com)" },
   "hollandsegokken-nl": { category: "gambling", source: "dev", reason: "Dutch online gambling" },
   "https-chicken-roadd-com": { category: "gambling", source: "dev", reason: "crash gambling game" },
-  "ilmaiset-pitk-vetovihjeet": { category: "gambling", source: "dev", reason: "betting tips / betting bonuses" },
+  "ilmaiset-pitkavetovihjeet": { category: "gambling", source: "dev", reason: "betting tips / betting bonuses" },
   "kajino-com": { category: "gambling", source: "dev", reason: "online casino" },
   "kasinohai-com": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "kasinosivut": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
@@ -69,7 +69,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "nettikasinot": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "nettikasinot-media": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "nettikasinot-org": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
-  "oinsmania": { category: "gambling", source: "data", reason: "social casino (coinsmania.com); name uses a Cyrillic С homoglyph" },
+  "coinsmania": { category: "gambling", source: "data", reason: "social casino (coinsmania.com); name uses a Cyrillic С homoglyph" },
   "ok-win": { category: "gambling", source: "dev", reason: "colour prediction gambling app" },
   "parhaatnettikasinot-com": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "parimatch": { category: "gambling", source: "dev", reason: "sportsbook / casino" },
@@ -145,7 +145,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "creditcaptain-leading-ai-credit-repair-service": { category: "commercial-unrelated", source: "data", reason: "credit repair" },
   "releaf-medical-cannabis-glossary": { category: "commercial-unrelated", source: "data", reason: "cannabis shop" },
   "releaf-medizinischer-cannabis-shop": { category: "commercial-unrelated", source: "data", reason: "cannabis shop" },
-  "sm-l-n-uten-sikkerhet": { category: "commercial-unrelated", source: "data", reason: "loans" },
+  "smalan-uten-sikkerhet": { category: "commercial-unrelated", source: "data", reason: "loans" },
 };
 
 /** Matches the written key and its rename equivalent (slug-renames.json), both ways. */

@@ -212,6 +212,7 @@ def build_payload(
                 # run reads this file as its baseline.
                 **({"ocAccounts": c["ocAccounts"]} if c.get("ocAccounts") else {}),
                 **({"hold": c["hold"]} if c.get("hold") else {}),
+                **({"pendingDrop": c["pendingDrop"]} if c.get("pendingDrop") else {}),
             }
             for c in companies
         ],
@@ -351,7 +352,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
         ),
     )
     _section(
-        "Held (disappearance not published; last known value kept)",
+        "Held (change not published yet; last known value kept)",
         diff.get("held") or [],
         lambda r: f"`{r['slug']}` · {r.get('name') or ''} · review on {r.get('review_on') or 'next run'} · {r.get('hold_reason') or ''}",
     )

@@ -25,7 +25,10 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts.weekly.denylist import is_excluded, load_raw_exclusions, parse_spam_denylist
 from scripts.weekly.diff import (
+    apply_drop_confirmation,
     apply_holds,
+    apply_site_overrides,
+    load_site_overrides,
     diff_snapshots,
     explain_new_against_catalog,
     load_baseline,
@@ -173,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     companies = merge_companies(results, catalog_index=catalog_index, apply_retention=True)
+    companies = apply_site_overrides(companies, load_site_overrides())
 
     # Drop denylist / raw-exclusion hits from the ranking snapshot of "new" noise,
     # but keep them annotated.
@@ -265,6 +269,10 @@ def main(argv: list[str] | None = None) -> int:
     # single reading; the last known record is carried forward instead.
     companies = apply_holds(
         diff, companies, baseline_companies, holds, run_date=run_date.isoformat()
+    )
+    # Sharp drops (>50% of a count) also need 2 consecutive readings.
+    companies = apply_drop_confirmation(
+        diff, companies, baseline_companies, run_date=run_date.isoformat()
     )
 
     # Recompute suspicious after filtering

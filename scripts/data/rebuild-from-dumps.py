@@ -303,12 +303,12 @@ def build_catalog(companies: dict, collected_at: str, exclusions_note: str, excl
         for (a, b), names in pair_projects.items()
         if len(names) >= 2
     ]
-    alliances.sort(key=lambda e: -e["shared"])
+    alliances.sort(key=lambda e: (-e["shared"], e["a"], e["b"]))
     alliances = alliances[:40]
 
     by_slug = {r["slug"]: r for r in index}
     commons = []
-    for name, slugs in sorted(proj.items(), key=lambda kv: -len(kv[1]))[:8]:
+    for name, slugs in sorted(proj.items(), key=lambda kv: (-len(kv[1]), kv[0]))[:8]:
         funders = []
         for slug in slugs:
             co = companies[slug]
@@ -324,7 +324,7 @@ def build_catalog(companies: dict, collected_at: str, exclusions_note: str, excl
                         "amountUsd": round(amount, 2),
                     }
                 )
-        funders.sort(key=lambda f: -f["amountUsd"])
+        funders.sort(key=lambda f: (-f["amountUsd"], f["name"].lower(), f["slug"]))  # stable on ties
         commons.append(
             {
                 "project": name,
