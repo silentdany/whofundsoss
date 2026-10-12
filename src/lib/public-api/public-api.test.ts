@@ -213,7 +213,7 @@ test("http: open CORS, read-only, cache headers, ETag, rate limit", async () => 
   const ok = await servePublicApi(req(), limiter, "t", h);
   assert.equal(ok.status, 200);
   assert.equal(ok.headers.get("access-control-allow-origin"), "*");
-  assert.match(ok.headers.get("cache-control")!, /s-maxage=3600/);
+  assert.match(ok.headers.get("cache-control")!, /s-maxage=600/);
   const etag = ok.headers.get("etag")!;
   assert.match(etag, /^W\/"t-/);
 
@@ -322,4 +322,24 @@ test("movements snapshot_date is the requested week; denylist lists sources", ()
   assert.equal(mv.meta.catalog_snapshot_date, "2026-10-06");
   const dl: any = api.denylist().body;
   assert.ok(dl.meta.sources.length > 0);
+});
+
+test("exclusion by domain also covers subdomains (app.coinsmania.com), not lookalike hosts", () => {
+  const rows = [
+    { slug: "coins-app", name: "Coins App", site: "https://app.coinsmania.com/play" },
+    { slug: "coins-deep", name: "Deep", site: "https://a.b.coinsmania.com" },
+    { slug: "notcoins", name: "Not", site: "https://notcoinsmania.com" },
+    { slug: "coins-other-tld", name: "Other", site: "https://coinsmania.com.example" },
+  ];
+  const csv = "entreprise,login_github,site,exclusion_raison\nCoinsmania,,https://coinsmania.com/,spam_casino\n";
+  const ex = exclusionSlugs(csv, rows, new Set());
+  assert.ok(ex.has("coins-app"));
+  assert.ok(ex.has("coins-deep"));
+  assert.ok(!ex.has("notcoins"));
+  assert.ok(!ex.has("coins-other-tld"));
+});
+
+test("same hold rule as the site: held hidden in API, shared parser", async () => {
+  const { parseHolds } = await import("../holds.ts");
+  assert.equal(holdSlugs, parseHolds);
 });

@@ -12,6 +12,7 @@
  *   `exclusionNote`.
  */
 import type { BySource, CompanyRow, SourceKey, Sponsorship } from "../types.ts";
+import { isHeld as isHeldOn, parseHolds } from "../holds.ts";
 
 export const API_VERSION = "v1";
 
@@ -70,11 +71,7 @@ export function createPublicApi(input: ApiInput) {
   const today = input.today ?? (() => new Date().toISOString().slice(0, 10));
   const heldMap: ReadonlyMap<string, string> =
     input.held instanceof Map ? input.held : new Map([...(input.held as ReadonlySet<string>)].map((s) => [s, ""]));
-  const isHeld = (slug: string) => {
-    if (!heldMap.has(slug)) return false;
-    const until = heldMap.get(slug) ?? "";
-    return !until || today() < until;
-  };
+  const isHeld = (slug: string) => isHeldOn(heldMap, slug, today());
   const hidden = (slug: string) => input.spam.has(slug) || input.excluded.has(slug) || isHeld(slug);
   const allRows = catalog.index;
 
@@ -406,28 +403,18 @@ export function exclusionSlugs(
     const byName = names.get((cells[iName] ?? "").trim().toLowerCase());
     if (byName) out.add(byName);
     const d = normalizeDomain(cells[iSite], genericHosts);
-    if (d) for (const slug of byDomain.get(d) ?? []) out.add(slug);
+    if (d) {
+      // Exact host or any subdomain of it (app.coinsmania.com for coinsmania.com).
+      for (const [host, slugs] of byDomain) {
+        if (host === d || host.endsWith(`.${d}`)) for (const slug of slugs) out.add(slug);
+      }
+    }
   }
   return out;
 }
 
-/** Parse data/holds/weekly-holds.csv into slug -> review_on. */
-export function holdSlugs(csvText: string): Map<string, string> {
-  const lines = csvText.replace(/^\ufeff/, "").split(/\r?\n/).filter((l) => l.trim());
-  const header = parseCsvLine(lines.shift() ?? "").map((h) => h.trim());
-  const i = header.indexOf("slug");
-  const j = header.indexOf("review_on");
-  const out = new Map<string, string>();
-  for (const l of lines) {
-    const cells = parseCsvLine(l);
-    const slug = (cells[i] ?? "").trim().toLowerCase();
-    if (!slug) continue;
-    const review = (cells[j] ?? "").trim();
-    // Malformed date: fail closed (treat as no end) rather than leak.
-    out.set(slug, WEEK_RE.test(review) ? review : "");
-  }
-  return out;
-}
+/** Parse data/holds/weekly-holds.csv into slug -> review_on (shared with the site). */
+export const holdSlugs = parseHolds;
 
 export function parseCsvLine(line: string): string[] {
   const out: string[] = [];

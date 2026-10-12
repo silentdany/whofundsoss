@@ -1,4 +1,6 @@
 import { isSpamDenylisted } from "./spam-denylist";
+import holdsCsv from "../../data/holds/weekly-holds.csv?raw";
+import { activeHolds, parseHolds, todayUtc, withoutHeld } from "./holds";
 import raw from "@/data/catalog.json";
 import snapPrev from "@/data/snapshots/2026-10-05.json";
 import snapCurr from "@/data/snapshots/2026-10-06.json";
@@ -35,32 +37,55 @@ type CatalogFile = {
   watchlist: { slug: string; reason: string; added: string }[];
 };
 
-const catalog = raw as CatalogFile;
+const rawCatalog = raw as CatalogFile;
+const holds = parseHolds(holdsCsv);
 
-const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
-/** Rows shown in rankings and lists. Spam-denylisted companies keep a page but are never listed. */
-const listedRows = catalog.index.filter((row) => !isSpamDenylisted(row.slug));
-const projectIndex = buildProjectIndex(catalog.index, catalog.details);
-const publishedProjects = gatedProjects(projectIndex);
-const publishedProjectSlugs = new Set(publishedProjects.map((p) => p.slug));
+/**
+ * Per-day view of the catalog. Companies on an active weekly hold
+ * (data/holds/weekly-holds.csv, until review_on) are removed everywhere on the
+ * site: company page (404), ranking, search, graph, projects, sitemap, exports.
+ * Same rule as the public API.
+ */
+function buildView(today: string) {
+  const held = activeHolds(holds, today);
+  const catalog = withoutHeld(rawCatalog, held);
+  const bySlug = new Map(catalog.index.map((row) => [row.slug, row]));
+  /** Rows shown in rankings and lists. Spam-denylisted companies keep a page but are never listed. */
+  const listedRows = catalog.index.filter((row) => !isSpamDenylisted(row.slug));
+  const projectIndex = buildProjectIndex(catalog.index, catalog.details);
+  const publishedProjects = gatedProjects(projectIndex);
+  const publishedProjectSlugs = new Set(publishedProjects.map((p) => p.slug));
+  return { today, held, catalog, bySlug, listedRows, projectIndex, publishedProjects, publishedProjectSlugs };
+}
+let view: ReturnType<typeof buildView> | null = null;
+function V() {
+  const today = todayUtc();
+  if (!view || view.today !== today) view = buildView(today);
+  return view;
+}
+
+/** Slugs on an active hold today (for snapshot-based movements). */
+export function heldSlugsToday(): ReadonlySet<string> {
+  return V().held;
+}
 
 export function getMeta(): Meta {
   // Soft Sécu: never dehydrate process notes (e.g. note_triage) into SSR.
-  const { note_triage: _drop, ...meta } = catalog.meta as Meta & { note_triage?: string };
+  const { note_triage: _drop, ...meta } = V().catalog.meta as Meta & { note_triage?: string };
   void _drop;
   return meta;
 }
 
 export function getRow(slug: string): CompanyRow | null {
-  return bySlug.get(slug) ?? null;
+  return V().bySlug.get(slug) ?? null;
 }
 
 export function homePayload() {
-  const posit = bySlug.get("posit-dev");
-  const sentry = bySlug.get("getsentry");
-  const microsoft = bySlug.get("microsoft");
-  const positDetail = catalog.details["posit-dev"];
-  const ghosts = catalog.index
+  const posit = V().bySlug.get("posit-dev");
+  const sentry = V().bySlug.get("getsentry");
+  const microsoft = V().bySlug.get("microsoft");
+  const positDetail = V().catalog.details["posit-dev"];
+  const ghosts = V().catalog.index
     .filter((row) => row.unitemized)
     .slice(0, 4);
 
@@ -105,26 +130,26 @@ export function homePayload() {
 
   const mix = (["oc", "osp", "gh", "own"] as SourceKey[]).map((key) => ({
     key,
-    companies: catalog.index.filter((row) => row.sources.includes(key)).length,
+    companies: V().catalog.index.filter((row) => row.sources.includes(key)).length,
   }));
 
   return {
     meta: getMeta(),
     brief,
-    top: catalog.index.filter((row) => row.rank && row.rank <= 10).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)),
+    top: V().catalog.index.filter((row) => row.rank && row.rank <= 10).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)),
     mix,
   };
 }
 
 export function rankingPayload() {
-  return { meta: getMeta(), rows: listedRows };
+  return { meta: getMeta(), rows: V().listedRows };
 }
 
 export function companyPayload(slug: string) {
-  const row = bySlug.get(slug);
-  const rawDetail = catalog.details[slug];
+  const row = V().bySlug.get(slug);
+  const rawDetail = V().catalog.details[slug];
   if (!row || !rawDetail) return null;
-  const linkedProjects = companyLinkedProjects(rawDetail, publishedProjectSlugs);
+  const linkedProjects = companyLinkedProjects(rawDetail, V().publishedProjectSlugs);
   const narrative = companyNarrativeLead(row, rawDetail, money);
   // Soft Copy: EN labels, no em dash in dehydrated UI payload.
   const detail = {
@@ -139,28 +164,30 @@ export function companyPayload(slug: string) {
 
 export function projectPayload(slug: string): { project: ProjectRecord; meta: ReturnType<typeof getMeta> } | null {
   const key = slug.trim().toLowerCase();
-  const project = projectIndex.get(key);
+  const project = V().projectIndex.get(key);
   if (!isProjectPublished(project)) return null;
   return { project: project!, meta: getMeta() };
 }
 
 export function listPublishedProjects(): ProjectRecord[] {
-  return publishedProjects;
+  return V().publishedProjects;
 }
 
 export function publishedProjectPathList(): string[] {
-  return publishedProjects.map((p) => `/project/${encodeURIComponent(p.slug)}`);
+  return V().publishedProjects.map((p) => `/project/${encodeURIComponent(p.slug)}`);
 }
 
 export function movementsPayload(): MovementsPayload {
-  return buildMovementsFromSnaps(snapPrev as SnapFile, snapCurr as SnapFile, getMeta());
+  const held = V().held;
+  const strip = (snap: SnapFile): SnapFile => ({ ...snap, index: snap.index.filter((r) => !held.has(r.slug)) });
+  return buildMovementsFromSnaps(strip(snapPrev as SnapFile), strip(snapCurr as SnapFile), getMeta());
 }
 
 export function mysteriesPayload() {
-  const unitemized = listedRows.filter((row) => row.unitemized);
-  const unpriced = listedRows
+  const unitemized = V().listedRows.filter((row) => row.unitemized);
+  const unpriced = V().listedRows
     .filter((row) => {
-      const detail = catalog.details[row.slug];
+      const detail = V().catalog.details[row.slug];
       return (
         row.sources.includes("gh") &&
         row.ghBeneficiaries >= 8 &&
@@ -174,11 +201,11 @@ export function mysteriesPayload() {
 
 export function graphPayload() {
   const ids = new Set<string>();
-  for (const link of catalog.alliances) {
+  for (const link of V().catalog.alliances) {
     ids.add(link.a);
     ids.add(link.b);
   }
-  const nodes = catalog.index
+  const nodes = V().catalog.index
     .filter((row) => ids.has(row.slug))
     .map((row) => ({
       id: row.slug,
@@ -189,18 +216,18 @@ export function graphPayload() {
   return {
     meta: getMeta(),
     nodes,
-    links: catalog.alliances,
-    commons: catalog.commons,
-    publishedProjectSlugs: [...publishedProjectSlugs],
+    links: V().catalog.alliances,
+    commons: V().catalog.commons,
+    publishedProjectSlugs: [...V().publishedProjectSlugs],
   };
 }
 
 export function watchlistPayload() {
-  const items: WatchItem[] = catalog.watchlist.map((item) => ({
+  const items: WatchItem[] = V().catalog.watchlist.map((item) => ({
     ...item,
-    row: bySlug.get(item.slug) ?? null,
+    row: V().bySlug.get(item.slug) ?? null,
   }));
-  const picker = listedRows.map((row) => ({
+  const picker = V().listedRows.map((row) => ({
     slug: row.slug,
     name: row.name,
     rank: row.rank,
@@ -216,7 +243,7 @@ export function leaderboardQuery(params: URLSearchParams) {
   const offset = clampInt(params.get("offset"), 0, 0, 10_000);
   const includeWhales = params.get("include_whales") !== "false";
   const source = params.get("source");
-  let rows = listedRows.slice();
+  let rows = V().listedRows.slice();
   if (!includeWhales) rows = rows.filter((row) => !row.whale);
   if (source === "oc" || source === "osp" || source === "gh" || source === "own") {
     rows = rows.filter((row) => row.sources.includes(source));
@@ -228,7 +255,7 @@ export function leaderboardQuery(params: URLSearchParams) {
   });
   const page = rows.slice(offset, offset + limit);
   return {
-    collected_at: catalog.meta.collectedAt,
+    collected_at: V().catalog.meta.collectedAt,
     sort,
     total: rows.length,
     limit,
@@ -297,8 +324,8 @@ export function companyApi(slug: string) {
 }
 
 export function sponsorshipsQuery(slug: string, params: URLSearchParams) {
-  const detail = catalog.details[slug];
-  const row = bySlug.get(slug);
+  const detail = V().catalog.details[slug];
+  const row = V().bySlug.get(slug);
   if (!detail || !row) return null;
   const source = params.get("source");
   let items = detail.sponsorships;
@@ -320,7 +347,7 @@ export function sponsorshipsQuery(slug: string, params: URLSearchParams) {
       amount_usd: item.amountUsd,
       cumulative: item.cumulative,
       visibility: item.visibility,
-      collected_at: catalog.meta.collectedAt,
+      collected_at: V().catalog.meta.collectedAt,
     })),
   };
 }
@@ -360,7 +387,7 @@ export function deltasPayload(params: URLSearchParams) {
 export function graphQuery(params: URLSearchParams) {
   const minShared = clampInt(params.get("min_shared"), 2, 2, 50);
   const limit = clampInt(params.get("limit"), 50, 1, 80);
-  const pairs = catalog.alliances
+  const pairs = V().catalog.alliances
     .filter((link) => link.shared >= minShared)
     .slice(0, limit)
     .map((link) => ({
@@ -370,7 +397,7 @@ export function graphQuery(params: URLSearchParams) {
       projects: link.projects,
     }));
   return {
-    collected_at: catalog.meta.collectedAt,
+    collected_at: V().catalog.meta.collectedAt,
     min_shared: minShared,
     note: "Pairs that share distinctive projects (2–15 sponsors). Mega-collectives such as webpack are listed separately so the graph is not a hairball.",
     pairs,
@@ -379,9 +406,9 @@ export function graphQuery(params: URLSearchParams) {
 
 export function watchlistApi() {
   return {
-    collected_at: catalog.meta.collectedAt,
-    companies: catalog.watchlist.map((item) => {
-      const row = bySlug.get(item.slug);
+    collected_at: V().catalog.meta.collectedAt,
+    companies: V().catalog.watchlist.map((item) => {
+      const row = V().bySlug.get(item.slug);
       return {
         slug: item.slug,
         reason: item.reason,
@@ -399,9 +426,9 @@ export function watchlistApi() {
 export function alertsPayload(params: URLSearchParams) {
   return {
     since: params.get("since"),
-    collected_at: catalog.meta.collectedAt,
+    collected_at: V().catalog.meta.collectedAt,
     alerts: [],
-    note: "Compare /movements for the 2026-10-05 → 2026-10-06 catalog delta.",
+    note: "Compare /movements for the 2026-10-05 → 2026-10-06 V().catalog delta.",
   };
 }
 
@@ -420,7 +447,7 @@ export function companiesCsv(): string {
     "website",
     "spam_denylisted",
   ];
-  const lines = catalog.index.map((row) =>
+  const lines = V().catalog.index.map((row) =>
     [
       row.rank ?? "",
       row.slug,
@@ -442,8 +469,8 @@ export function companiesCsv(): string {
 export function sponsorshipsCsv(): string {
   const header = ["slug", "company", "project", "source", "amount_usd", "cumulative", "visibility", "collected_at"];
   const lines: string[] = [];
-  for (const row of catalog.index) {
-    const detail = catalog.details[row.slug];
+  for (const row of V().catalog.index) {
+    const detail = V().catalog.details[row.slug];
     if (!detail) continue;
     for (const item of detail.sponsorships) {
       lines.push(
@@ -455,7 +482,7 @@ export function sponsorshipsCsv(): string {
           item.amountUsd ?? "",
           item.cumulative,
           item.visibility,
-          catalog.meta.collectedAt,
+          V().catalog.meta.collectedAt,
         ]
           .map(csvCell)
           .join(","),
@@ -501,7 +528,7 @@ function clampInt(raw: string | null, fallback: number, min: number, max: number
 export function catalogSitemapPaths(
   build: (rows: CompanyRow[], details: CatalogFile["details"], projectPaths?: string[]) => string[],
 ): string[] {
-  return build(catalog.index, catalog.details, publishedProjectPathList());
+  return build(V().catalog.index, V().catalog.details, publishedProjectPathList());
 }
 
 export type SearchHit = { slug: string; name: string; rank: number | null; publicUsd: number };
@@ -510,7 +537,7 @@ export type SearchHit = { slug: string; name: string; rank: number | null; publi
 export function searchCompanies(query: string, limit = 6): SearchHit[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
-  return catalog.index
+  return V().catalog.index
     .filter((row) => !isSpamDenylisted(row.slug) && (row.name.toLowerCase().includes(q) || row.slug.includes(q)))
     .sort((a, b) => {
       const as = a.name.toLowerCase().startsWith(q) ? 0 : 1;

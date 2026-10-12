@@ -46,6 +46,21 @@ class TestDenylistParse(unittest.TestCase):
         self.assertIsNone(is_excluded(slug="getsentry", denylist=entries, exclusions=[]))
 
 
+class TestExclusionSubdomain(unittest.TestCase):
+    def test_subdomain_of_excluded_site_is_excluded(self):
+        rows = [r for r in load_raw_exclusions() if (r.site or "").find("coinsmania.com") >= 0]
+        self.assertTrue(rows)
+        self.assertIsNotNone(is_excluded(slug="x", site="https://app.coinsmania.com/", exclusions=rows))
+        self.assertIsNotNone(is_excluded(slug="x", site="https://a.b.coinsmania.com", exclusions=rows))
+        self.assertIsNone(is_excluded(slug="x", site="https://notcoinsmania.com", exclusions=rows))
+        self.assertIsNone(is_excluded(slug="x", site="https://coinsmania.com.example", exclusions=rows))
+
+    def test_generic_host_rows_never_match_by_domain(self):
+        rows = [r for r in load_raw_exclusions() if r.login_github == "github-sponsors"]
+        self.assertIsNone(is_excluded(slug="github", site="https://github.com", exclusions=rows))
+        self.assertIsNone(is_excluded(slug="x", site="https://gist.github.com", exclusions=rows))
+
+
 class TestNormalize(unittest.TestCase):
     def test_slugify_name(self):
         self.assertEqual(slugify("General Catalyst"), "general-catalyst")

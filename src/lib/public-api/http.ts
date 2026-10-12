@@ -13,8 +13,12 @@ export const CORS_HEADERS: Record<string, string> = {
   "access-control-max-age": "86400",
 };
 
-/** Browser + CDN cache. The data only changes when a weekly snapshot is deployed. */
-export const CACHE_CONTROL = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
+/**
+ * Browser + CDN cache. Data changes on deploy (Vercel purges the CDN then) and
+ * when a hold reaches its review_on date (day boundary, no deploy). Short edge
+ * TTL + short SWR bound that second case to about 20 minutes.
+ */
+export const CACHE_CONTROL = "public, max-age=60, s-maxage=600, stale-while-revalidate=600";
 
 export type RateLimiter = {
   limit: number;
