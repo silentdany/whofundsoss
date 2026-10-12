@@ -226,12 +226,273 @@ class TestHolds(unittest.TestCase):
         self.assertEqual(out[0]["hold"]["review_on"], "2026-10-19")
 
     def test_expired_hold_publishes_disappearance(self):
-        base, diff = self._diff()
-        n = len(diff.disappeared_sponsors)
+        # Next Monday: the baseline is last week's file, which carries the held record.
+        base, _ = self._diff()
+        base[0]["hold"] = {"kind": "manual", "since": "2026-10-12", "review_on": "2026-10-19"}
+        cov = CoverageReport(sources={"github_sponsors": {"full": True, "status": "ok", "meta": {"ok_logins": ["openai"]}}})
+        diff = diff_snapshots([], base, baseline_kind="weekly", baseline_path="p", coverage=cov)
         holds = [{"slug": "openai", "reason": "x", "since": "2026-10-12", "review_on": "2026-10-19"}]
         out = apply_holds(diff, [], base, holds, run_date="2026-10-19")
-        self.assertEqual(len(diff.disappeared_sponsors), n)
+        self.assertEqual([r["slug"] for r in diff.disappeared_sponsors], ["openai"])
         self.assertEqual(out, [])
+
+
+class TestTwoZeroRule(unittest.TestCase):
+    COV = CoverageReport(sources={"github_sponsors": {"full": True, "status": "ok", "meta": {"ok_logins": ["n32-tech"]}}})
+
+    def _base(self):
+        return [{"slug": "n32-tech", "name": "n32.tech", "login": "n32-tech", "sources": ["gh"], "ghBeneficiaries": 1}]
+
+    def test_first_zero_is_held_not_published(self):
+        base = self._base()
+        diff = diff_snapshots([], base, baseline_kind="weekly", baseline_path="w1.json", coverage=self.COV)
+        out = apply_holds(diff, [], base, [], run_date="2026-10-12")
+        self.assertEqual(diff.disappeared_sponsors, [])
+        self.assertEqual(diff.held[0]["hold_kind"], "zero_reading")
+        self.assertEqual(out[0]["ghBeneficiaries"], 1)  # last known value kept
+        self.assertEqual(out[0]["hold"]["zeroReadings"], 1)
+
+    def test_second_consecutive_zero_publishes(self):
+        base = self._base()
+        d1 = diff_snapshots([], base, baseline_kind="weekly", baseline_path="w1.json", coverage=self.COV)
+        week1 = apply_holds(d1, [], base, [], run_date="2026-10-12")
+        d2 = diff_snapshots([], week1, baseline_kind="weekly", baseline_path="w2.json", coverage=self.COV)
+        week2 = apply_holds(d2, [], week1, [], run_date="2026-10-19")
+        self.assertEqual([r["slug"] for r in d2.disappeared_sponsors], ["n32-tech"])
+        self.assertEqual(d2.held, [])
+        self.assertEqual(week2, [])
+
+    def test_reappearance_clears_the_hold(self):
+        base = self._base()
+        d1 = diff_snapshots([], base, baseline_kind="weekly", baseline_path="w1.json", coverage=self.COV)
+        week1 = apply_holds(d1, [], base, [], run_date="2026-10-12")
+        back = self._base()
+        d2 = diff_snapshots(back, week1, baseline_kind="weekly", baseline_path="w2.json", coverage=self.COV)
+        week2 = apply_holds(d2, back, week1, [], run_date="2026-10-19")
+        self.assertEqual(d2.disappeared_sponsors, [])
+        self.assertNotIn("hold", week2[0])
+
+    def test_rule_can_be_disabled(self):
+        base = self._base()
+        diff = diff_snapshots([], base, baseline_kind="weekly", baseline_path="w1.json", coverage=self.COV)
+        apply_holds(diff, [], base, [], run_date="2026-10-12", require_two_zero=False)
+        self.assertEqual(len(diff.disappeared_sponsors), 1)
+
+
+class TestPayloadKeepsState(unittest.TestCase):
+    def test_hold_and_oc_accounts_survive_build_payload(self):
+        from datetime import date
+        from scripts.weekly.diff import DiffResult
+        from scripts.weekly.report import build_payload
+        comps = [{"slug": "openai", "name": "OpenAI", "hold": {"kind": "manual"}, "ocAccounts": []},
+                 {"slug": "sxl-cn", "name": "上线了", "ocAccounts": ["strikingly"]}]
+        p = build_payload(run_date=date(2026, 10, 12), source_results=[], companies=comps,
+                          diff=DiffResult(baseline_kind="weekly", baseline_path=None), suspects=[],
+                          denylist_version="v", denylist_count=0, exclusions_count=0,
+                          excluded_from_report=[], duration_s=0, coverage=CoverageReport())
+        self.assertEqual(p["companies"][0]["hold"], {"kind": "manual"})
+        self.assertNotIn("ocAccounts", p["companies"][0])
+        self.assertEqual(p["companies"][1]["ocAccounts"], ["strikingly"])
+
+
+class TestStableOcIdentity(unittest.TestCase):
+    COV = CoverageReport(sources={"open_collective": {"full": True, "status": "ok", "meta": {"ok_collective_slugs": ["babel", "vuejs", "webpack", "mochajs", "parcel"]}}})
+
+    def test_slug_change_with_oc_account_is_a_rename(self):
+        base = [{"slug": "unknown", "name": "上线了", "sources": ["oc"], "site": "https://www.sxl.cn/a", "collectives": ["babel"], "ocAccounts": ["strikingly"], "publicUsdBySource": {"oc": 6980.0}}]
+        cur = [{"slug": "sxl-cn", "name": "上线了", "sources": ["oc"], "site": "https://www.sxl.cn/a", "collectives": ["babel"], "ocAccounts": ["strikingly"], "publicUsdBySource": {"oc": 7000.0}}]
+        diff = diff_snapshots(cur, base, baseline_kind="weekly", baseline_path="p", coverage=self.COV)
+        self.assertEqual(diff.new_sponsors, [])
+        self.assertEqual(diff.disappeared_sponsors, [])
+        self.assertEqual(diff.renamed, [{"from": "unknown", "to": "sxl-cn", "name": "上线了", "matchedBy": "oc_account"}])
+        self.assertEqual(diff.amount_changes[0]["slug"], "sxl-cn")
+
+    def test_legacy_baseline_without_ids_matches_on_site_and_name(self):
+        base = [{"slug": "unknown-x", "name": "多态", "sources": ["oc"], "site": "https://www.duotai.net", "collectives": ["babel"]}]
+        cur = [{"slug": "duotai-net", "name": "多态", "sources": ["oc"], "site": "https://duotai.net/", "collectives": ["babel"], "ocAccounts": ["duotai"]}]
+        diff = diff_snapshots(cur, base, baseline_kind="weekly", baseline_path="p", coverage=self.COV)
+        self.assertEqual(diff.new_sponsors, [])
+        self.assertEqual(diff.disappeared_sponsors, [])
+        self.assertEqual(diff.renamed[0]["to"], "duotai-net")
+
+    def test_different_oc_accounts_are_not_merged(self):
+        base = [{"slug": "unknown", "name": "A", "sources": ["oc"], "site": "https://a.example", "collectives": ["babel"], "ocAccounts": ["acct-a"]}]
+        cur = [{"slug": "b-example", "name": "B", "sources": ["oc"], "site": "https://b.example", "collectives": ["babel"], "ocAccounts": ["acct-b"]}]
+        diff = diff_snapshots(cur, base, baseline_kind="weekly", baseline_path="p", coverage=self.COV)
+        self.assertEqual(diff.renamed, [])
+        self.assertEqual(len(diff.new_sponsors), 1)
+        self.assertEqual(len(diff.disappeared_sponsors), 1)
+
+    def test_merge_records_oc_account(self):
+        src = SourceResult(name="open_collective", status="ok", items=[{"slug": "strikingly", "ocSlug": "Strikingly", "name": "上线了", "site": "https://www.sxl.cn/", "publicUsd": 6980.0, "collectives": ["babel", "vuejs", "webpack"]}])
+        rows = merge_companies([src], catalog_index=None, apply_retention=False)
+        self.assertEqual(rows[0]["ocAccounts"], ["strikingly"])
+
+
+class TestHomoglyphs(unittest.TestCase):
+    def test_fold_mixed_script(self):
+        from scripts.weekly.normalize import fold_homoglyphs
+        self.assertEqual(fold_homoglyphs("\u0421oinsmania"), "Coinsmania")
+        self.assertEqual(fold_homoglyphs("\u0441\u0430sino"), "casino")
+        self.assertEqual(fold_homoglyphs("казино"), "казино")  # native script untouched
+        self.assertEqual(fold_homoglyphs("上线了"), "上线了")
+
+    def test_suspect_scan_sees_through_cyrillic_letters(self):
+        hits = flag_suspects([{"slug": "x", "name": "Royal \u0421\u0430sino"}])
+        self.assertEqual(len(hits), 1)
+        self.assertIn("casino", hits[0].matched_keywords)
+
+    def test_native_cyrillic_pattern_still_matches(self):
+        hits = flag_suspects([{"slug": "w-in-ua", "name": "онлайн казино"}])
+        self.assertIn("cyrillic_gambling", hits[0].matched_keywords)
+
+    def test_exclusion_name_match_with_homoglyph(self):
+        from scripts.weekly.denylist import ExclusionEntry
+        rows = [r for r in load_raw_exclusions() if r.login_github == "oinsmania"]
+        self.assertEqual(len(rows), 1)
+        # Same name typed with a Latin C still hits the Cyrillic-С row
+        self.assertIsNotNone(is_excluded(slug="coinsmania", name="Coinsmania", exclusions=rows))
+
+
+class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
+    VARIANTS = {
+        "cyrillic_es_first": "\u0421oinsmania",
+        "cyrillic_a_last": "Coinsmani\u0430",
+        "greek_lunate_sigma": "\u03f9oinsmania",
+        "double_struck_c": "\u2102oinsmania",
+        "fullwidth_c": "\uff23oinsmania",
+        "zero_width_inside": "Coins\u200bmania",
+        "all_at_once": "\uff23oins\u200dmani\u0430",
+        "combining_acute_after_a": "Coinsmania\u0301",
+        "combining_inside": "Co\u0308insmania",
+        "precomposed_o_acute": "C\u00f3insmania",
+        "armenian_oh": "C\u0585insmania",
+        "cherokee_c": "\u13dfoinsmania",
+        "mixed_marks_and_homoglyphs": "\u0421\u00f3ins\u200bmani\u0430\u0301",
+    }
+
+    def test_canonical_text(self):
+        from scripts.weekly.normalize import canonical_text
+        for label, v in self.VARIANTS.items():
+            self.assertEqual(canonical_text(v), "Coinsmania", label)
+
+    def test_slug_is_stable_across_variants(self):
+        for label, v in self.VARIANTS.items():
+            self.assertEqual(slugify(v), "coinsmania", label)
+        self.assertEqual(slugify("Ｇｅｎｅｒａｌ Catalyst"), "general-catalyst")
+
+    def test_no_variant_bypasses_denylist_or_exclusions(self):
+        _, dl = parse_spam_denylist()
+        ex = load_raw_exclusions()
+        for label, v in self.VARIANTS.items():
+            # No site, slug derived from the name: the worst case for a bypass.
+            reason = is_excluded(slug=slugify(v), name=v, site="", login="", denylist=dl, exclusions=ex)
+            self.assertIsNotNone(reason, label)
+
+    def test_denylist_slug_itself_canonicalized(self):
+        from scripts.weekly.denylist import DenylistEntry
+        dl = {"coinsmania": DenylistEntry(slug="coinsmania", category="gambling", source="data", reason="casino")}
+        if dl is None:
+            self.skipTest("DenylistEntry shape differs")
+        for label, v in self.VARIANTS.items():
+            self.assertIsNotNone(is_excluded(slug=v, name="", denylist=dl, exclusions=[]), label)
+
+    def test_variant_merges_into_catalog_row_not_a_duplicate(self):
+        if not CATALOG.exists():
+            self.skipTest("catalog.json missing")
+        idx = build_catalog_index(CATALOG)
+        if "oinsmania" not in idx.by_slug:
+            self.skipTest("oinsmania not in catalog")
+        for label, v in self.VARIANTS.items():
+            self.assertEqual(idx.resolve(name=v), "oinsmania", label)
+
+    def test_native_script_untouched(self):
+        from scripts.weekly.normalize import canonical_text
+        # Combining marks are dropped in every script (й -> и); words stay Cyrillic.
+        self.assertEqual(canonical_text("онлайн казино"), "онлаин казино")
+        self.assertEqual(flag_suspects([{"slug": "x", "name": "онлайн казино"}])[0].matched_keywords, ("cyrillic_gambling",))
+        self.assertEqual(canonical_text("Ставки на спорт"), "Ставки на спорт")  # "на" is not "ha"
+        # No slug churn for live denylisted names
+        self.assertEqual(slugify("Funrize\u2122 Social Casino"), "funrize-social-casino")
+
+    def test_armenian_seh_is_u_not_s(self):
+        # QA 5ecce2e: Fսn88 (U+057D) became 'fsn88', a duplicate next to fun88.
+        from scripts.weekly.normalize import CONFUSABLES_VERSION, canonical_text
+        self.assertTrue(CONFUSABLES_VERSION)
+        self.assertEqual(canonical_text("F\u057dn88"), "Fun88")
+        self.assertEqual(slugify("F\u057dn88"), "fun88")
+        _, dl = parse_spam_denylist()
+        if "fun88" in dl:
+            self.assertIsNotNone(is_excluded(slug=slugify("F\u057dn88"), name="F\u057dn88", denylist=dl, exclusions=[]))
+        if CATALOG.exists():
+            idx = build_catalog_index(CATALOG)
+            if "fun88" in idx.by_slug:
+                self.assertEqual(idx.resolve(name="F\u057dn88"), "fun88")
+
+    def test_confusables_table_drives_mapping(self):
+        from scripts.weekly.normalize import canonical_text
+        # From UTS #39, not the old hand map: Armenian vo/oh, Cherokee, Latin-I fix.
+        self.assertEqual(canonical_text("C\u0585\u0578fig"), "Config")
+        self.assertEqual(canonical_text("\u13dfasino"), "Casino")
+        self.assertEqual(canonical_text("\u0406nfo"), "Info")  # Cyrillic I -> I, not l
+        self.assertEqual(slugify("\u0399nfo"), "info")  # Greek Iota
+
+    def test_accent_slug_change_still_hits_old_denylist_key(self):
+        # Denylist key predates mark stripping: 'ilmaiset-pitk-vetovihjeet'.
+        _, dl = parse_spam_denylist()
+        self.assertIn("ilmaiset-pitk-vetovihjeet", dl)
+        name = "Ilmaiset Pitk\u00e4vetovihjeet"
+        self.assertEqual(slugify(name), "ilmaiset-pitkavetovihjeet")
+        self.assertIsNotNone(is_excluded(slug=slugify(name), name=name, denylist=dl, exclusions=[]))
+
+    def test_mark_variants_hit_denylist_slug_without_exclusion_rows(self):
+        from scripts.weekly.denylist import DenylistEntry
+        dl = {"coinsmania": DenylistEntry(slug="coinsmania", category="gambling", source="data", reason="casino")}
+        for v in ("Coinsmania\u0301", "C\u00f3insmania", "C\u0585insmania"):
+            self.assertIsNotNone(is_excluded(slug=slugify(v), name=v, denylist=dl, exclusions=[]), v)
+
+
+class TestExistingDataPr(unittest.TestCase):
+    PRS = [
+        {"number": 24, "url": "u24", "state": "OPEN", "headRefName": "data/weekly-run-1", "files": [{"path": "data/weekly/2026-10-12.json"}]},
+        {"number": 25, "url": "u25", "state": "CLOSED", "headRefName": "data/weekly-run-2", "files": [{"path": "data/weekly/2026-10-19.json"}]},
+        {"number": 7, "url": "u7", "state": "MERGED", "headRefName": "data/weekly-run-3", "files": [{"path": "data/weekly/2026-10-06.json"}]},
+        {"number": 9, "url": "u9", "state": "OPEN", "headRefName": "feat/x", "files": [{"path": "data/weekly/2026-10-26.json"}]},
+    ]
+
+    def test_open_and_merged_block(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        self.assertEqual(find_existing(self.PRS, "2026-10-12")["number"], 24)
+        self.assertEqual(find_existing(self.PRS, "2026-10-06")["number"], 7)
+
+    def test_closed_or_non_data_branch_does_not_block(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        self.assertIsNone(find_existing(self.PRS, "2026-10-19"))
+        self.assertIsNone(find_existing(self.PRS, "2026-10-26"))
+
+    def test_rejects_bad_date(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        with self.assertRaises(ValueError):
+            find_existing(self.PRS, "2026-10-12; rm -rf /")
+
+    def test_workflow_patch_uses_read_only_github_token(self):
+        # Ships as docs/weekly-scraper-dedupe.patch (the bot token cannot push
+        # .github/workflows). Once applied, the live workflow is checked too.
+        root = Path(__file__).resolve().parents[2]
+        patch = (root / "docs" / "weekly-scraper-dedupe.patch").read_text()
+        added = "\n".join(l[1:] for l in patch.splitlines() if l.startswith("+") and not l.startswith("+++"))
+        self.assertIn("scripts.weekly.existing_data_pr", added)
+        self.assertIn("GH_TOKEN: ${{ github.token }}", added)
+        self.assertIn("pull-requests: read", added)
+        self.assertIn("contents: read", added)
+        guard = added[added.index("dedupe:"):added.index("needs: dedupe")]
+        self.assertNotIn("PAT", guard.replace("no PAT", ""))
+        self.assertNotIn("secrets.", guard)
+        self.assertIn("needs: dedupe", added)
+        self.assertIn("if: needs.dedupe.outputs.skip != 'true'", added)
+        wf = (root / ".github" / "workflows" / "weekly-scraper.yml").read_text()
+        if "existing_data_pr" in wf:
+            self.assertIn("if: needs.dedupe.outputs.skip != 'true'", wf)
 
 
 class TestMergeRetention(unittest.TestCase):
@@ -387,3 +648,23 @@ class TestOpenDataPrGuard(unittest.TestCase):
         self.assertIn("data/weekly/", script)
         self.assertIn("outside data/weekly", script)
         self.assertNotIn("--force", script)
+
+
+class TestSlugRenames(unittest.TestCase):
+    """QA 5ecce2e: every slug that canonical_text changes has a 308 entry."""
+
+    def test_rename_map_is_complete_and_committed(self):
+        import json
+        from scripts.weekly import slug_renames
+        committed = json.loads(slug_renames.OUT.read_text(encoding="utf-8"))["renames"]
+        self.assertEqual(committed, slug_renames.compute())
+        for old, new in {"et-reo": "etereo", "b-rkert-werke-gmbh-co-kg": "burkert-werke-gmbh-co-kg",
+                         "sch-co": "schuco", "t-mavera": "timavera"}.items():
+            self.assertEqual(committed.get(old), new)
+
+    def test_index_resolves_old_and_new_name_slugs(self):
+        from scripts.weekly.normalize import legacy_slugify
+        idx = build_catalog_index({"index": [{"slug": "et-reo", "name": "Et\u00e9reo"}]})
+        self.assertEqual(idx.resolve(name="Et\u00e9reo"), "et-reo")
+        self.assertEqual(idx.aliases.get(legacy_slugify("Et\u00e9reo")), "et-reo")
+        self.assertEqual(idx.aliases.get("etereo"), "et-reo")

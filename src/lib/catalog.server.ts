@@ -51,6 +51,11 @@ export function getMeta(): Meta {
   return meta;
 }
 
+/** Whether the catalog has a company under this exact key (rename redirects). */
+export function hasCompany(slug: string): boolean {
+  return getRow(slug) !== null;
+}
+
 export function getRow(slug: string): CompanyRow | null {
   return bySlug.get(slug) ?? null;
 }

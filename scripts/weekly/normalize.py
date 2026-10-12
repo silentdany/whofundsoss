@@ -49,9 +49,102 @@ OSP_SLUG_ALIASES: dict[str, str] = {
 }
 
 
+# Cyrillic / Greek letters that render like Latin ones. Used to defeat
+# mixed-script spoofing (e.g. "Сoinsmania" with a Cyrillic С, U+0421).
+# Base table: Unicode UTS #39 confusables (skeleton), restricted to non-ASCII
+# sources that look like ASCII letters/digits. Generated, versioned.
+from .confusables_latin import CONFUSABLES_LATIN, CONFUSABLES_VERSION  # noqa: E402
+
+
+def _letter_i_fix(table: dict[str, str]) -> dict[str, str]:
+    """UTS #39 maps capital I lookalikes to 'l' because it also folds ASCII
+    'I' to 'l'. We never rewrite ASCII, so map I-lookalikes back to 'I'
+    (Cyrillic I, Greek Iota, Roman numeral one ...), otherwise 'Іnfo' != 'Info'."""
+    import unicodedata as _u
+
+    out = dict(table)
+    for ch, tgt in table.items():
+        if tgt != "l":
+            continue
+        name = _u.name(ch, "")
+        if (name.endswith(" I") or " LETTER I " in f"{name} " or "IOTA" in name or "DOTLESS I" in name
+                or "NUMERAL ONE" in name) and "LETTER L" not in name:
+            out[ch] = "I"
+    return out
+
+
+# Lookalikes that confusables.txt does not list (small-cap style Cyrillic/Greek).
+_SUPPLEMENT = {
+    "в": "b", "к": "k", "м": "m", "н": "h", "т": "t", "ё": "e",
+    "κ": "k", "τ": "t", "χ": "x",
+}
+_HOMOGLYPHS = {**_letter_i_fix(CONFUSABLES_LATIN), **_SUPPLEMENT}
+_HOMOGLYPH_TABLE = str.maketrans(_HOMOGLYPHS)
+_PRE_NFKC = str.maketrans({"\u2122": "", "\u00ae": "", "\u00a9": "", "\u2120": "", "\u03f9": "\u0421", "\u03f2": "\u0441", "\u037f": "\u0408", "\u03f3": "\u0458"})
+_WORD_RE = re.compile(r"\w+", re.UNICODE)
+_LATIN_RE = re.compile(r"[A-Za-z]")
+
+
+def fold_homoglyphs(text: str) -> str:
+    """Map Cyrillic/Greek lookalikes to Latin, but only inside mixed-script words.
+
+    A word that already contains a Latin letter and also a lookalike is a
+    spoof ("Сoinsmania", "саsino"); it is folded to pure Latin. A word with
+    no Latin letter at all ("казино") is left untouched so the native-script
+    patterns still match it.
+    """
+    if not text:
+        return text or ""
+
+    def _fold(m: re.Match[str]) -> str:
+        word = m.group(0)
+        folded = word.translate(_HOMOGLYPH_TABLE)
+        if folded == word:
+            return word
+        # Only mixed-script words are spoofs. A word with no Latin letter
+        # ("на", "ВСЕ") is real Cyrillic/Greek text and is left alone.
+        if _LATIN_RE.search(word):
+            return folded
+        return word
+
+    return _WORD_RE.sub(_fold, text)
+
+
+# Zero-width and invisible format characters that split or disguise words.
+_ZERO_WIDTH_RE = re.compile("[\u00ad\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufeff]")
+
+
+def canonical_text(text: str | None) -> str:
+    """NFKC, then homoglyph fold (Cyrillic/Greek/letterlike), then strip zero-width.
+
+    Applied before slug generation and before every denylist / exclusion match,
+    so 'Coinsmani\u0430', '\u03f9oinsmania', '\u2102oinsmania' and fullwidth
+    '\uff23oinsmania' all read as 'Coinsmania'.
+    """
+    import unicodedata
+
+    # Lunate sigma/yot: NFKC would turn them into regular Σ/ς/J, losing the
+    # C-likeness, so map those few first. Then NFKC (fullwidth, ℂ, ligatures).
+    t = (text or "").translate(_PRE_NFKC)
+    t = unicodedata.normalize("NFKC", t)
+    t = _ZERO_WIDTH_RE.sub("", t)
+    # Combining marks: NFD, drop category Mn ("Cóinsmania", "C\u0301oinsmania"),
+    # then recompose. Applies to every script so a mark can never split a slug.
+    t = unicodedata.normalize(
+        "NFC", "".join(ch for ch in unicodedata.normalize("NFD", t) if unicodedata.category(ch) != "Mn")
+    )
+    t = fold_homoglyphs(t)
+    return _ZERO_WIDTH_RE.sub("", t)
+
+
+def legacy_slugify(text: str) -> str:
+    """Slug rule before canonical_text (kept so old denylist keys still match)."""
+    return re.sub(r"[^a-z0-9]+", "-", (text or "").strip().lower()).strip("-")
+
+
 def slugify(text: str) -> str:
     """ASCII kebab-case, same spirit as the catalog name→slug path."""
-    s = (text or "").strip().lower()
+    s = canonical_text(text).strip().lower()
     s = re.sub(r"[^a-z0-9]+", "-", s)
     return s.strip("-")
 
@@ -163,6 +256,10 @@ def build_catalog_index(catalog: dict[str, Any] | Path) -> CatalogIndex:
         name_slug = slugify(row.get("name") or "")
         if name_slug:
             idx.aliases.setdefault(name_slug, slug)
+        # Pre-canonical name slug (e.g. 'et-reo') keeps resolving to the row.
+        legacy = legacy_slugify(row.get("name") or "")
+        if legacy:
+            idx.aliases.setdefault(legacy, slug)
         domain = normalize_domain(row.get("site"))
         if domain:
             # Exact domain only — first catalog row wins; never overwrite.

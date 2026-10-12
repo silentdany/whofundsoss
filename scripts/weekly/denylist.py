@@ -115,21 +115,32 @@ def is_excluded(
 
     Never invents a match. Returns None when the company is clean.
     """
-    slug_l = (slug or "").strip().lower()
-    login_l = (login or slug_l).strip().lower()
-    name_l = (name or "").strip().lower()
+    from .normalize import canonical_text as _canon
+
+    slug_l = _canon(slug).strip().lower()
+    login_l = _canon(login or slug_l).strip().lower()
+    from .normalize import canonical_text, legacy_slugify, slugify
+
+    name_l = canonical_text(name).strip().lower()
+    name_slug = slugify(name or "")
+    legacy_name_slug = legacy_slugify(name or "")
     site_l = (site or "").strip().lower()
 
-    if denylist is not None and slug_l in denylist:
-        e = denylist[slug_l]
-        return f"denylist:{e.category}:{e.reason}"
+    if denylist is not None:
+        for key in (slug_l, login_l, name_slug, legacy_name_slug, slugify(slug or "")):
+            if key and key in denylist:
+                e = denylist[key]
+                return f"denylist:{e.category}:{e.reason}"
 
     if exclusions is None:
         return None
     for row in exclusions:
         if login_l and row.login_github and row.login_github.lower() == login_l:
             return f"exclusion:{row.exclusion_raison}"
-        if name_l and row.entreprise and row.entreprise.lower() == name_l:
+        if name_l and row.entreprise and (
+            canonical_text(row.entreprise).strip().lower() == name_l
+            or (name_slug and slugify(row.entreprise) == name_slug)
+        ):
             return f"exclusion:{row.exclusion_raison}"
         if site_l and row.site:
             from .normalize import normalize_domain

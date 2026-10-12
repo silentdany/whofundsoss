@@ -61,3 +61,27 @@ test("page paths are normalized to lowercase without a trailing slash, files and
     assert.equal(redirectTarget(url, url.host, VERCEL), expected, path);
   }
 });
+
+test("canonical-slug renames: 308 old -> new once the catalog has the new key", async () => {
+  const { COMPANY_SLUG_RENAMES } = await import("./redirects.ts");
+  assert.equal(Object.keys(COMPANY_SLUG_RENAMES).length, 13);
+  assert.equal(COMPANY_SLUG_RENAMES["et-reo"], "etereo");
+  assert.equal(COMPANY_SLUG_RENAMES["b-rkert-werke-gmbh-co-kg"], "burkert-werke-gmbh-co-kg");
+  const after = new Set(Object.values(COMPANY_SLUG_RENAMES));
+  for (const [from, to] of Object.entries(COMPANY_SLUG_RENAMES)) {
+    const url = new URL(`${COM}/company/${from}?x=1`);
+    assert.equal(redirectTarget(url, url.host, COM, (s) => after.has(s)), `${COM}/company/${to}?x=1`);
+    const live = new URL(`${COM}/company/${to}`);
+    assert.equal(redirectTarget(live, live.host, COM, (s) => after.has(s)), null);
+  }
+});
+
+test("canonical-slug renames: before the rebuild old URLs stay live, new ones hop back", () => {
+  const before = (s: string) => s === "et-reo";
+  const old = new URL(`${COM}/company/et-reo`);
+  assert.equal(redirectTarget(old, old.host, COM, before), null);
+  const fresh = new URL(`${COM}/company/etereo`);
+  assert.equal(redirectTarget(fresh, fresh.host, COM, before), `${COM}/company/et-reo`);
+  const unrelated = new URL(`${COM}/company/nope`);
+  assert.equal(redirectTarget(unrelated, unrelated.host, COM, before), null);
+});
