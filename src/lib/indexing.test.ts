@@ -79,7 +79,7 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
-  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 8);
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 10);
 });
 
 test("sitemap includes gated /project paths and never a sub-gate project", () => {
