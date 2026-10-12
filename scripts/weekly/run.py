@@ -29,6 +29,7 @@ from scripts.weekly.diff import (
     diff_snapshots,
     explain_new_against_catalog,
     load_baseline,
+    HoldsFileError,
     load_holds,
 )
 from scripts.weekly.normalize import build_catalog_index
@@ -82,6 +83,14 @@ def main(argv: list[str] | None = None) -> int:
         catalog_index = build_catalog_index(catalog_path) if catalog_path.exists() else None
     except Exception as e:
         print(f"fatal: denylist/exclusions/catalog: {e}", file=sys.stderr)
+        return 1
+
+    # Holds are validated before any network fetch: an unreadable hold must stop
+    # the run (fail closed), with a readable message rather than a traceback.
+    try:
+        holds = load_holds()
+    except HoldsFileError as e:
+        print(f"fatal: holds: {e}", file=sys.stderr)
         return 1
 
     results = []
@@ -255,7 +264,7 @@ def main(argv: list[str] | None = None) -> int:
     # Holds (data/holds/weekly-holds.csv): a held disappearance is not published on a
     # single reading; the last known record is carried forward instead.
     companies = apply_holds(
-        diff, companies, baseline_companies, load_holds(), run_date=run_date.isoformat()
+        diff, companies, baseline_companies, holds, run_date=run_date.isoformat()
     )
 
     # Recompute suspicious after filtering
