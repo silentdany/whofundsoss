@@ -66,11 +66,15 @@ export async function servePublicApi(
   limiter: RateLimiter,
   snapshotTag: string,
   handler: (url: URL) => ApiResult | Promise<ApiResult>,
+  makeError: (status: number, message: string) => ApiResult = (status, message) => ({
+    status,
+    body: { error: { status, message } },
+  }),
 ): Promise<Response> {
   const method = request.method.toUpperCase();
   if (method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (method !== "GET" && method !== "HEAD") {
-    return jsonResponse({ status: 405, body: { error: { status: 405, message: "Read-only API: use GET." } } }, {
+    return jsonResponse(makeError(405, "Read-only API: use GET."), {
       allow: "GET, HEAD, OPTIONS",
       "cache-control": "no-store",
     });
@@ -79,7 +83,7 @@ export async function servePublicApi(
   const rlHeaders = { "x-ratelimit-limit": String(limiter.limit), "x-ratelimit-remaining": String(rl.remaining) };
   if (!rl.allowed) {
     return jsonResponse(
-      { status: 429, body: { error: { status: 429, message: "Too many requests. Slow down and retry later." } } },
+      makeError(429, "Too many requests. Slow down and retry later."),
       { ...rlHeaders, "retry-after": String(rl.retryAfterS), "cache-control": "no-store" },
     );
   }

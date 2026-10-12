@@ -20,6 +20,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as ApiIndexRouteImport } from './routes/api/index'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiDenylistRouteImport } from './routes/api/denylist'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiMovementsRouteImport } from './routes/api/movements'
@@ -93,6 +94,11 @@ const WatchlistRoute = WatchlistRouteImport.update({
 const ApiIndexRoute = ApiIndexRouteImport.update({
   id: '/api/',
   path: '/api/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDenylistRoute = ApiDenylistRouteImport.update({
@@ -204,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
+  '/api/$': typeof ApiSplatRoute
   '/api/denylist': typeof ApiDenylistRoute
   '/api/health': typeof ApiHealthRoute
   '/api/movements': typeof ApiMovementsRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
+  '/api/$': typeof ApiSplatRoute
   '/api/denylist': typeof ApiDenylistRoute
   '/api/health': typeof ApiHealthRoute
   '/api/movements': typeof ApiMovementsRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
+  '/api/$': typeof ApiSplatRoute
   '/api/denylist': typeof ApiDenylistRoute
   '/api/health': typeof ApiHealthRoute
   '/api/movements': typeof ApiMovementsRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/watchlist'
+    | '/api/$'
     | '/api/denylist'
     | '/api/health'
     | '/api/movements'
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/watchlist'
+    | '/api/$'
     | '/api/denylist'
     | '/api/health'
     | '/api/movements'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/watchlist'
+    | '/api/$'
     | '/api/denylist'
     | '/api/health'
     | '/api/movements'
@@ -400,6 +412,7 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WatchlistRoute: typeof WatchlistRoute
+  ApiSplatRoute: typeof ApiSplatRoute
   ApiDenylistRoute: typeof ApiDenylistRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiMovementsRoute: typeof ApiMovementsRoute
@@ -499,6 +512,13 @@ declare module '@tanstack/react-router' {
       path: '/api'
       fullPath: '/api/'
       preLoaderRoute: typeof ApiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/denylist': {
@@ -648,6 +668,7 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WatchlistRoute: WatchlistRoute,
+  ApiSplatRoute: ApiSplatRoute,
   ApiDenylistRoute: ApiDenylistRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiMovementsRoute: ApiMovementsRoute,

@@ -104,10 +104,16 @@ function ApiDocsPage() {
               <Link to="/method" className="text-sage">
                 the method
               </Link>
-              ) and companies on a weekly hold are left out of every route. A spam slug returns 404.
+              ) and companies on a weekly hold are left out of every route.
             </li>
             <li>
-              Basic rate limit: 60 requests per minute per client. Over the limit you get a 429 with a Retry-After header.
+              Basic rate limit: 60 requests per minute per client IP. The counter is kept per server instance, not
+              globally, so it is a backstop rather than a hard quota, and responses served from the edge cache are not
+              counted. Over the limit you get a 429 with a Retry-After header.
+            </li>
+            <li>
+              An entry that is not public (spam, excluded, or on a weekly review hold until its review date) returns the
+              same 404 as an unknown slug: "Not available in the public API." Unknown /api routes also return a JSON 404.
             </li>
             <li>Amounts are in USD. Open Collective figures are cumulative, Pledge figures are annual.</li>
           </ul>
@@ -119,8 +125,9 @@ function ApiDocsPage() {
           <p className="mt-4 text-sm">A private amount looks like this:</p>
           <pre className="mt-2 overflow-x-auto rounded border border-line p-4 font-mono text-xs text-ink">{PRIVATE}</pre>
           <p className="mt-4 text-sm">
-            Errors use <code className="font-mono">{`{ "error": { "status", "message" } }`}</code> with the matching
-            HTTP status.
+            Errors (400, 404, 405, 429) use <code className="font-mono">{`{ "meta": { ... }, "error": { "status", "message" } }`}</code>{" "}
+            with the matching HTTP status. On /api/movements, <code className="font-mono">snapshot_date</code> is the week
+            you asked for.
           </p>
         </section>
 

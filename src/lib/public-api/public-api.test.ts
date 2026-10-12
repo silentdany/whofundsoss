@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { createPublicApi, exclusionSlugs, holdSlugs, type CatalogLike, type WeeklyFile } from "./core.ts";
+import { createPublicApi, exclusionSlugs, holdSlugs, NOT_AVAILABLE, normalizeDomain, parseGenericHosts, type CatalogLike, type WeeklyFile } from "./core.ts";
 import { createRateLimiter, servePublicApi } from "./http.ts";
 import type { CompanyRow, Sponsorship } from "../types.ts";
 
@@ -38,7 +38,8 @@ function makeApi() {
     denylistVersion: "2026-10-12.1",
     spam: new Set(["spamco"]),
     excluded: exclusionSlugs("entreprise,login_github,site,exclusion_raison\nExcluded Inc,excludedco,https://x.example,spam_casino\n", catalog.index),
-    held: holdSlugs("slug,source,reason\nheldco,gh,\"single reading, keep last value\"\n"),
+    held: holdSlugs("slug,source,reason,decided_by,since,review_on\nheldco,gh,\"single reading, keep last value\",CdP,2026-10-12,2026-10-19\n"),
+    today: () => "2026-10-12",
     publicDenylist: { version: "2026-10-12.1", entries: [{ slug: "spamco" }] },
   });
 }
@@ -72,7 +73,7 @@ const weekly: WeeklyFile = {
 
 function assertEnvelope(body: any) {
   assert.equal(body.meta.api_version, "v1");
-  assert.equal(body.meta.snapshot_date, "2026-10-06");
+  assert.match(body.meta.snapshot_date, /^2026-10-(06|12)$/);
   assert.equal(body.meta.denylist_version, "2026-10-12.1");
   assert.ok(Array.isArray(body.meta.sources));
   for (const s of body.meta.sources) assert.match(s.name, /^(GitHub Sponsors|Open Collective|Open Source Pledge|Own program)$/);
@@ -233,4 +234,92 @@ test("rate limiter window resets", () => {
   assert.equal(l.take("a", 0).allowed, true);
   assert.equal(l.take("a", 10).allowed, false);
   assert.equal(l.take("a", 1001).allowed, true);
+});
+
+
+test("hidden and unknown entries return the same neutral 404 with meta", () => {
+  const api = makeApi();
+  const bodies = ["spamco", "excludedco", "heldco", "does-not-exist"].map((slug) => {
+    const r = api.getSponsor(slug);
+    assert.equal(r.status, 404, slug);
+    const b: any = r.body;
+    assert.equal(b.error.message, NOT_AVAILABLE);
+    assertEnvelope(b);
+    return JSON.stringify(b);
+  });
+  assert.equal(new Set(bodies).size, 1, "hidden entries are indistinguishable from unknown ones");
+  const p: any = api.getProject("nope").body;
+  assert.equal(p.error.message, NOT_AVAILABLE);
+});
+
+test("400, 404 route and 429 responses carry the meta", async () => {
+  const api = makeApi();
+  assertEnvelope(api.listProjects(new URLSearchParams({ source: "bogus" })).body);
+  assertEnvelope(api.movements(null, null, []).body);
+  assertEnvelope(api.movements("2026-01-05", null, []).body);
+  const route: any = api.notFoundRoute("/api/nope");
+  assert.equal(route.status, 404);
+  assertEnvelope(route.body);
+  const limiter = createRateLimiter(0, 60_000);
+  const r = await servePublicApi(new Request("https://x/api/denylist"), limiter, "t", () => api.denylist(), api.error);
+  assert.equal(r.status, 429);
+  assertEnvelope(await r.json());
+  const post = await servePublicApi(new Request("https://x/api/denylist", { method: "POST" }), createRateLimiter(), "t", () => api.denylist(), api.error);
+  assert.equal(post.status, 405);
+  assertEnvelope(await post.json());
+});
+
+test("holds respect review_on: hidden while active, back once expired", () => {
+  const csv = "slug,source,reason,decided_by,since,review_on\nheldco,gh,x,CdP,2026-10-12,2026-10-19\nbadco,gh,x,CdP,2026-10-12,not-a-date\n";
+  const held = holdSlugs(csv);
+  assert.equal(held.get("heldco"), "2026-10-19");
+  assert.equal(held.get("badco"), "", "malformed review_on fails closed (stays hidden)");
+  let day = "2026-10-18";
+  const api = createPublicApi({ catalog, denylistVersion: "v", spam: new Set(), excluded: new Set(), held, today: () => day, publicDenylist: {} });
+  assert.equal(api.getSponsor("heldco").status, 404);
+  assert.ok(!JSON.stringify(api.getProject("babel").body).includes("heldco"));
+  day = "2026-10-19";
+  assert.equal(api.getSponsor("heldco").status, 200);
+  assert.ok(JSON.stringify(api.getProject("babel").body).includes("heldco"));
+});
+
+test("live holds file: openai is held until its review_on", () => {
+  const held = holdSlugs(readFileSync(new URL("../../../data/holds/weekly-holds.csv", import.meta.url), "utf8"));
+  assert.match(held.get("openai") ?? "", /^\d{4}-\d{2}-\d{2}$/);
+});
+
+test("exclusions also match by exact domain, never by a generic host", () => {
+  const generic = parseGenericHosts(readFileSync(new URL("../../../scripts/weekly/generic_hosts.py", import.meta.url), "utf8"));
+  assert.ok(generic.has("github.com") && generic.has("reddit.com") && generic.has("opencollective.com"));
+  assert.equal(normalizeDomain("https://www.Thunderclap.it/buy?x=1", generic), "thunderclap.it");
+  assert.equal(normalizeDomain("https://github.com/sponsors/", generic), null);
+  const rows = [
+    { slug: "thunderclap-it", name: "Thunderclap", site: "https://thunderclap.it" },
+    { slug: "github", name: "GitHub", site: "https://github.com" },
+    { slug: "acme", name: "Acme", site: "https://acme.example" },
+  ];
+  const csv = "entreprise,login_github,site,exclusion_raison\nBuy Instagram Followers Thunderclapit,,https://www.thunderclap.it/,spam_followers\nGitHub Sponsors,github-sponsors,https://github.com/sponsors/,platform_pass_through\n";
+  const ex = exclusionSlugs(csv, rows, generic);
+  assert.ok(ex.has("thunderclap-it"));
+  assert.ok(!ex.has("github"));
+  assert.ok(!ex.has("acme"));
+});
+
+test("live data: thunderclap-it is excluded, GitHub the company is not", () => {
+  const live = JSON.parse(readFileSync(new URL("../../data/catalog.json", import.meta.url), "utf8"));
+  const generic = parseGenericHosts(readFileSync(new URL("../../../scripts/weekly/generic_hosts.py", import.meta.url), "utf8"));
+  const ex = exclusionSlugs(readFileSync(new URL("../../../data/exclusions/raw-exclusions.csv", import.meta.url), "utf8"), live.index, generic);
+  assert.ok(ex.has("thunderclap-it"));
+  assert.ok(!ex.has("github"));
+  assert.ok(!ex.has("getsentry"));
+});
+
+test("movements snapshot_date is the requested week; denylist lists sources", () => {
+  const api = makeApi();
+  const mv: any = api.movements("2026-10-12", weekly, []).body;
+  assert.equal(mv.meta.snapshot_date, "2026-10-12");
+  assert.equal(mv.meta.snapshot_kind, "weekly");
+  assert.equal(mv.meta.catalog_snapshot_date, "2026-10-06");
+  const dl: any = api.denylist().body;
+  assert.ok(dl.meta.sources.length > 0);
 });

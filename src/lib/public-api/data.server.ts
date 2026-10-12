@@ -8,11 +8,13 @@ import raw from "@/data/catalog.json";
 import publicDenylist from "@/data/public-spam-denylist.json";
 import exclusionsCsv from "../../../data/exclusions/raw-exclusions.csv?raw";
 import holdsCsv from "../../../data/holds/weekly-holds.csv?raw";
+import genericHostsPy from "../../../scripts/weekly/generic_hosts.py?raw";
 import { SPAM_DENYLIST, SPAM_DENYLIST_VERSION } from "@/lib/spam-denylist";
 import {
   createPublicApi,
   exclusionSlugs,
   holdSlugs,
+  parseGenericHosts,
   type CatalogLike,
   type WeeklyFile,
 } from "./core";
@@ -35,7 +37,7 @@ export const api = createPublicApi({
   catalog,
   denylistVersion: SPAM_DENYLIST_VERSION,
   spam: new Set(Object.keys(SPAM_DENYLIST)),
-  excluded: exclusionSlugs(exclusionsCsv, catalog.index),
+  excluded: exclusionSlugs(exclusionsCsv, catalog.index, parseGenericHosts(genericHostsPy)),
   held,
   publicDenylist,
 });
@@ -49,5 +51,5 @@ const limiter = createRateLimiter(60, 60_000);
 const snapshotTag = `${catalog.meta.collectedAt}.${catalog.meta.hash.slice(0, 8)}.${SPAM_DENYLIST_VERSION}.${WEEKS[0] ?? "none"}`;
 
 export function serve(request: Request, handler: (url: URL) => ApiResult | Promise<ApiResult>) {
-  return servePublicApi(request, limiter, snapshotTag, handler);
+  return servePublicApi(request, limiter, snapshotTag, handler, api.error);
 }
