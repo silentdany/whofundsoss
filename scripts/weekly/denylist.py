@@ -119,14 +119,15 @@ def is_excluded(
 
     slug_l = _canon(slug).strip().lower()
     login_l = _canon(login or slug_l).strip().lower()
-    from .normalize import canonical_text, slugify
+    from .normalize import canonical_text, legacy_slugify, slugify
 
     name_l = canonical_text(name).strip().lower()
     name_slug = slugify(name or "")
+    legacy_name_slug = legacy_slugify(name or "")
     site_l = (site or "").strip().lower()
 
     if denylist is not None:
-        for key in (slug_l, login_l, name_slug):
+        for key in (slug_l, login_l, name_slug, legacy_name_slug, slugify(slug or "")):
             if key and key in denylist:
                 e = denylist[key]
                 return f"denylist:{e.category}:{e.reason}"

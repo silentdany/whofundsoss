@@ -63,6 +63,9 @@ _HOMOGLYPHS = {
     "Α": "A", "Β": "B", "Ε": "E", "Ζ": "Z", "Η": "H", "Ι": "I", "Κ": "K", "Μ": "M",
     "Ν": "N", "Ο": "O", "Ρ": "P", "Τ": "T", "Υ": "Y", "Χ": "X",
     "ο": "o", "α": "a", "ι": "i", "κ": "k", "ν": "v", "ρ": "p", "τ": "t", "υ": "u", "χ": "x",
+    # Armenian / Cherokee confusables
+    "ս": "s", "օ": "o", "ո": "n", "հ": "h", "ց": "g", "ա": "w", "ք": "p", "զ": "q", "Տ": "S", "Օ": "O",
+    "Ꮯ": "C", "Ꭺ": "A", "Ꭼ": "E", "Ꮋ": "H", "Ꭵ": "i", "Ꮃ": "W", "Ꮪ": "S", "Ꭲ": "T", "Ꮇ": "M",
     # Greek lunate sigma / yot (not touched by NFKC)
     "Ϲ": "C", "ϲ": "c", "Ϳ": "J", "ϳ": "j",
     # Letterlike symbols that survive NFKC
@@ -118,8 +121,18 @@ def canonical_text(text: str | None) -> str:
     t = (text or "").translate(_PRE_NFKC)
     t = unicodedata.normalize("NFKC", t)
     t = _ZERO_WIDTH_RE.sub("", t)
+    # Combining marks: NFD, drop category Mn ("Cóinsmania", "C\u0301oinsmania"),
+    # then recompose. Applies to every script so a mark can never split a slug.
+    t = unicodedata.normalize(
+        "NFC", "".join(ch for ch in unicodedata.normalize("NFD", t) if unicodedata.category(ch) != "Mn")
+    )
     t = fold_homoglyphs(t)
     return _ZERO_WIDTH_RE.sub("", t)
+
+
+def legacy_slugify(text: str) -> str:
+    """Slug rule before canonical_text (kept so old denylist keys still match)."""
+    return re.sub(r"[^a-z0-9]+", "-", (text or "").strip().lower()).strip("-")
 
 
 def slugify(text: str) -> str:

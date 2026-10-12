@@ -363,6 +363,12 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         "fullwidth_c": "\uff23oinsmania",
         "zero_width_inside": "Coins\u200bmania",
         "all_at_once": "\uff23oins\u200dmani\u0430",
+        "combining_acute_after_a": "Coinsmania\u0301",
+        "combining_inside": "Co\u0308insmania",
+        "precomposed_o_acute": "C\u00f3insmania",
+        "armenian_se": "Coin\u057dmania",
+        "cherokee_c": "\u13dfoinsmania",
+        "mixed_marks_and_homoglyphs": "\u0421\u00f3ins\u200bmani\u0430\u0301",
     }
 
     def test_canonical_text(self):
@@ -402,10 +408,26 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
 
     def test_native_script_untouched(self):
         from scripts.weekly.normalize import canonical_text
-        self.assertEqual(canonical_text("онлайн казино"), "онлайн казино")
+        # Combining marks are dropped in every script (й -> и); words stay Cyrillic.
+        self.assertEqual(canonical_text("онлайн казино"), "онлаин казино")
+        self.assertEqual(flag_suspects([{"slug": "x", "name": "онлайн казино"}])[0].matched_keywords, ("cyrillic_gambling",))
         self.assertEqual(canonical_text("Ставки на спорт"), "Ставки на спорт")  # "на" is not "ha"
         # No slug churn for live denylisted names
         self.assertEqual(slugify("Funrize\u2122 Social Casino"), "funrize-social-casino")
+
+    def test_accent_slug_change_still_hits_old_denylist_key(self):
+        # Denylist key predates mark stripping: 'ilmaiset-pitk-vetovihjeet'.
+        _, dl = parse_spam_denylist()
+        self.assertIn("ilmaiset-pitk-vetovihjeet", dl)
+        name = "Ilmaiset Pitk\u00e4vetovihjeet"
+        self.assertEqual(slugify(name), "ilmaiset-pitkavetovihjeet")
+        self.assertIsNotNone(is_excluded(slug=slugify(name), name=name, denylist=dl, exclusions=[]))
+
+    def test_mark_variants_hit_denylist_slug_without_exclusion_rows(self):
+        from scripts.weekly.denylist import DenylistEntry
+        dl = {"coinsmania": DenylistEntry(slug="coinsmania", category="gambling", source="data", reason="casino")}
+        for v in ("Coinsmania\u0301", "C\u00f3insmania", "Coin\u057dmania"):
+            self.assertIsNotNone(is_excluded(slug=slugify(v), name=v, denylist=dl, exclusions=[]), v)
 
 
 class TestExistingDataPr(unittest.TestCase):
