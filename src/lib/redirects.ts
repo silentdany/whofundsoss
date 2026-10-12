@@ -4,7 +4,7 @@
  * host hop to SITE_URL once a custom domain is live. Always a single hop:
  * `whofundsoss.vercel.app/classement` goes straight to `{SITE_URL}/ranking`.
  */
-import slugRenames from "../data/slug-renames.json" with { type: "json" };
+import { SLUG_RENAMED_FROM, SLUG_RENAMES } from "@/lib/slug-aliases";
 
 export const SLUG_REDIRECTS: Record<string, string> = {
   "/classement": "/ranking",
@@ -22,10 +22,7 @@ export const SLUG_REDIRECTS: Record<string, string> = {
  * before and after a catalog rebuild: we 308 old -> new once the new key exists
  * and the old one is gone, and (until then) new -> old so both URLs work.
  */
-export const COMPANY_SLUG_RENAMES: Record<string, string> = slugRenames.renames;
-const RENAMED_FROM: Record<string, string> = Object.fromEntries(
-  Object.entries(COMPANY_SLUG_RENAMES).map(([oldSlug, newSlug]) => [newSlug, oldSlug]),
-);
+export const COMPANY_SLUG_RENAMES: ReadonlyMap<string, string> = SLUG_RENAMES;
 
 /** `/company/<slug>` rename hop, or null. `exists` says whether the catalog has a key. */
 export function companyRenameTarget(path: string, exists: (slug: string) => boolean): string | null {
@@ -33,9 +30,9 @@ export function companyRenameTarget(path: string, exists: (slug: string) => bool
   if (!m) return null;
   const slug = m[1]!;
   if (exists(slug)) return null;
-  const forward = COMPANY_SLUG_RENAMES[slug];
+  const forward = SLUG_RENAMES.get(slug);
   if (forward && exists(forward)) return `/company/${forward}`;
-  const back = RENAMED_FROM[slug];
+  const back = SLUG_RENAMED_FROM.get(slug);
   if (back && exists(back)) return `/company/${back}`;
   return null;
 }
@@ -64,7 +61,7 @@ export function redirectTarget(
   const rawPath = requestUrl.pathname;
   const trimmed = rawPath.length > 1 ? rawPath.replace(/\/+$/, "") : rawPath;
   const slugTarget =
-    SLUG_REDIRECTS[trimmed.toLowerCase()] ??
+    (Object.hasOwn(SLUG_REDIRECTS, trimmed.toLowerCase()) ? SLUG_REDIRECTS[trimmed.toLowerCase()] : undefined) ??
     (companyExists ? companyRenameTarget(trimmed.toLowerCase(), companyExists) : null) ??
     undefined;
   // Page routes are lowercase with no trailing slash. API, card and file URLs are left alone.

@@ -64,11 +64,11 @@ test("page paths are normalized to lowercase without a trailing slash, files and
 
 test("canonical-slug renames: 308 old -> new once the catalog has the new key", async () => {
   const { COMPANY_SLUG_RENAMES } = await import("./redirects.ts");
-  assert.equal(Object.keys(COMPANY_SLUG_RENAMES).length, 13);
-  assert.equal(COMPANY_SLUG_RENAMES["et-reo"], "etereo");
-  assert.equal(COMPANY_SLUG_RENAMES["b-rkert-werke-gmbh-co-kg"], "burkert-werke-gmbh-co-kg");
-  const after = new Set(Object.values(COMPANY_SLUG_RENAMES));
-  for (const [from, to] of Object.entries(COMPANY_SLUG_RENAMES)) {
+  assert.equal(COMPANY_SLUG_RENAMES.size, 13);
+  assert.equal(COMPANY_SLUG_RENAMES.get("et-reo"), "etereo");
+  assert.equal(COMPANY_SLUG_RENAMES.get("b-rkert-werke-gmbh-co-kg"), "burkert-werke-gmbh-co-kg");
+  const after = new Set(COMPANY_SLUG_RENAMES.values());
+  for (const [from, to] of COMPANY_SLUG_RENAMES) {
     const url = new URL(`${COM}/company/${from}?x=1`);
     assert.equal(redirectTarget(url, url.host, COM, (s) => after.has(s)), `${COM}/company/${to}?x=1`);
     const live = new URL(`${COM}/company/${to}`);
@@ -84,4 +84,12 @@ test("canonical-slug renames: before the rebuild old URLs stay live, new ones ho
   assert.equal(redirectTarget(fresh, fresh.host, COM, before), `${COM}/company/et-reo`);
   const unrelated = new URL(`${COM}/company/nope`);
   assert.equal(redirectTarget(unrelated, unrelated.host, COM, before), null);
+});
+
+test("prototype names are never treated as slugs to redirect", () => {
+  for (const slug of ["constructor", "__proto__", "hasownproperty", "tostring"]) {
+    const url = new URL(`${COM}/company/${slug}`);
+    assert.equal(redirectTarget(url, url.host, COM, () => true), null);
+    assert.equal(redirectTarget(url, url.host, COM, () => false), null);
+  }
 });
