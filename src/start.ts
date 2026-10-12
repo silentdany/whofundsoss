@@ -3,7 +3,7 @@ import {
   sentryGlobalRequestMiddleware,
 } from "@sentry/tanstackstart-react";
 import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/react-start";
-import { redirectTarget } from "@/lib/redirects";
+import { isRenameablePath, redirectHeaders, redirectTarget } from "@/lib/redirects";
 import { SITE_URL } from "@/lib/site";
 
 // Same CSRF guard TanStack Start applies by default when no start instance exists.
@@ -16,12 +16,12 @@ const seoMiddleware = createMiddleware({ type: "request" }).server(async ({ requ
   const url = new URL(request.url);
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? url.host;
   if (request.method === "GET" || request.method === "HEAD") {
-    const companyExists = url.pathname.toLowerCase().startsWith("/company/")
+    const companyExists = isRenameablePath(url.pathname.replace(/\/+$/, ""))
       ? (await import("@/lib/catalog.server")).hasCompany
       : undefined;
     const target = redirectTarget(url, host, SITE_URL, companyExists);
     if (target) {
-      return new Response(null, { status: 308, headers: { location: target } });
+      return new Response(null, { status: 308, headers: redirectHeaders(url.pathname, target) });
     }
   }
   const result = await next();

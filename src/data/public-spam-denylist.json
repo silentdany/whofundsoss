@@ -4,11 +4,11 @@
   "as_of": "2026-10-12",
   "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
   "counts": {
-    "total": 106,
+    "total": 107,
     "by_category": {
       "adult": 1,
       "commercial-unrelated": 4,
-      "fake-engagement": 28,
+      "fake-engagement": 29,
       "fake-reviews": 3,
       "fake-traffic": 8,
       "gambling": 54,
@@ -48,7 +48,7 @@
       "reason": "cannabis shop"
     },
     {
-      "slug": "sm-l-n-uten-sikkerhet",
+      "slug": "smalan-uten-sikkerhet",
       "category": "commercial-unrelated",
       "reason": "loans"
     },
@@ -176,6 +176,11 @@
       "slug": "stormlikes",
       "category": "fake-engagement",
       "reason": "sells followers / likes"
+    },
+    {
+      "slug": "thunderclap-com",
+      "category": "fake-engagement",
+      "reason": "Buy Instagram Followers (spam_followers); thunderclap.com, same page as thunderclap-it"
     },
     {
       "slug": "thunderclap-it",
@@ -323,6 +328,11 @@
       "reason": "Thai gambling affiliate (name พนัน)"
     },
     {
+      "slug": "coinsmania",
+      "category": "gambling",
+      "reason": "social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
+    },
+    {
       "slug": "daman-game",
       "category": "gambling",
       "reason": "colour prediction gambling app"
@@ -368,7 +378,7 @@
       "reason": "crash gambling game"
     },
     {
-      "slug": "ilmaiset-pitk-vetovihjeet",
+      "slug": "ilmaiset-pitkavetovihjeet",
       "category": "gambling",
       "reason": "betting tips / betting bonuses"
     },
@@ -421,11 +431,6 @@
       "slug": "nettikasinot-org",
       "category": "gambling",
       "reason": "Finnish online casino listing"
-    },
-    {
-      "slug": "oinsmania",
-      "category": "gambling",
-      "reason": "social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
     },
     {
       "slug": "ok-win",

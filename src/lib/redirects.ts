@@ -4,6 +4,7 @@
  * host hop to SITE_URL once a custom domain is live. Always a single hop:
  * `whofundsoss.vercel.app/classement` goes straight to `{SITE_URL}/ranking`.
  */
+import { CORS_HEADERS } from "@/lib/public-api/http";
 import { SLUG_RENAMED_FROM, SLUG_RENAMES } from "@/lib/slug-aliases";
 
 export const SLUG_REDIRECTS: Record<string, string> = {
@@ -24,16 +25,25 @@ export const SLUG_REDIRECTS: Record<string, string> = {
  */
 export const COMPANY_SLUG_RENAMES: ReadonlyMap<string, string> = SLUG_RENAMES;
 
-/** `/company/<slug>` rename hop, or null. `exists` says whether the catalog has a key. */
+/** Paths keyed by a company slug that follow slug renames (page + API). */
+const RENAMEABLE = /^\/(company|api\/sponsors|api\/v1\/companies)\/([^/]+)(\/sponsorships)?$/;
+
+/** True when the path is one companyRenameTarget may rewrite (lets callers skip the catalog load). */
+export function isRenameablePath(path: string): boolean {
+  return RENAMEABLE.test(path.toLowerCase());
+}
+
+/** `/company/<slug>` (or `/api/sponsors/<slug>`, `/api/v1/companies/<slug>[/sponsorships]`) rename hop, or null. `exists` says whether the catalog has a key. */
 export function companyRenameTarget(path: string, exists: (slug: string) => boolean): string | null {
-  const m = /^\/company\/([^/]+)$/.exec(path);
+  const m = RENAMEABLE.exec(path);
   if (!m) return null;
-  const slug = m[1]!;
+  const [, base, slug, tail = ""] = m as unknown as [string, string, string, string?];
   if (exists(slug)) return null;
   const forward = SLUG_RENAMES.get(slug);
-  if (forward && exists(forward)) return `/company/${forward}`;
-  const back = SLUG_RENAMED_FROM.get(slug);
-  if (back && exists(back)) return `/company/${back}`;
+  if (forward && exists(forward)) return `/${base}/${forward}${tail}`;
+  // Pre-rebuild fallback (new -> old) only for the page, never for the API.
+  const back = base === "company" ? SLUG_RENAMED_FROM.get(slug) : undefined;
+  if (back && exists(back)) return `/${base}/${back}${tail}`;
   return null;
 }
 
@@ -77,4 +87,9 @@ export function redirectTarget(
   if (slugTarget) return `${requestUrl.origin}${slugTarget}${requestUrl.search}`;
   if (isPage && normalized !== rawPath) return `${requestUrl.origin}${normalized}${requestUrl.search}`;
   return null;
+}
+
+/** Headers for a 308. API paths carry the same open CORS headers as API responses, so cross-origin fetches can follow it. */
+export function redirectHeaders(pathname: string, location: string): Record<string, string> {
+  return /^\/api(\/|$)/i.test(pathname) ? { location, ...CORS_HEADERS } : { location };
 }

@@ -18,7 +18,7 @@ const NAMED_BY_CDP = ["uudetkasinot-com", "fire-stick-tricks", "buy-google-revie
 
 test("denylist public export version is 2026-10-12.5", () => {
   assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.5");
-  assert.equal(Object.keys(SPAM_DENYLIST).length, 106);
+  assert.equal(Object.keys(SPAM_DENYLIST).length, 107);
   assert.equal(isSpamDenylisted("redreply"), false);
 });
 
@@ -79,7 +79,7 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
-  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 15);
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 16);
 });
 
 test("sxl-cn is not denylisted and is ranked (decision 2026-10-12.3)", () => {
@@ -91,8 +91,8 @@ test("sxl-cn is not denylisted and is ranked (decision 2026-10-12.3)", () => {
   assert.equal(by, 4);
   const pub = JSON.parse(readFileSync(new URL("../data/public-spam-denylist.json", import.meta.url), "utf8"));
   assert.equal(pub.version, SPAM_DENYLIST_VERSION);
-  assert.equal(pub.counts.total, 106);
-  assert.equal(pub.entries.length, 106);
+  assert.equal(pub.counts.total, 107);
+  assert.equal(pub.entries.length, 107);
   assert.equal(pub.counts.by_category["commercial-unrelated"], 4);
   assert.ok(!pub.entries.some((e: { slug: string }) => e.slug === "sxl-cn"));
   assert.ok(pub.reviewed_and_not_listed.some((e: { slug: string }) => e.slug === "sxl-cn"));
@@ -110,5 +110,14 @@ test("sitemap includes gated /project paths and never a sub-gate project", () =>
   assert.ok(paths.has("/project/socketio"));
   for (const [slug, rec] of index) {
     if (rec.sponsorCount < 3) assert.ok(!paths.has(`/project/${slug}`), slug);
+  }
+});
+
+test("thunderclap-it and thunderclap-com are denylisted and in the public copy", () => {
+  const pub = JSON.parse(readFileSync(new URL("../data/public-spam-denylist.json", import.meta.url), "utf8"));
+  for (const slug of ["thunderclap-it", "thunderclap-com"]) {
+    assert.equal(isSpamDenylisted(slug), true, slug);
+    assert.equal(SPAM_DENYLIST[slug]!.category, "fake-engagement", slug);
+    assert.ok(pub.entries.some((e: { slug: string }) => e.slug === slug), slug);
   }
 });

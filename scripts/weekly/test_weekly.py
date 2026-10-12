@@ -416,10 +416,11 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         if not CATALOG.exists():
             self.skipTest("catalog.json missing")
         idx = build_catalog_index(CATALOG)
-        if "oinsmania" not in idx.by_slug:
-            self.skipTest("oinsmania not in catalog")
+        # Catalog rebuild 2026-10-12: canonical slug is coinsmania (was oinsmania).
+        self.assertIn("coinsmania", idx.by_slug)
+        self.assertNotIn("oinsmania", idx.by_slug)
         for label, v in self.VARIANTS.items():
-            self.assertEqual(idx.resolve(name=v), "oinsmania", label)
+            self.assertEqual(idx.resolve(name=v), "coinsmania", label)
 
     def test_native_script_untouched(self):
         from scripts.weekly.normalize import canonical_text
@@ -452,10 +453,11 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         self.assertEqual(canonical_text("\u0406nfo"), "Info")  # Cyrillic I -> I, not l
         self.assertEqual(slugify("\u0399nfo"), "info")  # Greek Iota
 
-    def test_accent_slug_change_still_hits_old_denylist_key(self):
-        # Denylist key predates mark stripping: 'ilmaiset-pitk-vetovihjeet'.
+    def test_accent_slug_change_still_hits_denylist_key(self):
+        # Key was 'ilmaiset-pitk-vetovihjeet' before mark stripping; migrate-slug-keys
+        # moves it to the new slug, lookups accept both forms.
         _, dl = parse_spam_denylist()
-        self.assertIn("ilmaiset-pitk-vetovihjeet", dl)
+        self.assertTrue({"ilmaiset-pitk-vetovihjeet", "ilmaiset-pitkavetovihjeet"} & set(dl))
         name = "Ilmaiset Pitk\u00e4vetovihjeet"
         self.assertEqual(slugify(name), "ilmaiset-pitkavetovihjeet")
         self.assertIsNotNone(is_excluded(slug=slugify(name), name=name, denylist=dl, exclusions=[]))
@@ -729,3 +731,12 @@ class TestRenamedKeysStayFiltered(unittest.TestCase):
                 out = apply_holds(diff, [], base, holds, run_date="2026-10-19", require_two_zero=False)
                 self.assertEqual([h["slug"] for h in diff.held], [cur], (hold_key, cur))
                 self.assertEqual(out[0]["hold"]["kind"], "manual")
+
+
+class TestPublicDenylistGenerated(unittest.TestCase):
+    def test_public_copies_match_export_script(self):
+        import subprocess
+        import sys
+        r = subprocess.run([sys.executable, "scripts/data/export-denylist.py", "--check"],
+                           cwd=Path(__file__).resolve().parents[2], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)

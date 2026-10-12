@@ -58,7 +58,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "funrize-social-casino": { category: "gambling", source: "data", reason: "social casino (funrize.com)" },
   "hollandsegokken-nl": { category: "gambling", source: "dev", reason: "Dutch online gambling" },
   "https-chicken-roadd-com": { category: "gambling", source: "dev", reason: "crash gambling game" },
-  "ilmaiset-pitk-vetovihjeet": { category: "gambling", source: "dev", reason: "betting tips / betting bonuses" },
+  "ilmaiset-pitkavetovihjeet": { category: "gambling", source: "dev", reason: "betting tips / betting bonuses" },
   "kajino-com": { category: "gambling", source: "dev", reason: "online casino" },
   "kasinohai-com": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "kasinosivut": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
@@ -69,7 +69,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "nettikasinot": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "nettikasinot-media": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "nettikasinot-org": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
-  "oinsmania": { category: "gambling", source: "data", reason: "social casino (coinsmania.com); name uses a Cyrillic С homoglyph" },
+  "coinsmania": { category: "gambling", source: "data", reason: "social casino (coinsmania.com); name uses a Cyrillic С homoglyph" },
   "ok-win": { category: "gambling", source: "dev", reason: "colour prediction gambling app" },
   "parhaatnettikasinot-com": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "parimatch": { category: "gambling", source: "dev", reason: "sportsbook / casino" },
@@ -114,6 +114,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "socialboosting": { category: "fake-engagement", source: "qa", reason: "sells followers / likes" },
   "socialdawn": { category: "fake-engagement", source: "dev", reason: "sells followers / likes" },
   "stormlikes": { category: "fake-engagement", source: "qa", reason: "sells followers / likes" },
+  "thunderclap-com": { category: "fake-engagement", source: "data", reason: "Buy Instagram Followers (spam_followers); thunderclap.com, same page as thunderclap-it" },
   "thunderclap-it": { category: "fake-engagement", source: "data", reason: "Buy Instagram Followers (spam_followers)" },
   "volgersboost": { category: "fake-engagement", source: "qa", reason: "sells followers (NL)" },
   "want-to-boost-your-channel-on-youtube-buy-youtube-subscribers-from-sidesmedia-watch-your-subs-grow": { category: "fake-engagement", source: "qa", reason: "sells YouTube subscribers" },
@@ -146,7 +147,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "creditcaptain-leading-ai-credit-repair-service": { category: "commercial-unrelated", source: "data", reason: "credit repair" },
   "releaf-medical-cannabis-glossary": { category: "commercial-unrelated", source: "data", reason: "cannabis shop" },
   "releaf-medizinischer-cannabis-shop": { category: "commercial-unrelated", source: "data", reason: "cannabis shop" },
-  "sm-l-n-uten-sikkerhet": { category: "commercial-unrelated", source: "data", reason: "loans" },
+  "smalan-uten-sikkerhet": { category: "commercial-unrelated", source: "data", reason: "loans" },
 };
 
 /** Matches the written key and its rename equivalent (slug-renames.json), both ways. */

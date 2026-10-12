@@ -93,3 +93,49 @@ test("prototype names are never treated as slugs to redirect", () => {
     assert.equal(redirectTarget(url, url.host, COM, () => false), null);
   }
 });
+
+test("after the catalog rebuild every renamed old slug 308s to the new slug (never new -> old)", async () => {
+  const catalog = (await import("../data/catalog.json", { with: { type: "json" } })).default as {
+    index: { slug: string }[];
+  };
+  const { COMPANY_SLUG_RENAMES, companyRenameTarget } = await import("./redirects.ts");
+  const slugs = new Set(catalog.index.map((r) => r.slug));
+  const exists = (s: string) => slugs.has(s);
+  let checked = 0;
+  for (const [oldSlug, newSlug] of COMPANY_SLUG_RENAMES) {
+    if (!slugs.has(newSlug)) continue;
+    assert.equal(slugs.has(oldSlug), false, `${oldSlug} still in catalog`);
+    assert.equal(companyRenameTarget(`/company/${oldSlug}`, exists), `/company/${newSlug}`);
+    assert.equal(companyRenameTarget(`/company/${newSlug}`, exists), null);
+    checked++;
+  }
+  assert.ok(checked >= 7, `only ${checked} renames checked`);
+  const hop = redirectTarget(new URL("https://x.test/company/oinsmania"), "x.test", "https://x.test", exists);
+  assert.equal(hop, "https://x.test/company/coinsmania");
+});
+
+test("API: /api/sponsors/<old-slug> 308s to the new slug; page-only fallback never applies to the API", async () => {
+  const { companyRenameTarget } = await import("./redirects.ts");
+  const has = (s: string) => s === "coinsmania";
+  assert.equal(companyRenameTarget("/api/sponsors/oinsmania", has), "/api/sponsors/coinsmania");
+  assert.equal(companyRenameTarget("/api/v1/companies/oinsmania", has), "/api/v1/companies/coinsmania");
+  assert.equal(
+    companyRenameTarget("/api/v1/companies/oinsmania/sponsorships", has),
+    "/api/v1/companies/coinsmania/sponsorships",
+  );
+  assert.equal(companyRenameTarget("/api/sponsors/coinsmania", has), null);
+  assert.equal(companyRenameTarget("/api/sponsors/coinsmania", (s) => s === "oinsmania"), null);
+  const hop = redirectTarget(new URL("https://x.test/api/sponsors/oinsmania?x=1"), "x.test", "https://x.test", has);
+  assert.equal(hop, "https://x.test/api/sponsors/coinsmania?x=1");
+});
+
+test("API 308s carry the API's CORS headers; page 308s do not", async () => {
+  const { redirectHeaders } = await import("./redirects.ts");
+  const { CORS_HEADERS } = await import("./public-api/http.ts");
+  const api = redirectHeaders("/api/sponsors/oinsmania", "https://x.test/api/sponsors/coinsmania");
+  assert.equal(api.location, "https://x.test/api/sponsors/coinsmania");
+  assert.equal(api["access-control-allow-origin"], CORS_HEADERS["access-control-allow-origin"]);
+  assert.equal(api["access-control-allow-origin"], "*");
+  const page = redirectHeaders("/company/oinsmania", "https://x.test/company/coinsmania");
+  assert.deepEqual(page, { location: "https://x.test/company/coinsmania" });
+});
