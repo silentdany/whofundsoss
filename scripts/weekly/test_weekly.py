@@ -688,11 +688,20 @@ class TestSlugRenames(unittest.TestCase):
 class TestRenamedKeysStayFiltered(unittest.TestCase):
     """QA a94c4e9 P1: denylist, exclusions and holds match old and new slugs."""
 
-    CASES = [
-        ("oinsmania", "coinsmania"),
-        ("ilmaiset-pitk-vetovihjeet", "ilmaiset-pitkavetovihjeet"),
-        ("sm-l-n-uten-sikkerhet", "smalan-uten-sikkerhet"),
-    ]
+    @classmethod
+    def setUpClass(cls):
+        # Cases come from the data, not hard-coded slugs: renames touching a denylist key.
+        from scripts.weekly.slug_aliases import _maps
+        _, dl = parse_spam_denylist()
+        cls.CASES = [(o, n) for o, n in _maps()[0].items() if o in dl or n in dl]
+        assert len(cls.CASES) >= 3, cls.CASES
+
+    def test_casing_matches_ts(self):
+        from scripts.weekly.slug_aliases import slug_equivalents
+        for o, n in self.CASES:
+            self.assertEqual(slug_equivalents(f" {n.upper()} "), [n, o])
+        for k in ("constructor", "__proto__"):
+            self.assertEqual(slug_equivalents(k), [k])
 
     def test_denylist_before_and_after_rebuild(self):
         _, dl = parse_spam_denylist()

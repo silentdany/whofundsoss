@@ -150,6 +150,6 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
 
 /** Matches the written key and its rename equivalent (slug-renames.json), both ways. */
 export function isSpamDenylisted(slug: string): boolean {
-  return slugEquivalents(slug).some((k) => Object.prototype.hasOwnProperty.call(SPAM_DENYLIST, k));
+  return slugEquivalents(slug).some((k) => Object.hasOwn(SPAM_DENYLIST, k));
 }
 
