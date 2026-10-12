@@ -16,9 +16,9 @@ const DENIED_IN_CATALOG = DENIED.filter((slug) => bySlug.has(slug));
 const NAMED_BY_CDP = ["uudetkasinot-com", "fire-stick-tricks", "buy-google-reviews", "socialboosting", "nettikasinot-media"];
 
 
-test("denylist public export version is 2026-10-12.2", () => {
-  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.2");
-  assert.equal(Object.keys(SPAM_DENYLIST).length, 106);
+test("denylist public export version is 2026-10-12.3", () => {
+  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.3");
+  assert.equal(Object.keys(SPAM_DENYLIST).length, 105);
   assert.equal(isSpamDenylisted("redreply"), false);
 });
 
@@ -79,7 +79,25 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
-  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 15);
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 14);
+});
+
+test("sxl-cn is not denylisted and is ranked (decision 2026-10-12.3)", () => {
+  assert.equal(isSpamDenylisted("sxl-cn"), false);
+  const row = bySlug.get("sxl-cn");
+  assert.ok(row, "sxl-cn in catalog");
+  assert.equal(typeof row!.rank, "number");
+  const by = Object.values(SPAM_DENYLIST).filter((e) => e.category === "commercial-unrelated").length;
+  assert.equal(by, 4);
+  const pub = JSON.parse(readFileSync(new URL("../data/public-spam-denylist.json", import.meta.url), "utf8"));
+  assert.equal(pub.version, SPAM_DENYLIST_VERSION);
+  assert.equal(pub.counts.total, 105);
+  assert.equal(pub.entries.length, 105);
+  assert.equal(pub.counts.by_category["commercial-unrelated"], 4);
+  assert.ok(!pub.entries.some((e: { slug: string }) => e.slug === "sxl-cn"));
+  assert.ok(pub.reviewed_and_not_listed.some((e: { slug: string }) => e.slug === "sxl-cn"));
+  const copy = readFileSync(new URL("../../public/denylist.json", import.meta.url), "utf8");
+  assert.deepEqual(JSON.parse(copy), pub);
 });
 
 test("sitemap includes gated /project paths and never a sub-gate project", () => {

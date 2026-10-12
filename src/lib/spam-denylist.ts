@@ -11,10 +11,10 @@
  * sponsors with no open-source link. Add or remove a slug
  * with a one-line reason; review in PR.
  *
- * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam).
+ * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam), sxl-cn (Strikingly / sxl.cn, OC backer of babel, vuejs, webpack; kept in the ranking 2026-10-12).
  *
- * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-12.2).
- * v2026-10-12.2 · as of 2026-10-12
+ * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-12.3).
+ * v2026-10-12.3 · as of 2026-10-12
  */
 export type SpamCategory =
   | "gambling"
@@ -26,7 +26,7 @@ export type SpamCategory =
   | "adult"
   | "commercial-unrelated";
 
-export const SPAM_DENYLIST_VERSION = "2026-10-12.2";
+export const SPAM_DENYLIST_VERSION = "2026-10-12.3";
 
 /** Who flagged it: "qa" = QA sitemap review, "dev" = Dev pass, "data" = Data triage. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -145,7 +145,6 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "releaf-medical-cannabis-glossary": { category: "commercial-unrelated", source: "data", reason: "cannabis shop" },
   "releaf-medizinischer-cannabis-shop": { category: "commercial-unrelated", source: "data", reason: "cannabis shop" },
   "sm-l-n-uten-sikkerhet": { category: "commercial-unrelated", source: "data", reason: "loans" },
-  "sxl-cn": { category: "commercial-unrelated", source: "data", reason: "commercial, unrelated to OSS" },
 };
 
 export function isSpamDenylisted(slug: string): boolean {
