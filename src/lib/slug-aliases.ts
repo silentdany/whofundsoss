@@ -6,14 +6,23 @@
  */
 import slugRenames from "../data/slug-renames.json" with { type: "json" };
 
-const FORWARD: Record<string, string> = slugRenames.renames;
-const BACK: Record<string, string> = Object.fromEntries(Object.entries(FORWARD).map(([o, n]) => [n, o]));
+/** Same normalization as scripts/weekly/slug_aliases.py: trim + lowercase. */
+export function normSlug(slug: string): string {
+  return slug.trim().toLowerCase();
+}
+
+/** old -> new. A Map, so keys such as "constructor" or "__proto__" never hit the prototype. */
+export const SLUG_RENAMES: ReadonlyMap<string, string> = new Map(
+  Object.entries(slugRenames.renames).map(([o, n]) => [normSlug(o), normSlug(n)]),
+);
+/** new -> old. */
+export const SLUG_RENAMED_FROM: ReadonlyMap<string, string> = new Map([...SLUG_RENAMES].map(([o, n]) => [n, o]));
 
 export function slugEquivalents(slug: string): string[] {
-  const s = slug.trim().toLowerCase();
+  const s = normSlug(slug);
   if (!s) return [];
   const out = [s];
-  for (const other of [FORWARD[s], BACK[s]]) if (other && !out.includes(other)) out.push(other);
+  for (const other of [SLUG_RENAMES.get(s), SLUG_RENAMED_FROM.get(s)]) if (other && !out.includes(other)) out.push(other);
   return out;
 }
 
