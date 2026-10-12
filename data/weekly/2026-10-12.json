@@ -1,8 +1,8 @@
 {
   "date": "2026-10-12",
-  "runId": "38209916082",
-  "generatedAt": "2026-10-12T05:56:50Z",
-  "durationSeconds": 212.61,
+  "runId": "38297846759",
+  "generatedAt": "2026-10-12T19:32:29Z",
+  "durationSeconds": 252.5,
   "suspicious": false,
   "nonUsd": [
     {
@@ -10,7 +10,7 @@
       "orgKey": "social-change-nest",
       "name": "The Social Change Nest",
       "ocSlug": "the-social-change-nest",
-      "amount": 69813.21,
+      "amount": 69632.06,
       "currency": "GBP"
     },
     {
@@ -18,7 +18,7 @@
       "orgKey": "permaculture-association",
       "name": "Permaculture Association",
       "ocSlug": "permaculture-association",
-      "amount": 1689.67,
+      "amount": 1685.77,
       "currency": "GBP"
     },
     {
@@ -26,7 +26,7 @@
       "orgKey": "permaculture-association",
       "name": "Permaculture Association",
       "ocSlug": "permaculture-association",
-      "amount": 1689.67,
+      "amount": 1685.77,
       "currency": "GBP"
     },
     {
@@ -34,7 +34,7 @@
       "orgKey": "agaric",
       "name": "Agaric Technology Collective",
       "ocSlug": "agaric",
-      "amount": 172.11,
+      "amount": 171.85,
       "currency": "GBP"
     },
     {
@@ -42,7 +42,7 @@
       "orgKey": "mcqn",
       "name": "MCQN Ltd",
       "ocSlug": "mcqn_ltd",
-      "amount": 66.49,
+      "amount": 66.35,
       "currency": "GBP"
     },
     {
@@ -50,7 +50,7 @@
       "orgKey": "ocnz",
       "name": "Open Collective NZ",
       "ocSlug": "ocnz",
-      "amount": 2052.12,
+      "amount": 2045.75,
       "currency": "NZD"
     },
     {
@@ -58,7 +58,7 @@
       "orgKey": "whitehorsebaker",
       "name": "White Horse Bakehouse",
       "ocSlug": "whitehorsebaker",
-      "amount": 98.64,
+      "amount": 98.44,
       "currency": "GBP"
     },
     {
@@ -66,7 +66,7 @@
       "orgKey": "ournetworks",
       "name": "Our Networks",
       "ocSlug": "ournetworks",
-      "amount": 10.3,
+      "amount": 10.28,
       "currency": "GBP"
     },
     {
@@ -74,7 +74,7 @@
       "orgKey": "blithe_yogi",
       "name": "Blithe Yoga",
       "ocSlug": "blithe_yogi",
-      "amount": 91.95,
+      "amount": 91.74,
       "currency": "GBP"
     },
     {
@@ -82,7 +82,7 @@
       "orgKey": "monadnock-systems-ltd",
       "name": "Monadnock Systems Ltd.",
       "ocSlug": "monadnock-systems-ltd",
-      "amount": 26.57,
+      "amount": 26.52,
       "currency": "GBP"
     },
     {
@@ -90,7 +90,7 @@
       "orgKey": "managyle",
       "name": "MANAGYLE",
       "ocSlug": "managyle",
-      "amount": 35.04,
+      "amount": 34.97,
       "currency": "EUR"
     },
     {
@@ -98,7 +98,7 @@
       "orgKey": "uniteddiversity",
       "name": "United Diversity",
       "ocSlug": "uniteddiversity",
-      "amount": 5.32,
+      "amount": 5.31,
       "currency": "GBP"
     },
     {
@@ -106,7 +106,7 @@
       "orgKey": "omoearth1",
       "name": "Omo Earth",
       "ocSlug": "omoearth1",
-      "amount": 14.24,
+      "amount": 14.22,
       "currency": "CAD"
     },
     {
@@ -122,7 +122,7 @@
       "orgKey": "cosa",
       "name": "COSA",
       "ocSlug": "cosa",
-      "amount": 43.88,
+      "amount": 43.82,
       "currency": "GBP"
     },
     {
@@ -130,7 +130,7 @@
       "orgKey": "visual-collaboration-tools-leanpub",
       "name": "Visual Collaboration Tools @ LeanPub",
       "ocSlug": "visual-collaboration-tools-leanpub",
-      "amount": 7.49,
+      "amount": 7.48,
       "currency": "EUR"
     },
     {
@@ -138,7 +138,7 @@
       "orgKey": "xr-nl",
       "name": "XR NL",
       "ocSlug": "xr-nl",
-      "amount": 35.39,
+      "amount": 35.34,
       "currency": "EUR"
     },
     {
@@ -146,7 +146,7 @@
       "orgKey": "sociocracyforall",
       "name": "Sociocracy for All",
       "ocSlug": "sociocracy4all1",
-      "amount": 37.92,
+      "amount": 37.84,
       "currency": "GBP"
     },
     {
@@ -154,7 +154,7 @@
       "orgKey": "strucutured-thought-llc",
       "name": "Strucutured Thought, LLC",
       "ocSlug": "strucutured-thought-llc",
-      "amount": 77.23,
+      "amount": 77.04,
       "currency": "GBP"
     },
     {
@@ -162,7 +162,7 @@
       "orgKey": "lagenation",
       "name": "Lage der Nation",
       "ocSlug": "lagenation",
-      "amount": 702.73,
+      "amount": 699.92,
       "currency": "EUR"
     },
     {
@@ -170,7 +170,7 @@
       "orgKey": "regeneros-ltd",
       "name": "Regeneros Ltd",
       "ocSlug": "regeneros-ltd",
-      "amount": 55.65,
+      "amount": 55.52,
       "currency": "GBP"
     },
     {
@@ -178,7 +178,7 @@
       "orgKey": "bathcoopall",
       "name": "Bath Cooperative Alliance",
       "ocSlug": "bathcoopall",
-      "amount": 11.0,
+      "amount": 10.99,
       "currency": "GBP"
     },
     {
@@ -186,7 +186,7 @@
       "orgKey": "bump-sh",
       "name": "Bump.sh",
       "ocSlug": "bumpsh",
-      "amount": 46.77,
+      "amount": 46.65,
       "currency": "GBP"
     },
     {
@@ -194,7 +194,7 @@
       "orgKey": "office-tomoki-inc",
       "name": "Office TOMOKI Inc",
       "ocSlug": "office-tomoki-inc",
-      "amount": 7.94,
+      "amount": 7.9,
       "currency": "EUR"
     },
     {
@@ -202,7 +202,7 @@
       "orgKey": "frisinka-oue",
       "name": "frisinka OÜ",
       "ocSlug": "frisinka-oue",
-      "amount": 29.39,
+      "amount": 29.28,
       "currency": "EUR"
     },
     {
@@ -210,7 +210,7 @@
       "orgKey": "entriwise",
       "name": "Entriwise",
       "ocSlug": "entriwise1",
-      "amount": 5.87,
+      "amount": 5.85,
       "currency": "EUR"
     },
     {
@@ -218,7 +218,7 @@
       "orgKey": "maykinmedia",
       "name": "Maykin Media",
       "ocSlug": "maykinmedia",
-      "amount": 41.12,
+      "amount": 40.99,
       "currency": "EUR"
     },
     {
@@ -226,7 +226,7 @@
       "orgKey": "openfoodnetwork",
       "name": "Open Food Network USA",
       "ocSlug": "ofnusa",
-      "amount": 3.24,
+      "amount": 3.23,
       "currency": "GBP"
     },
     {
@@ -234,7 +234,7 @@
       "orgKey": "lmagnaudet-pro",
       "name": "LMAGNAUDET PRO",
       "ocSlug": "lmagnaudet-pro",
-      "amount": 6.02,
+      "amount": 6.0,
       "currency": "EUR"
     },
     {
@@ -242,7 +242,7 @@
       "orgKey": "tdt-elche-sistemas-de-telecomunicaciones-s-l-u",
       "name": "TDT Elche Sistemas de telecomunicaciones S.L.U.",
       "ocSlug": "tdt-elche-sistemas-de-telecomunicaciones-s-l-u",
-      "amount": 5.32,
+      "amount": 5.31,
       "currency": "EUR"
     },
     {
@@ -250,7 +250,7 @@
       "orgKey": "ccednet_rcdec",
       "name": "Canadian CED Network",
       "ocSlug": "ccednet_rcdec",
-      "amount": 12.73,
+      "amount": 12.7,
       "currency": "GBP"
     },
     {
@@ -266,7 +266,7 @@
       "orgKey": "ncc-group",
       "name": "NCC Group",
       "ocSlug": "ncc-group",
-      "amount": 141.65,
+      "amount": 141.06,
       "currency": "EUR"
     },
     {
@@ -274,7 +274,7 @@
       "orgKey": "som-connexio-sccl",
       "name": "Som Connexió SCCL",
       "ocSlug": "som-connexio-sccl",
-      "amount": 98.52,
+      "amount": 98.39,
       "currency": "GBP"
     },
     {
@@ -282,7 +282,7 @@
       "orgKey": "quantronica",
       "name": "QUANTRONICA",
       "ocSlug": "quantronica",
-      "amount": 28.07,
+      "amount": 28.01,
       "currency": "EUR"
     },
     {
@@ -290,7 +290,7 @@
       "orgKey": "platonicsystems",
       "name": "Platonic.Systems",
       "ocSlug": "platonicsystems",
-      "amount": 225.64,
+      "amount": 225.31,
       "currency": "EUR"
     },
     {
@@ -298,7 +298,7 @@
       "orgKey": "netribution-ltd",
       "name": "Netribution Ltd",
       "ocSlug": "netribution-ltd",
-      "amount": 3.58,
+      "amount": 3.57,
       "currency": "GBP"
     },
     {
@@ -306,7 +306,7 @@
       "orgKey": "forest-centre-culturel-asbl",
       "name": "Forest, Centre Culturel asbl",
       "ocSlug": "forest-centre-culturel-asbl",
-      "amount": 9.07,
+      "amount": 9.03,
       "currency": "EUR"
     },
     {
@@ -314,7 +314,7 @@
       "orgKey": "medlabboulder",
       "name": "Media Enterprise Design Lab @ CU Boulder",
       "ocSlug": "medlabboulder",
-      "amount": 21.45,
+      "amount": 21.39,
       "currency": "GBP"
     },
     {
@@ -322,7 +322,7 @@
       "orgKey": "hkdave95",
       "name": "JADER Ltd",
       "ocSlug": "dar_jader",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -330,7 +330,7 @@
       "orgKey": "the-vegan-habit",
       "name": "The Vegan Habit",
       "ocSlug": "the-vegan-habit",
-      "amount": 3.97,
+      "amount": 3.96,
       "currency": "GBP"
     },
     {
@@ -338,7 +338,7 @@
       "orgKey": "clg_pmc79",
       "name": "Collège Pierre et Marie Curie NIORT",
       "ocSlug": "clg_pmc79",
-      "amount": 10.09,
+      "amount": 10.04,
       "currency": "EUR"
     },
     {
@@ -346,7 +346,7 @@
       "orgKey": "acpd-services-ltd",
       "name": "ACPD Services Ltd",
       "ocSlug": "acpd-services-ltd",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -354,7 +354,7 @@
       "orgKey": "permakulturahr",
       "name": "Croatian Permaculture",
       "ocSlug": "permakulturahr",
-      "amount": 34.43,
+      "amount": 34.31,
       "currency": "GBP"
     },
     {
@@ -370,7 +370,7 @@
       "orgKey": "n",
       "name": "Sahara Project (Preston) Ltd",
       "ocSlug": "saharainpreston",
-      "amount": 5.96,
+      "amount": 5.94,
       "currency": "GBP"
     },
     {
@@ -378,7 +378,7 @@
       "orgKey": "sga-communicaitons",
       "name": "SGA Communicaitons",
       "ocSlug": "sga-communicaitons",
-      "amount": 0.34,
+      "amount": 0.33,
       "currency": "EUR"
     },
     {
@@ -386,7 +386,7 @@
       "orgKey": "cognitect-inc",
       "name": "Cognitect, Inc.",
       "ocSlug": "cognitect-inc",
-      "amount": 198.63,
+      "amount": 198.09,
       "currency": "GBP"
     },
     {
@@ -394,7 +394,7 @@
       "orgKey": "comraderycoop",
       "name": "Comradery Worker Coop",
       "ocSlug": "comraderycoop",
-      "amount": 7.35,
+      "amount": 7.33,
       "currency": "GBP"
     },
     {
@@ -402,7 +402,7 @@
       "orgKey": "cup28",
       "name": "CUP28",
       "ocSlug": "cup28",
-      "amount": 0.34,
+      "amount": 0.33,
       "currency": "EUR"
     },
     {
@@ -410,7 +410,7 @@
       "orgKey": "aprendamos-family-of-services",
       "name": "Aprendamos Family of Services",
       "ocSlug": "aprendamos-family-of-services",
-      "amount": 3.97,
+      "amount": 3.96,
       "currency": "GBP"
     },
     {
@@ -418,7 +418,7 @@
       "orgKey": "bfcleancoop",
       "name": "Belfast Cleaning Cooperative",
       "ocSlug": "bfcleancoop",
-      "amount": 16.81,
+      "amount": 16.74,
       "currency": "EUR"
     },
     {
@@ -426,7 +426,7 @@
       "orgKey": "vanrenew",
       "name": "Alder Coast Group",
       "ocSlug": "vanrenew",
-      "amount": 66.14,
+      "amount": 65.96,
       "currency": "GBP"
     },
     {
@@ -434,7 +434,7 @@
       "orgKey": "trustinmove",
       "name": "Ouvre-Boites 44 - Trust in Move",
       "ocSlug": "trustinmove",
-      "amount": 8.4,
+      "amount": 8.37,
       "currency": "EUR"
     },
     {
@@ -442,7 +442,7 @@
       "orgKey": "reetnetwork",
       "name": "Reset",
       "ocSlug": "reset",
-      "amount": 13.67,
+      "amount": 13.65,
       "currency": "CAD"
     },
     {
@@ -450,7 +450,7 @@
       "orgKey": "dojnaz_hb",
       "name": "Dojnaz",
       "ocSlug": "dojnaz_hb",
-      "amount": 1.68,
+      "amount": 1.67,
       "currency": "EUR"
     },
     {
@@ -458,7 +458,7 @@
       "orgKey": "aallondon",
       "name": "AAL London Hub Technologies",
       "ocSlug": "aryaaltd",
-      "amount": 278.08,
+      "amount": 277.33,
       "currency": "GBP"
     },
     {
@@ -466,7 +466,7 @@
       "orgKey": "coompanion",
       "name": "Coompanion",
       "ocSlug": "coompanion",
-      "amount": 71.51,
+      "amount": 71.31,
       "currency": "GBP"
     },
     {
@@ -482,7 +482,7 @@
       "orgKey": "extinction-rebellion-act",
       "name": "Extinction Rebellion ACT",
       "ocSlug": "extinction-rebellion-act",
-      "amount": 16.81,
+      "amount": 16.74,
       "currency": "EUR"
     },
     {
@@ -490,7 +490,7 @@
       "orgKey": "commonground",
       "name": "Common Ground",
       "ocSlug": "commonground",
-      "amount": 9.48,
+      "amount": 9.46,
       "currency": "EUR"
     },
     {
@@ -498,7 +498,7 @@
       "orgKey": "geschichtefm-gmbh",
       "name": "GeschichteFM GmbH",
       "ocSlug": "geschichtefm-gmbh",
-      "amount": 112.06,
+      "amount": 111.58,
       "currency": "EUR"
     },
     {
@@ -506,7 +506,7 @@
       "orgKey": "advicecloud",
       "name": "Advice Cloud",
       "ocSlug": "advicecloud",
-      "amount": 33.62,
+      "amount": 33.47,
       "currency": "EUR"
     },
     {
@@ -514,7 +514,7 @@
       "orgKey": "where-to-print-documents",
       "name": "Document Printing",
       "ocSlug": "where-to-print-documents",
-      "amount": 1.99,
+      "amount": 1.98,
       "currency": "GBP"
     },
     {
@@ -522,7 +522,7 @@
       "orgKey": "hexcasinoca",
       "name": "CasinoHex Canada",
       "ocSlug": "hexcasinoca",
-      "amount": 65.0,
+      "amount": 64.71,
       "currency": "EUR"
     },
     {
@@ -530,7 +530,7 @@
       "orgKey": "stand-up-in-le-parc",
       "name": "Stand up in le parc",
       "ocSlug": "stand-up-in-le-parc",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -538,7 +538,7 @@
       "orgKey": "fision-codes",
       "name": "Fission",
       "ocSlug": "fission",
-      "amount": 371.35,
+      "amount": 370.05,
       "currency": "CAD"
     },
     {
@@ -554,7 +554,7 @@
       "orgKey": "open-flysky",
       "name": "FLYSKY",
       "ocSlug": "flysky-technology-co-ltd",
-      "amount": 2941.61,
+      "amount": 2928.87,
       "currency": "EUR"
     },
     {
@@ -562,7 +562,7 @@
       "orgKey": "featherhq",
       "name": "Feathers Cloud",
       "ocSlug": "feathers-cloud",
-      "amount": 21.04,
+      "amount": 21.0,
       "currency": "CAD"
     },
     {
@@ -570,7 +570,7 @@
       "orgKey": "outschool",
       "name": "Outschool",
       "ocSlug": "outschool",
-      "amount": 1.68,
+      "amount": 1.67,
       "currency": "EUR"
     },
     {
@@ -578,7 +578,7 @@
       "orgKey": "the-northern-circuit",
       "name": "The Northern Circuit",
       "ocSlug": "the-northern-circuit",
-      "amount": 19.86,
+      "amount": 19.81,
       "currency": "GBP"
     },
     {
@@ -586,7 +586,7 @@
       "orgKey": "reichsolutions",
       "name": "Reich.solutions",
       "ocSlug": "reichsolutions",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -594,7 +594,7 @@
       "orgKey": "urgewald-e-v",
       "name": "urgewald e.V.",
       "ocSlug": "urgewald-e-v",
-      "amount": 0.34,
+      "amount": 0.33,
       "currency": "EUR"
     },
     {
@@ -602,7 +602,7 @@
       "orgKey": "te-muka-rau",
       "name": "Te Muka Rau",
       "ocSlug": "te-muka-rau",
-      "amount": 530.56,
+      "amount": 528.96,
       "currency": "NZD"
     },
     {
@@ -610,7 +610,7 @@
       "orgKey": "perpetual-education",
       "name": "Perpetual Education",
       "ocSlug": "perpetual-education",
-      "amount": 0.6,
+      "amount": 0.59,
       "currency": "GBP"
     },
     {
@@ -626,7 +626,7 @@
       "orgKey": "open-food-network-usa",
       "name": "OFNUSA Organization",
       "ocSlug": "open-food-network-usa",
-      "amount": 13.51,
+      "amount": 13.47,
       "currency": "GBP"
     },
     {
@@ -634,7 +634,7 @@
       "orgKey": "asbl-emozon",
       "name": "ASBL emozon",
       "ocSlug": "asbl-emozon",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -642,7 +642,7 @@
       "orgKey": "deta",
       "name": "Abstract Computing UG",
       "ocSlug": "deta",
-      "amount": 25.23,
+      "amount": 25.16,
       "currency": "EUR"
     },
     {
@@ -658,7 +658,7 @@
       "orgKey": "jaya-krishna",
       "name": "Jaya Krishna",
       "ocSlug": "jaya-krishna",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -666,7 +666,7 @@
       "orgKey": "motionwreck-games-community",
       "name": "MotionWreck Games Community",
       "ocSlug": "motionwreck-games-community",
-      "amount": 168.09,
+      "amount": 167.36,
       "currency": "EUR"
     },
     {
@@ -674,7 +674,7 @@
       "orgKey": "solidfund-uk",
       "name": "SolidFund UK",
       "ocSlug": "solidfund-uk",
-      "amount": 112.06,
+      "amount": 111.58,
       "currency": "EUR"
     },
     {
@@ -682,7 +682,7 @@
       "orgKey": "soiree-info-awirs",
       "name": "Soirée info Awirs",
       "ocSlug": "soiree-info-awirs",
-      "amount": 8.4,
+      "amount": 8.37,
       "currency": "EUR"
     },
     {
@@ -690,7 +690,7 @@
       "orgKey": "rui134649",
       "name": "Rui",
       "ocSlug": "rui134649",
-      "amount": 4.2,
+      "amount": 4.18,
       "currency": "EUR"
     },
     {
@@ -698,7 +698,7 @@
       "orgKey": "pro-de-burgerlobby",
       "name": "PRO de burgerlobby",
       "ocSlug": "pro-de-burgerlobby",
-      "amount": 21.85,
+      "amount": 21.76,
       "currency": "EUR"
     },
     {
@@ -706,7 +706,7 @@
       "orgKey": "flexiana",
       "name": "Flexiana",
       "ocSlug": "flexiana",
-      "amount": 166.85,
+      "amount": 166.4,
       "currency": "GBP"
     },
     {
@@ -714,7 +714,7 @@
       "orgKey": "arcadiamediagroup",
       "name": "The Arcadia Group",
       "ocSlug": "thearcadiagroup",
-      "amount": 168.09,
+      "amount": 167.36,
       "currency": "EUR"
     },
     {
@@ -722,7 +722,7 @@
       "orgKey": "cosmos",
       "name": "Cosmos Co-op",
       "ocSlug": "cosmos",
-      "amount": 16.09,
+      "amount": 16.05,
       "currency": "GBP"
     },
     {
@@ -730,7 +730,7 @@
       "orgKey": "prisma",
       "name": "Prisma",
       "ocSlug": "prisma3",
-      "amount": 28.02,
+      "amount": 27.89,
       "currency": "EUR"
     },
     {
@@ -738,7 +738,7 @@
       "orgKey": "atwareag",
       "name": "satware AG",
       "ocSlug": "satware-ag",
-      "amount": 12.33,
+      "amount": 12.27,
       "currency": "EUR"
     },
     {
@@ -746,7 +746,7 @@
       "orgKey": "soapbox-pub",
       "name": "soapbox.pub",
       "ocSlug": "soapbox-pub",
-      "amount": 17.05,
+      "amount": 17.01,
       "currency": "JPY"
     },
     {
@@ -754,7 +754,7 @@
       "orgKey": "epicsound",
       "name": "Epic Sound",
       "ocSlug": "epicsound",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -762,7 +762,7 @@
       "orgKey": "webgewandt",
       "name": "Webgewandt",
       "ocSlug": "webgewandt",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -770,7 +770,7 @@
       "orgKey": "numtide",
       "name": "Numtide",
       "ocSlug": "numtide",
-      "amount": 316.57,
+      "amount": 315.26,
       "currency": "EUR"
     },
     {
@@ -778,7 +778,7 @@
       "orgKey": "toutemonannee",
       "name": "Des images et des mots",
       "ocSlug": "toutemonannee",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -786,7 +786,7 @@
       "orgKey": "kuutamoap",
       "name": "kuutamo",
       "ocSlug": "kuutamo",
-      "amount": 33.62,
+      "amount": 33.47,
       "currency": "EUR"
     },
     {
@@ -794,7 +794,7 @@
       "orgKey": "sweetgood",
       "name": "SWEETGOOD",
       "ocSlug": "sweetgood",
-      "amount": 47.07,
+      "amount": 46.86,
       "currency": "EUR"
     },
     {
@@ -802,7 +802,7 @@
       "orgKey": "octoenergy",
       "name": "Octopus Energy - Kraken Tech",
       "ocSlug": "octopus-energy-kraken-tech",
-      "amount": 556.16,
+      "amount": 554.66,
       "currency": "GBP"
     },
     {
@@ -818,7 +818,7 @@
       "orgKey": "nyantec",
       "name": "nyantec",
       "ocSlug": "nyantec",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -826,7 +826,7 @@
       "orgKey": "activout-ab",
       "name": "Activout AB",
       "ocSlug": "activout-ab",
-      "amount": 10.0,
+      "amount": 9.95,
       "currency": "SEK"
     },
     {
@@ -834,7 +834,7 @@
       "orgKey": "sourcegraph",
       "name": "Sourcegraph",
       "ocSlug": "sourcegraph",
-      "amount": 350.07,
+      "amount": 348.76,
       "currency": "EUR"
     },
     {
@@ -842,7 +842,7 @@
       "orgKey": "oblyk",
       "name": "Oblyk",
       "ocSlug": "oblyk",
-      "amount": 6.96,
+      "amount": 6.93,
       "currency": "EUR"
     },
     {
@@ -858,7 +858,7 @@
       "orgKey": "frontendmasters",
       "name": "Frontend Masters",
       "ocSlug": "frontendmasters",
-      "amount": 52.97,
+      "amount": 52.82,
       "currency": "GBP"
     },
     {
@@ -866,7 +866,7 @@
       "orgKey": "vvvv",
       "name": "vvvv",
       "ocSlug": "vvvv",
-      "amount": 4.37,
+      "amount": 4.35,
       "currency": "EUR"
     },
     {
@@ -874,7 +874,7 @@
       "orgKey": "belugames",
       "name": "Belugames",
       "ocSlug": "belugames",
-      "amount": 22.41,
+      "amount": 22.32,
       "currency": "EUR"
     },
     {
@@ -882,7 +882,7 @@
       "orgKey": "domedia",
       "name": "DOMEDIA",
       "ocSlug": "domedia",
-      "amount": 2.24,
+      "amount": 2.23,
       "currency": "EUR"
     },
     {
@@ -890,7 +890,7 @@
       "orgKey": "sarl-luiggi-sansonetti",
       "name": "SARL LUIGGI SANSONETTI",
       "ocSlug": "sarl-luiggi-sansonetti",
-      "amount": 11.21,
+      "amount": 11.16,
       "currency": "EUR"
     },
     {
@@ -898,7 +898,7 @@
       "orgKey": "new-zealand-sheriffs",
       "name": "New Zealand Sheriffs",
       "ocSlug": "new-zealand-sheriffs",
-      "amount": 1.68,
+      "amount": 1.67,
       "currency": "EUR"
     },
     {
@@ -906,7 +906,7 @@
       "orgKey": "debacteur",
       "name": "Quentin",
       "ocSlug": "debacteur",
-      "amount": 30.26,
+      "amount": 30.13,
       "currency": "EUR"
     },
     {
@@ -914,7 +914,7 @@
       "orgKey": "dork-farm-gmbh",
       "name": "Dork Farm GmbH",
       "ocSlug": "dork-farm-gmbh",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -922,7 +922,7 @@
       "orgKey": "future-strategy-club",
       "name": "Future Strategy Club",
       "ocSlug": "future-strategy-club",
-      "amount": 59.59,
+      "amount": 59.43,
       "currency": "GBP"
     },
     {
@@ -930,7 +930,7 @@
       "orgKey": "verseapp",
       "name": "Planetary",
       "ocSlug": "planetary",
-      "amount": 25.08,
+      "amount": 25.05,
       "currency": "NZD"
     },
     {
@@ -938,7 +938,7 @@
       "orgKey": "opolis",
       "name": "Opolis",
       "ocSlug": "opolis",
-      "amount": 98.17,
+      "amount": 98.0,
       "currency": "CAD"
     },
     {
@@ -962,7 +962,7 @@
       "orgKey": "data-compliance-europe",
       "name": "Data Compliance Europe",
       "ocSlug": "data-compliance-europe",
-      "amount": 21.85,
+      "amount": 21.76,
       "currency": "EUR"
     },
     {
@@ -970,7 +970,7 @@
       "orgKey": "888-co-operative-causeway",
       "name": "888 Co-operative Causeway",
       "ocSlug": "888-co-operative-causeway",
-      "amount": 3.18,
+      "amount": 3.17,
       "currency": "GBP"
     },
     {
@@ -978,7 +978,7 @@
       "orgKey": "castlebridge",
       "name": "Castlebridge",
       "ocSlug": "castlebridge",
-      "amount": 26.89,
+      "amount": 26.78,
       "currency": "EUR"
     },
     {
@@ -986,7 +986,7 @@
       "orgKey": "vintage-ireland",
       "name": "Vintage Ireland",
       "ocSlug": "vintage-ireland",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -994,7 +994,7 @@
       "orgKey": "dweb",
       "name": "DWeb",
       "ocSlug": "dweb",
-      "amount": 14.3,
+      "amount": 14.26,
       "currency": "GBP"
     },
     {
@@ -1002,7 +1002,7 @@
       "orgKey": "tiqre",
       "name": "Tiqre",
       "ocSlug": "tiqre",
-      "amount": 4.03,
+      "amount": 4.02,
       "currency": "EUR"
     },
     {
@@ -1010,7 +1010,7 @@
       "orgKey": "steelesrock-strategy-consulting",
       "name": "Steelesrock Strategy Consulting",
       "ocSlug": "steelesrock-strategy-consulting",
-      "amount": 28.02,
+      "amount": 27.89,
       "currency": "EUR"
     },
     {
@@ -1018,7 +1018,7 @@
       "orgKey": "electromagnetic-field",
       "name": "Electromagnetic Field",
       "ocSlug": "electromagnetic-field",
-      "amount": 11.21,
+      "amount": 11.16,
       "currency": "EUR"
     },
     {
@@ -1026,7 +1026,7 @@
       "orgKey": "data-commons-cooperative",
       "name": "Data Commons Cooperative",
       "ocSlug": "data-commons-cooperative",
-      "amount": 3.97,
+      "amount": 3.96,
       "currency": "GBP"
     },
     {
@@ -1034,7 +1034,7 @@
       "orgKey": "forge-vtt",
       "name": "The Forge",
       "ocSlug": "forge-vtt",
-      "amount": 24.65,
+      "amount": 24.55,
       "currency": "EUR"
     },
     {
@@ -1042,7 +1042,7 @@
       "orgKey": "alberta-data-partnerships",
       "name": "Alberta Data Partnerships",
       "ocSlug": "alberta-data-partnerships",
-      "amount": 157.78,
+      "amount": 157.51,
       "currency": "CAD"
     },
     {
@@ -1050,7 +1050,7 @@
       "orgKey": "chatmosphere",
       "name": "chatmosphere",
       "ocSlug": "chatmospherecc",
-      "amount": 44.82,
+      "amount": 44.63,
       "currency": "EUR"
     },
     {
@@ -1058,7 +1058,7 @@
       "orgKey": "ptp",
       "name": "Progressive Technology Project",
       "ocSlug": "ptp",
-      "amount": 52.44,
+      "amount": 52.3,
       "currency": "GBP"
     },
     {
@@ -1066,7 +1066,7 @@
       "orgKey": "the-drymifolia-collective",
       "name": "the drymifolia collective",
       "ocSlug": "the-drymifolia-collective",
-      "amount": 12.1,
+      "amount": 12.05,
       "currency": "EUR"
     },
     {
@@ -1074,7 +1074,7 @@
       "orgKey": "may-first-movement-tech",
       "name": "May First Movement Technology",
       "ocSlug": "may-first-movement-tech",
-      "amount": 14.3,
+      "amount": 14.26,
       "currency": "GBP"
     },
     {
@@ -1082,7 +1082,7 @@
       "orgKey": "fintegral",
       "name": "Fresh Integral Communications",
       "ocSlug": "fintegral",
-      "amount": 5.04,
+      "amount": 5.02,
       "currency": "EUR"
     },
     {
@@ -1090,7 +1090,7 @@
       "orgKey": "maisonprevert1",
       "name": "Maison Jacques Prévert",
       "ocSlug": "maisonprevert1",
-      "amount": 11.21,
+      "amount": 11.16,
       "currency": "EUR"
     },
     {
@@ -1098,7 +1098,7 @@
       "orgKey": "mullvad-vpn-ab",
       "name": "Mullvad VPN AB",
       "ocSlug": "mullvad-vpn-ab",
-      "amount": 112.06,
+      "amount": 111.58,
       "currency": "EUR"
     },
     {
@@ -1106,7 +1106,7 @@
       "orgKey": "sei",
       "name": "セイ",
       "ocSlug": "sei",
-      "amount": 4.26,
+      "amount": 4.25,
       "currency": "JPY"
     },
     {
@@ -1114,7 +1114,7 @@
       "orgKey": "threathunterai",
       "name": "ThreatHunter.ai",
       "ocSlug": "threathunterai",
-      "amount": 1294.31,
+      "amount": 1288.7,
       "currency": "EUR"
     },
     {
@@ -1130,7 +1130,7 @@
       "orgKey": "connectedbydata",
       "name": "Connected by Data",
       "ocSlug": "connectedbydata",
-      "amount": 14.3,
+      "amount": 14.26,
       "currency": "GBP"
     },
     {
@@ -1138,7 +1138,7 @@
       "orgKey": "dgapps",
       "name": "dgApps",
       "ocSlug": "dgapps",
-      "amount": 15.97,
+      "amount": 15.9,
       "currency": "EUR"
     },
     {
@@ -1146,7 +1146,7 @@
       "orgKey": "trustmypaper",
       "name": "Trust My Paper",
       "ocSlug": "trustmypaper",
-      "amount": 19.5,
+      "amount": 19.41,
       "currency": "EUR"
     },
     {
@@ -1154,7 +1154,7 @@
       "orgKey": "huggingface",
       "name": "Hugging Face",
       "ocSlug": "huggingface",
-      "amount": 7.01,
+      "amount": 7.0,
       "currency": "CAD"
     },
     {
@@ -1170,7 +1170,7 @@
       "orgKey": "nordix-foundation",
       "name": "Nordix Foundation",
       "ocSlug": "nordix-foundation",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     },
     {
@@ -1186,7 +1186,7 @@
       "orgKey": "stileeducation",
       "name": "Stile Education",
       "ocSlug": "stileeducation",
-      "amount": 30.26,
+      "amount": 30.13,
       "currency": "EUR"
     },
     {
@@ -1194,7 +1194,7 @@
       "orgKey": "planfredapp",
       "name": "PLANFRED",
       "ocSlug": "planfredapp",
-      "amount": 17.65,
+      "amount": 17.57,
       "currency": "EUR"
     },
     {
@@ -1202,7 +1202,7 @@
       "orgKey": "gl-drome",
       "name": "GL Drôme",
       "ocSlug": "gl-drome",
-      "amount": 6.67,
+      "amount": 6.64,
       "currency": "EUR"
     },
     {
@@ -1210,7 +1210,7 @@
       "orgKey": "altagamma-srl",
       "name": "altagamma srl",
       "ocSlug": "altagamma-srl",
-      "amount": 33.62,
+      "amount": 33.47,
       "currency": "EUR"
     },
     {
@@ -1218,7 +1218,7 @@
       "orgKey": "gamblecritic",
       "name": "Gamble Critic",
       "ocSlug": "gamblecritic",
-      "amount": 6.84,
+      "amount": 6.82,
       "currency": "AUD"
     },
     {
@@ -1226,7 +1226,7 @@
       "orgKey": "personalkollen",
       "name": "Personalkollen",
       "ocSlug": "personalkollen",
-      "amount": 11.21,
+      "amount": 11.16,
       "currency": "EUR"
     },
     {
@@ -1234,7 +1234,7 @@
       "orgKey": "paul-russell",
       "name": "Paul Russell",
       "ocSlug": "paul-russell",
-      "amount": 8.4,
+      "amount": 8.38,
       "currency": "NZD"
     },
     {
@@ -1242,7 +1242,7 @@
       "orgKey": "coopartisans",
       "name": "Artisans Cooperative",
       "ocSlug": "coopartisans",
-      "amount": 2.12,
+      "amount": 2.11,
       "currency": "GBP"
     },
     {
@@ -1250,7 +1250,7 @@
       "orgKey": "splendidchaps",
       "name": "Splendid Chaps Productions",
       "ocSlug": "splendidchaps",
-      "amount": 6.81,
+      "amount": 6.78,
       "currency": "EUR"
     },
     {
@@ -1258,7 +1258,7 @@
       "orgKey": "local-it",
       "name": "local-it",
       "ocSlug": "local-it",
-      "amount": 18.54,
+      "amount": 18.49,
       "currency": "GBP"
     },
     {
@@ -1266,7 +1266,7 @@
       "orgKey": "igrovye-avtomaty-ua",
       "name": "Ігрові автомати",
       "ocSlug": "igrovye-avtomaty-ua",
-      "amount": 5.49,
+      "amount": 5.47,
       "currency": "EUR"
     },
     {
@@ -1274,7 +1274,7 @@
       "orgKey": "jose-karlos",
       "name": "José karlos",
       "ocSlug": "jose-karlos",
-      "amount": 2.24,
+      "amount": 2.23,
       "currency": "EUR"
     },
     {
@@ -1282,7 +1282,7 @@
       "orgKey": "fairlo1",
       "name": "Fairlo",
       "ocSlug": "fairlo1",
-      "amount": 33.62,
+      "amount": 33.47,
       "currency": "EUR"
     },
     {
@@ -1290,7 +1290,7 @@
       "orgKey": "fluctus",
       "name": "Fluctus",
       "ocSlug": "fluctus",
-      "amount": 327.78,
+      "amount": 326.36,
       "currency": "EUR"
     },
     {
@@ -1298,7 +1298,7 @@
       "orgKey": "wnn2",
       "name": "WNN2",
       "ocSlug": "wnn2",
-      "amount": 7.01,
+      "amount": 7.0,
       "currency": "CAD"
     },
     {
@@ -1306,7 +1306,7 @@
       "orgKey": "ludo-fablab",
       "name": "Ludo-Fablab",
       "ocSlug": "ludo-fablab",
-      "amount": 152.4,
+      "amount": 151.74,
       "currency": "EUR"
     },
     {
@@ -1314,7 +1314,7 @@
       "orgKey": "writing-metier",
       "name": "Writing Metier",
       "ocSlug": "writing-metier",
-      "amount": 10.99,
+      "amount": 10.96,
       "currency": "AUD"
     },
     {
@@ -1322,7 +1322,7 @@
       "orgKey": "gin-shack-event-bars",
       "name": "Gin Shack Event Bars",
       "ocSlug": "gin-shack-event-bars",
-      "amount": 6.62,
+      "amount": 6.6,
       "currency": "GBP"
     },
     {
@@ -1330,7 +1330,7 @@
       "orgKey": "springburn-harriers",
       "name": "Springburn Harriers",
       "ocSlug": "springburn-harriers",
-      "amount": 17.08,
+      "amount": 17.04,
       "currency": "GBP"
     },
     {
@@ -1338,7 +1338,7 @@
       "orgKey": "sdi",
       "name": "Sentient Digital, Inc.",
       "ocSlug": "sdi",
-      "amount": 8.07,
+      "amount": 8.03,
       "currency": "EUR"
     },
     {
@@ -1346,7 +1346,7 @@
       "orgKey": "bellahouston-harriers1",
       "name": "Bellahouston Harriers",
       "ocSlug": "bellahouston-harriers1",
-      "amount": 13.71,
+      "amount": 13.67,
       "currency": "GBP"
     },
     {
@@ -1362,7 +1362,7 @@
       "orgKey": "jaeckert-and-odaniel-onlinemar",
       "name": "Jaeckert & O'Daniel Onlinemarketing",
       "ocSlug": "jaeckert-and-odaniel-onlinemar",
-      "amount": 23.42,
+      "amount": 23.32,
       "currency": "EUR"
     },
     {
@@ -1370,7 +1370,7 @@
       "orgKey": "docraptor",
       "name": "DocRaptor",
       "ocSlug": "docraptor",
-      "amount": 43.7,
+      "amount": 43.51,
       "currency": "EUR"
     },
     {
@@ -1378,7 +1378,7 @@
       "orgKey": "transition-cambridge",
       "name": "Transition Cambridge",
       "ocSlug": "transition-cambridge",
-      "amount": 30.46,
+      "amount": 30.37,
       "currency": "GBP"
     },
     {
@@ -1386,7 +1386,7 @@
       "orgKey": "centre-nucleus",
       "name": "Centre NUCLEUS",
       "ocSlug": "centre-nucleus",
-      "amount": 5.6,
+      "amount": 5.58,
       "currency": "EUR"
     },
     {
@@ -1402,7 +1402,7 @@
       "orgKey": "intrinsicsoftware",
       "name": "Intrinsic",
       "ocSlug": "intrinsic",
-      "amount": 134.47,
+      "amount": 133.89,
       "currency": "EUR"
     },
     {
@@ -1410,7 +1410,7 @@
       "orgKey": "quatro-trust",
       "name": "Quatro Trust",
       "ocSlug": "quatro-trust",
-      "amount": 84.04,
+      "amount": 83.77,
       "currency": "NZD"
     },
     {
@@ -1418,7 +1418,7 @@
       "orgKey": "morntag",
       "name": "morntag",
       "ocSlug": "morntag",
-      "amount": 9.25,
+      "amount": 9.21,
       "currency": "EUR"
     },
     {
@@ -1434,7 +1434,7 @@
       "orgKey": "werr",
       "name": "WERR",
       "ocSlug": "werr",
-      "amount": 13.24,
+      "amount": 13.21,
       "currency": "GBP"
     },
     {
@@ -1442,7 +1442,7 @@
       "orgKey": "nature-works",
       "name": "Nature Works",
       "ocSlug": "nature-works",
-      "amount": 2.83,
+      "amount": 2.82,
       "currency": "EUR"
     },
     {
@@ -1450,7 +1450,7 @@
       "orgKey": "sydfyns-forening-for-kreativ-bevaegelse",
       "name": "Sydfyns Forening for Kreativ Bevægelse",
       "ocSlug": "sydfyns-forening-for-kreativ-bevaegelse",
-      "amount": 11.21,
+      "amount": 11.16,
       "currency": "EUR"
     },
     {
@@ -1458,7 +1458,7 @@
       "orgKey": "u-maxx",
       "name": "maxuroda.pro",
       "ocSlug": "maxuroda-pro",
-      "amount": 1.68,
+      "amount": 1.67,
       "currency": "EUR"
     },
     {
@@ -1474,7 +1474,7 @@
       "orgKey": "framer",
       "name": "Framer",
       "ocSlug": "framer",
-      "amount": 70.12,
+      "amount": 70.0,
       "currency": "CAD"
     },
     {
@@ -1482,7 +1482,7 @@
       "orgKey": "cyrilwaechter",
       "name": "Cyril Waechter BIM Insight",
       "ocSlug": "cyril-waechter-bim-insight",
-      "amount": 2.24,
+      "amount": 2.23,
       "currency": "EUR"
     },
     {
@@ -1490,7 +1490,7 @@
       "orgKey": "rainlab-inc",
       "name": "Rainlab Inc.",
       "ocSlug": "rainlab-inc",
-      "amount": 3.92,
+      "amount": 3.91,
       "currency": "EUR"
     },
     {
@@ -1498,7 +1498,7 @@
       "orgKey": "stichting-ponder-source",
       "name": "Stichting Ponder Source",
       "ocSlug": "stichting-ponder-source",
-      "amount": 47.63,
+      "amount": 47.42,
       "currency": "EUR"
     },
     {
@@ -1514,7 +1514,7 @@
       "orgKey": "lqqk",
       "name": "LQQK",
       "ocSlug": "lqqk",
-      "amount": 16.81,
+      "amount": 16.74,
       "currency": "EUR"
     },
     {
@@ -1530,7 +1530,7 @@
       "orgKey": "arcanitesolutions",
       "name": "Arcanite",
       "ocSlug": "arcanite",
-      "amount": 22.41,
+      "amount": 22.32,
       "currency": "EUR"
     },
     {
@@ -1538,7 +1538,7 @@
       "orgKey": "you4-shi2",
       "name": "祐実",
       "ocSlug": "you4-shi2",
-      "amount": 4.74,
+      "amount": 4.73,
       "currency": "JPY"
     },
     {
@@ -1546,7 +1546,7 @@
       "orgKey": "serverproject-dev",
       "name": "Meisdata",
       "ocSlug": "meisdataio",
-      "amount": 1.91,
+      "amount": 1.9,
       "currency": "EUR"
     },
     {
@@ -1554,7 +1554,7 @@
       "orgKey": "stacktrace",
       "name": "StackTrace",
       "ocSlug": "stacktrace",
-      "amount": 100.86,
+      "amount": 100.42,
       "currency": "EUR"
     },
     {
@@ -1562,7 +1562,7 @@
       "orgKey": "mausbrand",
       "name": "Mausbrand",
       "ocSlug": "mausbrand",
-      "amount": 5.04,
+      "amount": 5.02,
       "currency": "EUR"
     },
     {
@@ -1570,7 +1570,7 @@
       "orgKey": "w3c",
       "name": "W3C",
       "ocSlug": "w3c1",
-      "amount": 26.89,
+      "amount": 26.78,
       "currency": "EUR"
     },
     {
@@ -1578,7 +1578,7 @@
       "orgKey": "remix-the-commons1",
       "name": "Association Remix",
       "ocSlug": "remix-the-commons1",
-      "amount": 441.42,
+      "amount": 439.54,
       "currency": "GBP"
     },
     {
@@ -1586,7 +1586,7 @@
       "orgKey": "participation-bureau",
       "name": "Partizipationsbüro",
       "ocSlug": "participation-bureau",
-      "amount": 96.93,
+      "amount": 96.51,
       "currency": "EUR"
     },
     {
@@ -1594,7 +1594,7 @@
       "orgKey": "flash-games-for-mobile",
       "name": "Flash Games for Mobile",
       "ocSlug": "flash-games-for-mobile",
-      "amount": 2.24,
+      "amount": 2.23,
       "currency": "EUR"
     },
     {
@@ -1602,16 +1602,16 @@
       "orgKey": "crazy-marvin",
       "name": "Crazy-Marvin",
       "ocSlug": "crazy-marvin",
-      "amount": 3.36,
+      "amount": 3.35,
       "currency": "EUR"
     }
   ],
   "denylist": {
-    "version": "2026-10-06.5",
-    "count": 99
+    "version": "2026-10-12.1",
+    "count": 101
   },
   "exclusions": {
-    "count": 132
+    "count": 133
   },
   "coverage": {
     "github_sponsors": {
@@ -2016,7 +2016,7 @@
             "orgKey": "social-change-nest",
             "name": "The Social Change Nest",
             "ocSlug": "the-social-change-nest",
-            "amount": 69813.21,
+            "amount": 69632.06,
             "currency": "GBP"
           },
           {
@@ -2024,7 +2024,7 @@
             "orgKey": "permaculture-association",
             "name": "Permaculture Association",
             "ocSlug": "permaculture-association",
-            "amount": 1689.67,
+            "amount": 1685.77,
             "currency": "GBP"
           },
           {
@@ -2032,7 +2032,7 @@
             "orgKey": "permaculture-association",
             "name": "Permaculture Association",
             "ocSlug": "permaculture-association",
-            "amount": 1689.67,
+            "amount": 1685.77,
             "currency": "GBP"
           },
           {
@@ -2040,7 +2040,7 @@
             "orgKey": "agaric",
             "name": "Agaric Technology Collective",
             "ocSlug": "agaric",
-            "amount": 172.11,
+            "amount": 171.85,
             "currency": "GBP"
           },
           {
@@ -2048,7 +2048,7 @@
             "orgKey": "mcqn",
             "name": "MCQN Ltd",
             "ocSlug": "mcqn_ltd",
-            "amount": 66.49,
+            "amount": 66.35,
             "currency": "GBP"
           },
           {
@@ -2056,7 +2056,7 @@
             "orgKey": "ocnz",
             "name": "Open Collective NZ",
             "ocSlug": "ocnz",
-            "amount": 2052.12,
+            "amount": 2045.75,
             "currency": "NZD"
           },
           {
@@ -2064,7 +2064,7 @@
             "orgKey": "whitehorsebaker",
             "name": "White Horse Bakehouse",
             "ocSlug": "whitehorsebaker",
-            "amount": 98.64,
+            "amount": 98.44,
             "currency": "GBP"
           },
           {
@@ -2072,7 +2072,7 @@
             "orgKey": "ournetworks",
             "name": "Our Networks",
             "ocSlug": "ournetworks",
-            "amount": 10.3,
+            "amount": 10.28,
             "currency": "GBP"
           },
           {
@@ -2080,7 +2080,7 @@
             "orgKey": "blithe_yogi",
             "name": "Blithe Yoga",
             "ocSlug": "blithe_yogi",
-            "amount": 91.95,
+            "amount": 91.74,
             "currency": "GBP"
           },
           {
@@ -2088,7 +2088,7 @@
             "orgKey": "monadnock-systems-ltd",
             "name": "Monadnock Systems Ltd.",
             "ocSlug": "monadnock-systems-ltd",
-            "amount": 26.57,
+            "amount": 26.52,
             "currency": "GBP"
           },
           {
@@ -2096,7 +2096,7 @@
             "orgKey": "managyle",
             "name": "MANAGYLE",
             "ocSlug": "managyle",
-            "amount": 35.04,
+            "amount": 34.97,
             "currency": "EUR"
           },
           {
@@ -2104,7 +2104,7 @@
             "orgKey": "uniteddiversity",
             "name": "United Diversity",
             "ocSlug": "uniteddiversity",
-            "amount": 5.32,
+            "amount": 5.31,
             "currency": "GBP"
           },
           {
@@ -2112,7 +2112,7 @@
             "orgKey": "omoearth1",
             "name": "Omo Earth",
             "ocSlug": "omoearth1",
-            "amount": 14.24,
+            "amount": 14.22,
             "currency": "CAD"
           },
           {
@@ -2128,7 +2128,7 @@
             "orgKey": "cosa",
             "name": "COSA",
             "ocSlug": "cosa",
-            "amount": 43.88,
+            "amount": 43.82,
             "currency": "GBP"
           },
           {
@@ -2136,7 +2136,7 @@
             "orgKey": "visual-collaboration-tools-leanpub",
             "name": "Visual Collaboration Tools @ LeanPub",
             "ocSlug": "visual-collaboration-tools-leanpub",
-            "amount": 7.49,
+            "amount": 7.48,
             "currency": "EUR"
           },
           {
@@ -2144,7 +2144,7 @@
             "orgKey": "xr-nl",
             "name": "XR NL",
             "ocSlug": "xr-nl",
-            "amount": 35.39,
+            "amount": 35.34,
             "currency": "EUR"
           },
           {
@@ -2152,7 +2152,7 @@
             "orgKey": "sociocracyforall",
             "name": "Sociocracy for All",
             "ocSlug": "sociocracy4all1",
-            "amount": 37.92,
+            "amount": 37.84,
             "currency": "GBP"
           },
           {
@@ -2160,7 +2160,7 @@
             "orgKey": "strucutured-thought-llc",
             "name": "Strucutured Thought, LLC",
             "ocSlug": "strucutured-thought-llc",
-            "amount": 77.23,
+            "amount": 77.04,
             "currency": "GBP"
           },
           {
@@ -2168,7 +2168,7 @@
             "orgKey": "lagenation",
             "name": "Lage der Nation",
             "ocSlug": "lagenation",
-            "amount": 702.73,
+            "amount": 699.92,
             "currency": "EUR"
           },
           {
@@ -2176,7 +2176,7 @@
             "orgKey": "regeneros-ltd",
             "name": "Regeneros Ltd",
             "ocSlug": "regeneros-ltd",
-            "amount": 55.65,
+            "amount": 55.52,
             "currency": "GBP"
           },
           {
@@ -2184,7 +2184,7 @@
             "orgKey": "bathcoopall",
             "name": "Bath Cooperative Alliance",
             "ocSlug": "bathcoopall",
-            "amount": 11.0,
+            "amount": 10.99,
             "currency": "GBP"
           },
           {
@@ -2192,7 +2192,7 @@
             "orgKey": "bump-sh",
             "name": "Bump.sh",
             "ocSlug": "bumpsh",
-            "amount": 46.77,
+            "amount": 46.65,
             "currency": "GBP"
           },
           {
@@ -2200,7 +2200,7 @@
             "orgKey": "office-tomoki-inc",
             "name": "Office TOMOKI Inc",
             "ocSlug": "office-tomoki-inc",
-            "amount": 7.94,
+            "amount": 7.9,
             "currency": "EUR"
           },
           {
@@ -2208,7 +2208,7 @@
             "orgKey": "frisinka-oue",
             "name": "frisinka OÜ",
             "ocSlug": "frisinka-oue",
-            "amount": 29.39,
+            "amount": 29.28,
             "currency": "EUR"
           },
           {
@@ -2216,7 +2216,7 @@
             "orgKey": "entriwise",
             "name": "Entriwise",
             "ocSlug": "entriwise1",
-            "amount": 5.87,
+            "amount": 5.85,
             "currency": "EUR"
           },
           {
@@ -2224,7 +2224,7 @@
             "orgKey": "maykinmedia",
             "name": "Maykin Media",
             "ocSlug": "maykinmedia",
-            "amount": 41.12,
+            "amount": 40.99,
             "currency": "EUR"
           },
           {
@@ -2232,7 +2232,7 @@
             "orgKey": "openfoodnetwork",
             "name": "Open Food Network USA",
             "ocSlug": "ofnusa",
-            "amount": 3.24,
+            "amount": 3.23,
             "currency": "GBP"
           },
           {
@@ -2240,7 +2240,7 @@
             "orgKey": "lmagnaudet-pro",
             "name": "LMAGNAUDET PRO",
             "ocSlug": "lmagnaudet-pro",
-            "amount": 6.02,
+            "amount": 6.0,
             "currency": "EUR"
           },
           {
@@ -2248,7 +2248,7 @@
             "orgKey": "tdt-elche-sistemas-de-telecomunicaciones-s-l-u",
             "name": "TDT Elche Sistemas de telecomunicaciones S.L.U.",
             "ocSlug": "tdt-elche-sistemas-de-telecomunicaciones-s-l-u",
-            "amount": 5.32,
+            "amount": 5.31,
             "currency": "EUR"
           },
           {
@@ -2256,7 +2256,7 @@
             "orgKey": "ccednet_rcdec",
             "name": "Canadian CED Network",
             "ocSlug": "ccednet_rcdec",
-            "amount": 12.73,
+            "amount": 12.7,
             "currency": "GBP"
           },
           {
@@ -2272,7 +2272,7 @@
             "orgKey": "ncc-group",
             "name": "NCC Group",
             "ocSlug": "ncc-group",
-            "amount": 141.65,
+            "amount": 141.06,
             "currency": "EUR"
           },
           {
@@ -2280,7 +2280,7 @@
             "orgKey": "som-connexio-sccl",
             "name": "Som Connexió SCCL",
             "ocSlug": "som-connexio-sccl",
-            "amount": 98.52,
+            "amount": 98.39,
             "currency": "GBP"
           },
           {
@@ -2288,7 +2288,7 @@
             "orgKey": "quantronica",
             "name": "QUANTRONICA",
             "ocSlug": "quantronica",
-            "amount": 28.07,
+            "amount": 28.01,
             "currency": "EUR"
           },
           {
@@ -2296,7 +2296,7 @@
             "orgKey": "platonicsystems",
             "name": "Platonic.Systems",
             "ocSlug": "platonicsystems",
-            "amount": 225.64,
+            "amount": 225.31,
             "currency": "EUR"
           },
           {
@@ -2304,7 +2304,7 @@
             "orgKey": "netribution-ltd",
             "name": "Netribution Ltd",
             "ocSlug": "netribution-ltd",
-            "amount": 3.58,
+            "amount": 3.57,
             "currency": "GBP"
           },
           {
@@ -2312,7 +2312,7 @@
             "orgKey": "forest-centre-culturel-asbl",
             "name": "Forest, Centre Culturel asbl",
             "ocSlug": "forest-centre-culturel-asbl",
-            "amount": 9.07,
+            "amount": 9.03,
             "currency": "EUR"
           },
           {
@@ -2320,7 +2320,7 @@
             "orgKey": "medlabboulder",
             "name": "Media Enterprise Design Lab @ CU Boulder",
             "ocSlug": "medlabboulder",
-            "amount": 21.45,
+            "amount": 21.39,
             "currency": "GBP"
           },
           {
@@ -2328,7 +2328,7 @@
             "orgKey": "hkdave95",
             "name": "JADER Ltd",
             "ocSlug": "dar_jader",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -2336,7 +2336,7 @@
             "orgKey": "the-vegan-habit",
             "name": "The Vegan Habit",
             "ocSlug": "the-vegan-habit",
-            "amount": 3.97,
+            "amount": 3.96,
             "currency": "GBP"
           },
           {
@@ -2344,7 +2344,7 @@
             "orgKey": "clg_pmc79",
             "name": "Collège Pierre et Marie Curie NIORT",
             "ocSlug": "clg_pmc79",
-            "amount": 10.09,
+            "amount": 10.04,
             "currency": "EUR"
           },
           {
@@ -2352,7 +2352,7 @@
             "orgKey": "acpd-services-ltd",
             "name": "ACPD Services Ltd",
             "ocSlug": "acpd-services-ltd",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -2360,7 +2360,7 @@
             "orgKey": "permakulturahr",
             "name": "Croatian Permaculture",
             "ocSlug": "permakulturahr",
-            "amount": 34.43,
+            "amount": 34.31,
             "currency": "GBP"
           },
           {
@@ -2376,7 +2376,7 @@
             "orgKey": "n",
             "name": "Sahara Project (Preston) Ltd",
             "ocSlug": "saharainpreston",
-            "amount": 5.96,
+            "amount": 5.94,
             "currency": "GBP"
           },
           {
@@ -2384,7 +2384,7 @@
             "orgKey": "sga-communicaitons",
             "name": "SGA Communicaitons",
             "ocSlug": "sga-communicaitons",
-            "amount": 0.34,
+            "amount": 0.33,
             "currency": "EUR"
           },
           {
@@ -2392,7 +2392,7 @@
             "orgKey": "cognitect-inc",
             "name": "Cognitect, Inc.",
             "ocSlug": "cognitect-inc",
-            "amount": 198.63,
+            "amount": 198.09,
             "currency": "GBP"
           },
           {
@@ -2400,7 +2400,7 @@
             "orgKey": "comraderycoop",
             "name": "Comradery Worker Coop",
             "ocSlug": "comraderycoop",
-            "amount": 7.35,
+            "amount": 7.33,
             "currency": "GBP"
           },
           {
@@ -2408,7 +2408,7 @@
             "orgKey": "cup28",
             "name": "CUP28",
             "ocSlug": "cup28",
-            "amount": 0.34,
+            "amount": 0.33,
             "currency": "EUR"
           },
           {
@@ -2416,7 +2416,7 @@
             "orgKey": "aprendamos-family-of-services",
             "name": "Aprendamos Family of Services",
             "ocSlug": "aprendamos-family-of-services",
-            "amount": 3.97,
+            "amount": 3.96,
             "currency": "GBP"
           },
           {
@@ -2424,7 +2424,7 @@
             "orgKey": "bfcleancoop",
             "name": "Belfast Cleaning Cooperative",
             "ocSlug": "bfcleancoop",
-            "amount": 16.81,
+            "amount": 16.74,
             "currency": "EUR"
           },
           {
@@ -2432,7 +2432,7 @@
             "orgKey": "vanrenew",
             "name": "Alder Coast Group",
             "ocSlug": "vanrenew",
-            "amount": 66.14,
+            "amount": 65.96,
             "currency": "GBP"
           },
           {
@@ -2440,7 +2440,7 @@
             "orgKey": "trustinmove",
             "name": "Ouvre-Boites 44 - Trust in Move",
             "ocSlug": "trustinmove",
-            "amount": 8.4,
+            "amount": 8.37,
             "currency": "EUR"
           },
           {
@@ -2448,7 +2448,7 @@
             "orgKey": "reetnetwork",
             "name": "Reset",
             "ocSlug": "reset",
-            "amount": 13.67,
+            "amount": 13.65,
             "currency": "CAD"
           },
           {
@@ -2456,7 +2456,7 @@
             "orgKey": "dojnaz_hb",
             "name": "Dojnaz",
             "ocSlug": "dojnaz_hb",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -2464,7 +2464,7 @@
             "orgKey": "aallondon",
             "name": "AAL London Hub Technologies",
             "ocSlug": "aryaaltd",
-            "amount": 278.08,
+            "amount": 277.33,
             "currency": "GBP"
           },
           {
@@ -2472,7 +2472,7 @@
             "orgKey": "coompanion",
             "name": "Coompanion",
             "ocSlug": "coompanion",
-            "amount": 71.51,
+            "amount": 71.31,
             "currency": "GBP"
           },
           {
@@ -2488,7 +2488,7 @@
             "orgKey": "extinction-rebellion-act",
             "name": "Extinction Rebellion ACT",
             "ocSlug": "extinction-rebellion-act",
-            "amount": 16.81,
+            "amount": 16.74,
             "currency": "EUR"
           },
           {
@@ -2496,7 +2496,7 @@
             "orgKey": "commonground",
             "name": "Common Ground",
             "ocSlug": "commonground",
-            "amount": 9.48,
+            "amount": 9.46,
             "currency": "EUR"
           },
           {
@@ -2504,7 +2504,7 @@
             "orgKey": "geschichtefm-gmbh",
             "name": "GeschichteFM GmbH",
             "ocSlug": "geschichtefm-gmbh",
-            "amount": 112.06,
+            "amount": 111.58,
             "currency": "EUR"
           },
           {
@@ -2512,7 +2512,7 @@
             "orgKey": "advicecloud",
             "name": "Advice Cloud",
             "ocSlug": "advicecloud",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -2520,7 +2520,7 @@
             "orgKey": "where-to-print-documents",
             "name": "Document Printing",
             "ocSlug": "where-to-print-documents",
-            "amount": 1.99,
+            "amount": 1.98,
             "currency": "GBP"
           },
           {
@@ -2528,7 +2528,7 @@
             "orgKey": "hexcasinoca",
             "name": "CasinoHex Canada",
             "ocSlug": "hexcasinoca",
-            "amount": 65.0,
+            "amount": 64.71,
             "currency": "EUR"
           },
           {
@@ -2536,7 +2536,7 @@
             "orgKey": "stand-up-in-le-parc",
             "name": "Stand up in le parc",
             "ocSlug": "stand-up-in-le-parc",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -2544,7 +2544,7 @@
             "orgKey": "fision-codes",
             "name": "Fission",
             "ocSlug": "fission",
-            "amount": 371.35,
+            "amount": 370.05,
             "currency": "CAD"
           },
           {
@@ -2560,7 +2560,7 @@
             "orgKey": "open-flysky",
             "name": "FLYSKY",
             "ocSlug": "flysky-technology-co-ltd",
-            "amount": 2941.61,
+            "amount": 2928.87,
             "currency": "EUR"
           },
           {
@@ -2568,7 +2568,7 @@
             "orgKey": "featherhq",
             "name": "Feathers Cloud",
             "ocSlug": "feathers-cloud",
-            "amount": 21.04,
+            "amount": 21.0,
             "currency": "CAD"
           },
           {
@@ -2576,7 +2576,7 @@
             "orgKey": "outschool",
             "name": "Outschool",
             "ocSlug": "outschool",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -2584,7 +2584,7 @@
             "orgKey": "the-northern-circuit",
             "name": "The Northern Circuit",
             "ocSlug": "the-northern-circuit",
-            "amount": 19.86,
+            "amount": 19.81,
             "currency": "GBP"
           },
           {
@@ -2592,7 +2592,7 @@
             "orgKey": "reichsolutions",
             "name": "Reich.solutions",
             "ocSlug": "reichsolutions",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -2600,7 +2600,7 @@
             "orgKey": "urgewald-e-v",
             "name": "urgewald e.V.",
             "ocSlug": "urgewald-e-v",
-            "amount": 0.34,
+            "amount": 0.33,
             "currency": "EUR"
           },
           {
@@ -2608,7 +2608,7 @@
             "orgKey": "te-muka-rau",
             "name": "Te Muka Rau",
             "ocSlug": "te-muka-rau",
-            "amount": 530.56,
+            "amount": 528.96,
             "currency": "NZD"
           },
           {
@@ -2616,7 +2616,7 @@
             "orgKey": "perpetual-education",
             "name": "Perpetual Education",
             "ocSlug": "perpetual-education",
-            "amount": 0.6,
+            "amount": 0.59,
             "currency": "GBP"
           },
           {
@@ -2632,7 +2632,7 @@
             "orgKey": "open-food-network-usa",
             "name": "OFNUSA Organization",
             "ocSlug": "open-food-network-usa",
-            "amount": 13.51,
+            "amount": 13.47,
             "currency": "GBP"
           },
           {
@@ -2640,7 +2640,7 @@
             "orgKey": "asbl-emozon",
             "name": "ASBL emozon",
             "ocSlug": "asbl-emozon",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -2648,7 +2648,7 @@
             "orgKey": "deta",
             "name": "Abstract Computing UG",
             "ocSlug": "deta",
-            "amount": 25.23,
+            "amount": 25.16,
             "currency": "EUR"
           },
           {
@@ -2664,7 +2664,7 @@
             "orgKey": "jaya-krishna",
             "name": "Jaya Krishna",
             "ocSlug": "jaya-krishna",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -2672,7 +2672,7 @@
             "orgKey": "motionwreck-games-community",
             "name": "MotionWreck Games Community",
             "ocSlug": "motionwreck-games-community",
-            "amount": 168.09,
+            "amount": 167.36,
             "currency": "EUR"
           },
           {
@@ -2680,7 +2680,7 @@
             "orgKey": "solidfund-uk",
             "name": "SolidFund UK",
             "ocSlug": "solidfund-uk",
-            "amount": 112.06,
+            "amount": 111.58,
             "currency": "EUR"
           },
           {
@@ -2688,7 +2688,7 @@
             "orgKey": "soiree-info-awirs",
             "name": "Soirée info Awirs",
             "ocSlug": "soiree-info-awirs",
-            "amount": 8.4,
+            "amount": 8.37,
             "currency": "EUR"
           },
           {
@@ -2696,7 +2696,7 @@
             "orgKey": "rui134649",
             "name": "Rui",
             "ocSlug": "rui134649",
-            "amount": 4.2,
+            "amount": 4.18,
             "currency": "EUR"
           },
           {
@@ -2704,7 +2704,7 @@
             "orgKey": "pro-de-burgerlobby",
             "name": "PRO de burgerlobby",
             "ocSlug": "pro-de-burgerlobby",
-            "amount": 21.85,
+            "amount": 21.76,
             "currency": "EUR"
           },
           {
@@ -2712,7 +2712,7 @@
             "orgKey": "flexiana",
             "name": "Flexiana",
             "ocSlug": "flexiana",
-            "amount": 166.85,
+            "amount": 166.4,
             "currency": "GBP"
           },
           {
@@ -2720,7 +2720,7 @@
             "orgKey": "arcadiamediagroup",
             "name": "The Arcadia Group",
             "ocSlug": "thearcadiagroup",
-            "amount": 168.09,
+            "amount": 167.36,
             "currency": "EUR"
           },
           {
@@ -2728,7 +2728,7 @@
             "orgKey": "cosmos",
             "name": "Cosmos Co-op",
             "ocSlug": "cosmos",
-            "amount": 16.09,
+            "amount": 16.05,
             "currency": "GBP"
           },
           {
@@ -2736,7 +2736,7 @@
             "orgKey": "prisma",
             "name": "Prisma",
             "ocSlug": "prisma3",
-            "amount": 28.02,
+            "amount": 27.89,
             "currency": "EUR"
           },
           {
@@ -2744,7 +2744,7 @@
             "orgKey": "atwareag",
             "name": "satware AG",
             "ocSlug": "satware-ag",
-            "amount": 12.33,
+            "amount": 12.27,
             "currency": "EUR"
           },
           {
@@ -2752,7 +2752,7 @@
             "orgKey": "soapbox-pub",
             "name": "soapbox.pub",
             "ocSlug": "soapbox-pub",
-            "amount": 17.05,
+            "amount": 17.01,
             "currency": "JPY"
           },
           {
@@ -2760,7 +2760,7 @@
             "orgKey": "epicsound",
             "name": "Epic Sound",
             "ocSlug": "epicsound",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -2768,7 +2768,7 @@
             "orgKey": "webgewandt",
             "name": "Webgewandt",
             "ocSlug": "webgewandt",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -2776,7 +2776,7 @@
             "orgKey": "numtide",
             "name": "Numtide",
             "ocSlug": "numtide",
-            "amount": 316.57,
+            "amount": 315.26,
             "currency": "EUR"
           },
           {
@@ -2784,7 +2784,7 @@
             "orgKey": "toutemonannee",
             "name": "Des images et des mots",
             "ocSlug": "toutemonannee",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -2792,7 +2792,7 @@
             "orgKey": "kuutamoap",
             "name": "kuutamo",
             "ocSlug": "kuutamo",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -2800,7 +2800,7 @@
             "orgKey": "sweetgood",
             "name": "SWEETGOOD",
             "ocSlug": "sweetgood",
-            "amount": 47.07,
+            "amount": 46.86,
             "currency": "EUR"
           },
           {
@@ -2808,7 +2808,7 @@
             "orgKey": "octoenergy",
             "name": "Octopus Energy - Kraken Tech",
             "ocSlug": "octopus-energy-kraken-tech",
-            "amount": 556.16,
+            "amount": 554.66,
             "currency": "GBP"
           },
           {
@@ -2824,7 +2824,7 @@
             "orgKey": "nyantec",
             "name": "nyantec",
             "ocSlug": "nyantec",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -2832,7 +2832,7 @@
             "orgKey": "activout-ab",
             "name": "Activout AB",
             "ocSlug": "activout-ab",
-            "amount": 10.0,
+            "amount": 9.95,
             "currency": "SEK"
           },
           {
@@ -2840,7 +2840,7 @@
             "orgKey": "sourcegraph",
             "name": "Sourcegraph",
             "ocSlug": "sourcegraph",
-            "amount": 350.07,
+            "amount": 348.76,
             "currency": "EUR"
           },
           {
@@ -2848,7 +2848,7 @@
             "orgKey": "oblyk",
             "name": "Oblyk",
             "ocSlug": "oblyk",
-            "amount": 6.96,
+            "amount": 6.93,
             "currency": "EUR"
           },
           {
@@ -2864,7 +2864,7 @@
             "orgKey": "frontendmasters",
             "name": "Frontend Masters",
             "ocSlug": "frontendmasters",
-            "amount": 52.97,
+            "amount": 52.82,
             "currency": "GBP"
           },
           {
@@ -2872,7 +2872,7 @@
             "orgKey": "vvvv",
             "name": "vvvv",
             "ocSlug": "vvvv",
-            "amount": 4.37,
+            "amount": 4.35,
             "currency": "EUR"
           },
           {
@@ -2880,7 +2880,7 @@
             "orgKey": "belugames",
             "name": "Belugames",
             "ocSlug": "belugames",
-            "amount": 22.41,
+            "amount": 22.32,
             "currency": "EUR"
           },
           {
@@ -2888,7 +2888,7 @@
             "orgKey": "domedia",
             "name": "DOMEDIA",
             "ocSlug": "domedia",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -2896,7 +2896,7 @@
             "orgKey": "sarl-luiggi-sansonetti",
             "name": "SARL LUIGGI SANSONETTI",
             "ocSlug": "sarl-luiggi-sansonetti",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -2904,7 +2904,7 @@
             "orgKey": "new-zealand-sheriffs",
             "name": "New Zealand Sheriffs",
             "ocSlug": "new-zealand-sheriffs",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -2912,7 +2912,7 @@
             "orgKey": "debacteur",
             "name": "Quentin",
             "ocSlug": "debacteur",
-            "amount": 30.26,
+            "amount": 30.13,
             "currency": "EUR"
           },
           {
@@ -2920,7 +2920,7 @@
             "orgKey": "dork-farm-gmbh",
             "name": "Dork Farm GmbH",
             "ocSlug": "dork-farm-gmbh",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -2928,7 +2928,7 @@
             "orgKey": "future-strategy-club",
             "name": "Future Strategy Club",
             "ocSlug": "future-strategy-club",
-            "amount": 59.59,
+            "amount": 59.43,
             "currency": "GBP"
           },
           {
@@ -2936,7 +2936,7 @@
             "orgKey": "verseapp",
             "name": "Planetary",
             "ocSlug": "planetary",
-            "amount": 25.08,
+            "amount": 25.05,
             "currency": "NZD"
           },
           {
@@ -2944,7 +2944,7 @@
             "orgKey": "opolis",
             "name": "Opolis",
             "ocSlug": "opolis",
-            "amount": 98.17,
+            "amount": 98.0,
             "currency": "CAD"
           },
           {
@@ -2968,7 +2968,7 @@
             "orgKey": "data-compliance-europe",
             "name": "Data Compliance Europe",
             "ocSlug": "data-compliance-europe",
-            "amount": 21.85,
+            "amount": 21.76,
             "currency": "EUR"
           },
           {
@@ -2976,7 +2976,7 @@
             "orgKey": "888-co-operative-causeway",
             "name": "888 Co-operative Causeway",
             "ocSlug": "888-co-operative-causeway",
-            "amount": 3.18,
+            "amount": 3.17,
             "currency": "GBP"
           },
           {
@@ -2984,7 +2984,7 @@
             "orgKey": "castlebridge",
             "name": "Castlebridge",
             "ocSlug": "castlebridge",
-            "amount": 26.89,
+            "amount": 26.78,
             "currency": "EUR"
           },
           {
@@ -2992,7 +2992,7 @@
             "orgKey": "vintage-ireland",
             "name": "Vintage Ireland",
             "ocSlug": "vintage-ireland",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -3000,7 +3000,7 @@
             "orgKey": "dweb",
             "name": "DWeb",
             "ocSlug": "dweb",
-            "amount": 14.3,
+            "amount": 14.26,
             "currency": "GBP"
           },
           {
@@ -3008,7 +3008,7 @@
             "orgKey": "tiqre",
             "name": "Tiqre",
             "ocSlug": "tiqre",
-            "amount": 4.03,
+            "amount": 4.02,
             "currency": "EUR"
           },
           {
@@ -3016,7 +3016,7 @@
             "orgKey": "steelesrock-strategy-consulting",
             "name": "Steelesrock Strategy Consulting",
             "ocSlug": "steelesrock-strategy-consulting",
-            "amount": 28.02,
+            "amount": 27.89,
             "currency": "EUR"
           },
           {
@@ -3024,7 +3024,7 @@
             "orgKey": "electromagnetic-field",
             "name": "Electromagnetic Field",
             "ocSlug": "electromagnetic-field",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -3032,7 +3032,7 @@
             "orgKey": "data-commons-cooperative",
             "name": "Data Commons Cooperative",
             "ocSlug": "data-commons-cooperative",
-            "amount": 3.97,
+            "amount": 3.96,
             "currency": "GBP"
           },
           {
@@ -3040,7 +3040,7 @@
             "orgKey": "forge-vtt",
             "name": "The Forge",
             "ocSlug": "forge-vtt",
-            "amount": 24.65,
+            "amount": 24.55,
             "currency": "EUR"
           },
           {
@@ -3048,7 +3048,7 @@
             "orgKey": "alberta-data-partnerships",
             "name": "Alberta Data Partnerships",
             "ocSlug": "alberta-data-partnerships",
-            "amount": 157.78,
+            "amount": 157.51,
             "currency": "CAD"
           },
           {
@@ -3056,7 +3056,7 @@
             "orgKey": "chatmosphere",
             "name": "chatmosphere",
             "ocSlug": "chatmospherecc",
-            "amount": 44.82,
+            "amount": 44.63,
             "currency": "EUR"
           },
           {
@@ -3064,7 +3064,7 @@
             "orgKey": "ptp",
             "name": "Progressive Technology Project",
             "ocSlug": "ptp",
-            "amount": 52.44,
+            "amount": 52.3,
             "currency": "GBP"
           },
           {
@@ -3072,7 +3072,7 @@
             "orgKey": "the-drymifolia-collective",
             "name": "the drymifolia collective",
             "ocSlug": "the-drymifolia-collective",
-            "amount": 12.1,
+            "amount": 12.05,
             "currency": "EUR"
           },
           {
@@ -3080,7 +3080,7 @@
             "orgKey": "may-first-movement-tech",
             "name": "May First Movement Technology",
             "ocSlug": "may-first-movement-tech",
-            "amount": 14.3,
+            "amount": 14.26,
             "currency": "GBP"
           },
           {
@@ -3088,7 +3088,7 @@
             "orgKey": "fintegral",
             "name": "Fresh Integral Communications",
             "ocSlug": "fintegral",
-            "amount": 5.04,
+            "amount": 5.02,
             "currency": "EUR"
           },
           {
@@ -3096,7 +3096,7 @@
             "orgKey": "maisonprevert1",
             "name": "Maison Jacques Prévert",
             "ocSlug": "maisonprevert1",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -3104,7 +3104,7 @@
             "orgKey": "mullvad-vpn-ab",
             "name": "Mullvad VPN AB",
             "ocSlug": "mullvad-vpn-ab",
-            "amount": 112.06,
+            "amount": 111.58,
             "currency": "EUR"
           },
           {
@@ -3112,7 +3112,7 @@
             "orgKey": "sei",
             "name": "セイ",
             "ocSlug": "sei",
-            "amount": 4.26,
+            "amount": 4.25,
             "currency": "JPY"
           },
           {
@@ -3120,7 +3120,7 @@
             "orgKey": "threathunterai",
             "name": "ThreatHunter.ai",
             "ocSlug": "threathunterai",
-            "amount": 1294.31,
+            "amount": 1288.7,
             "currency": "EUR"
           },
           {
@@ -3136,7 +3136,7 @@
             "orgKey": "connectedbydata",
             "name": "Connected by Data",
             "ocSlug": "connectedbydata",
-            "amount": 14.3,
+            "amount": 14.26,
             "currency": "GBP"
           },
           {
@@ -3144,7 +3144,7 @@
             "orgKey": "dgapps",
             "name": "dgApps",
             "ocSlug": "dgapps",
-            "amount": 15.97,
+            "amount": 15.9,
             "currency": "EUR"
           },
           {
@@ -3152,7 +3152,7 @@
             "orgKey": "trustmypaper",
             "name": "Trust My Paper",
             "ocSlug": "trustmypaper",
-            "amount": 19.5,
+            "amount": 19.41,
             "currency": "EUR"
           },
           {
@@ -3160,7 +3160,7 @@
             "orgKey": "huggingface",
             "name": "Hugging Face",
             "ocSlug": "huggingface",
-            "amount": 7.01,
+            "amount": 7.0,
             "currency": "CAD"
           },
           {
@@ -3176,7 +3176,7 @@
             "orgKey": "nordix-foundation",
             "name": "Nordix Foundation",
             "ocSlug": "nordix-foundation",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -3192,7 +3192,7 @@
             "orgKey": "stileeducation",
             "name": "Stile Education",
             "ocSlug": "stileeducation",
-            "amount": 30.26,
+            "amount": 30.13,
             "currency": "EUR"
           },
           {
@@ -3200,7 +3200,7 @@
             "orgKey": "planfredapp",
             "name": "PLANFRED",
             "ocSlug": "planfredapp",
-            "amount": 17.65,
+            "amount": 17.57,
             "currency": "EUR"
           },
           {
@@ -3208,7 +3208,7 @@
             "orgKey": "gl-drome",
             "name": "GL Drôme",
             "ocSlug": "gl-drome",
-            "amount": 6.67,
+            "amount": 6.64,
             "currency": "EUR"
           },
           {
@@ -3216,7 +3216,7 @@
             "orgKey": "altagamma-srl",
             "name": "altagamma srl",
             "ocSlug": "altagamma-srl",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -3224,7 +3224,7 @@
             "orgKey": "gamblecritic",
             "name": "Gamble Critic",
             "ocSlug": "gamblecritic",
-            "amount": 6.84,
+            "amount": 6.82,
             "currency": "AUD"
           },
           {
@@ -3232,7 +3232,7 @@
             "orgKey": "personalkollen",
             "name": "Personalkollen",
             "ocSlug": "personalkollen",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -3240,7 +3240,7 @@
             "orgKey": "paul-russell",
             "name": "Paul Russell",
             "ocSlug": "paul-russell",
-            "amount": 8.4,
+            "amount": 8.38,
             "currency": "NZD"
           },
           {
@@ -3248,7 +3248,7 @@
             "orgKey": "coopartisans",
             "name": "Artisans Cooperative",
             "ocSlug": "coopartisans",
-            "amount": 2.12,
+            "amount": 2.11,
             "currency": "GBP"
           },
           {
@@ -3256,7 +3256,7 @@
             "orgKey": "splendidchaps",
             "name": "Splendid Chaps Productions",
             "ocSlug": "splendidchaps",
-            "amount": 6.81,
+            "amount": 6.78,
             "currency": "EUR"
           },
           {
@@ -3264,7 +3264,7 @@
             "orgKey": "local-it",
             "name": "local-it",
             "ocSlug": "local-it",
-            "amount": 18.54,
+            "amount": 18.49,
             "currency": "GBP"
           },
           {
@@ -3272,7 +3272,7 @@
             "orgKey": "igrovye-avtomaty-ua",
             "name": "Ігрові автомати",
             "ocSlug": "igrovye-avtomaty-ua",
-            "amount": 5.49,
+            "amount": 5.47,
             "currency": "EUR"
           },
           {
@@ -3280,7 +3280,7 @@
             "orgKey": "jose-karlos",
             "name": "José karlos",
             "ocSlug": "jose-karlos",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -3288,7 +3288,7 @@
             "orgKey": "fairlo1",
             "name": "Fairlo",
             "ocSlug": "fairlo1",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -3296,7 +3296,7 @@
             "orgKey": "fluctus",
             "name": "Fluctus",
             "ocSlug": "fluctus",
-            "amount": 327.78,
+            "amount": 326.36,
             "currency": "EUR"
           },
           {
@@ -3304,7 +3304,7 @@
             "orgKey": "wnn2",
             "name": "WNN2",
             "ocSlug": "wnn2",
-            "amount": 7.01,
+            "amount": 7.0,
             "currency": "CAD"
           },
           {
@@ -3312,7 +3312,7 @@
             "orgKey": "ludo-fablab",
             "name": "Ludo-Fablab",
             "ocSlug": "ludo-fablab",
-            "amount": 152.4,
+            "amount": 151.74,
             "currency": "EUR"
           },
           {
@@ -3320,7 +3320,7 @@
             "orgKey": "writing-metier",
             "name": "Writing Metier",
             "ocSlug": "writing-metier",
-            "amount": 10.99,
+            "amount": 10.96,
             "currency": "AUD"
           },
           {
@@ -3328,7 +3328,7 @@
             "orgKey": "gin-shack-event-bars",
             "name": "Gin Shack Event Bars",
             "ocSlug": "gin-shack-event-bars",
-            "amount": 6.62,
+            "amount": 6.6,
             "currency": "GBP"
           },
           {
@@ -3336,7 +3336,7 @@
             "orgKey": "springburn-harriers",
             "name": "Springburn Harriers",
             "ocSlug": "springburn-harriers",
-            "amount": 17.08,
+            "amount": 17.04,
             "currency": "GBP"
           },
           {
@@ -3344,7 +3344,7 @@
             "orgKey": "sdi",
             "name": "Sentient Digital, Inc.",
             "ocSlug": "sdi",
-            "amount": 8.07,
+            "amount": 8.03,
             "currency": "EUR"
           },
           {
@@ -3352,7 +3352,7 @@
             "orgKey": "bellahouston-harriers1",
             "name": "Bellahouston Harriers",
             "ocSlug": "bellahouston-harriers1",
-            "amount": 13.71,
+            "amount": 13.67,
             "currency": "GBP"
           },
           {
@@ -3368,7 +3368,7 @@
             "orgKey": "jaeckert-and-odaniel-onlinemar",
             "name": "Jaeckert & O'Daniel Onlinemarketing",
             "ocSlug": "jaeckert-and-odaniel-onlinemar",
-            "amount": 23.42,
+            "amount": 23.32,
             "currency": "EUR"
           },
           {
@@ -3376,7 +3376,7 @@
             "orgKey": "docraptor",
             "name": "DocRaptor",
             "ocSlug": "docraptor",
-            "amount": 43.7,
+            "amount": 43.51,
             "currency": "EUR"
           },
           {
@@ -3384,7 +3384,7 @@
             "orgKey": "transition-cambridge",
             "name": "Transition Cambridge",
             "ocSlug": "transition-cambridge",
-            "amount": 30.46,
+            "amount": 30.37,
             "currency": "GBP"
           },
           {
@@ -3392,7 +3392,7 @@
             "orgKey": "centre-nucleus",
             "name": "Centre NUCLEUS",
             "ocSlug": "centre-nucleus",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -3408,7 +3408,7 @@
             "orgKey": "intrinsicsoftware",
             "name": "Intrinsic",
             "ocSlug": "intrinsic",
-            "amount": 134.47,
+            "amount": 133.89,
             "currency": "EUR"
           },
           {
@@ -3416,7 +3416,7 @@
             "orgKey": "quatro-trust",
             "name": "Quatro Trust",
             "ocSlug": "quatro-trust",
-            "amount": 84.04,
+            "amount": 83.77,
             "currency": "NZD"
           },
           {
@@ -3424,7 +3424,7 @@
             "orgKey": "morntag",
             "name": "morntag",
             "ocSlug": "morntag",
-            "amount": 9.25,
+            "amount": 9.21,
             "currency": "EUR"
           },
           {
@@ -3440,7 +3440,7 @@
             "orgKey": "werr",
             "name": "WERR",
             "ocSlug": "werr",
-            "amount": 13.24,
+            "amount": 13.21,
             "currency": "GBP"
           },
           {
@@ -3448,7 +3448,7 @@
             "orgKey": "nature-works",
             "name": "Nature Works",
             "ocSlug": "nature-works",
-            "amount": 2.83,
+            "amount": 2.82,
             "currency": "EUR"
           },
           {
@@ -3456,7 +3456,7 @@
             "orgKey": "sydfyns-forening-for-kreativ-bevaegelse",
             "name": "Sydfyns Forening for Kreativ Bevægelse",
             "ocSlug": "sydfyns-forening-for-kreativ-bevaegelse",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -3464,7 +3464,7 @@
             "orgKey": "u-maxx",
             "name": "maxuroda.pro",
             "ocSlug": "maxuroda-pro",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -3480,7 +3480,7 @@
             "orgKey": "framer",
             "name": "Framer",
             "ocSlug": "framer",
-            "amount": 70.12,
+            "amount": 70.0,
             "currency": "CAD"
           },
           {
@@ -3488,7 +3488,7 @@
             "orgKey": "cyrilwaechter",
             "name": "Cyril Waechter BIM Insight",
             "ocSlug": "cyril-waechter-bim-insight",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -3496,7 +3496,7 @@
             "orgKey": "rainlab-inc",
             "name": "Rainlab Inc.",
             "ocSlug": "rainlab-inc",
-            "amount": 3.92,
+            "amount": 3.91,
             "currency": "EUR"
           },
           {
@@ -3504,7 +3504,7 @@
             "orgKey": "stichting-ponder-source",
             "name": "Stichting Ponder Source",
             "ocSlug": "stichting-ponder-source",
-            "amount": 47.63,
+            "amount": 47.42,
             "currency": "EUR"
           },
           {
@@ -3520,7 +3520,7 @@
             "orgKey": "lqqk",
             "name": "LQQK",
             "ocSlug": "lqqk",
-            "amount": 16.81,
+            "amount": 16.74,
             "currency": "EUR"
           },
           {
@@ -3536,7 +3536,7 @@
             "orgKey": "arcanitesolutions",
             "name": "Arcanite",
             "ocSlug": "arcanite",
-            "amount": 22.41,
+            "amount": 22.32,
             "currency": "EUR"
           },
           {
@@ -3544,7 +3544,7 @@
             "orgKey": "you4-shi2",
             "name": "祐実",
             "ocSlug": "you4-shi2",
-            "amount": 4.74,
+            "amount": 4.73,
             "currency": "JPY"
           },
           {
@@ -3552,7 +3552,7 @@
             "orgKey": "serverproject-dev",
             "name": "Meisdata",
             "ocSlug": "meisdataio",
-            "amount": 1.91,
+            "amount": 1.9,
             "currency": "EUR"
           },
           {
@@ -3560,7 +3560,7 @@
             "orgKey": "stacktrace",
             "name": "StackTrace",
             "ocSlug": "stacktrace",
-            "amount": 100.86,
+            "amount": 100.42,
             "currency": "EUR"
           },
           {
@@ -3568,7 +3568,7 @@
             "orgKey": "mausbrand",
             "name": "Mausbrand",
             "ocSlug": "mausbrand",
-            "amount": 5.04,
+            "amount": 5.02,
             "currency": "EUR"
           },
           {
@@ -3576,7 +3576,7 @@
             "orgKey": "w3c",
             "name": "W3C",
             "ocSlug": "w3c1",
-            "amount": 26.89,
+            "amount": 26.78,
             "currency": "EUR"
           },
           {
@@ -3584,7 +3584,7 @@
             "orgKey": "remix-the-commons1",
             "name": "Association Remix",
             "ocSlug": "remix-the-commons1",
-            "amount": 441.42,
+            "amount": 439.54,
             "currency": "GBP"
           },
           {
@@ -3592,7 +3592,7 @@
             "orgKey": "participation-bureau",
             "name": "Partizipationsbüro",
             "ocSlug": "participation-bureau",
-            "amount": 96.93,
+            "amount": 96.51,
             "currency": "EUR"
           },
           {
@@ -3600,7 +3600,7 @@
             "orgKey": "flash-games-for-mobile",
             "name": "Flash Games for Mobile",
             "ocSlug": "flash-games-for-mobile",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -3608,7 +3608,7 @@
             "orgKey": "crazy-marvin",
             "name": "Crazy-Marvin",
             "ocSlug": "crazy-marvin",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           }
         ],
@@ -3676,7 +3676,7 @@
       "name": "github_sponsors",
       "status": "ok",
       "error": null,
-      "fetched_at": "2026-10-12T05:53:18Z",
+      "fetched_at": "2026-10-12T19:28:17Z",
       "count": 287,
       "meta": {
         "attempted": 287,
@@ -3980,7 +3980,7 @@
       "name": "open_collective",
       "status": "ok",
       "error": null,
-      "fetched_at": "2026-10-12T05:55:12Z",
+      "fetched_at": "2026-10-12T19:30:55Z",
       "count": 3381,
       "meta": {
         "attempted": 104,
@@ -4075,7 +4075,7 @@
             "orgKey": "social-change-nest",
             "name": "The Social Change Nest",
             "ocSlug": "the-social-change-nest",
-            "amount": 69813.21,
+            "amount": 69632.06,
             "currency": "GBP"
           },
           {
@@ -4083,7 +4083,7 @@
             "orgKey": "permaculture-association",
             "name": "Permaculture Association",
             "ocSlug": "permaculture-association",
-            "amount": 1689.67,
+            "amount": 1685.77,
             "currency": "GBP"
           },
           {
@@ -4091,7 +4091,7 @@
             "orgKey": "permaculture-association",
             "name": "Permaculture Association",
             "ocSlug": "permaculture-association",
-            "amount": 1689.67,
+            "amount": 1685.77,
             "currency": "GBP"
           },
           {
@@ -4099,7 +4099,7 @@
             "orgKey": "agaric",
             "name": "Agaric Technology Collective",
             "ocSlug": "agaric",
-            "amount": 172.11,
+            "amount": 171.85,
             "currency": "GBP"
           },
           {
@@ -4107,7 +4107,7 @@
             "orgKey": "mcqn",
             "name": "MCQN Ltd",
             "ocSlug": "mcqn_ltd",
-            "amount": 66.49,
+            "amount": 66.35,
             "currency": "GBP"
           },
           {
@@ -4115,7 +4115,7 @@
             "orgKey": "ocnz",
             "name": "Open Collective NZ",
             "ocSlug": "ocnz",
-            "amount": 2052.12,
+            "amount": 2045.75,
             "currency": "NZD"
           },
           {
@@ -4123,7 +4123,7 @@
             "orgKey": "whitehorsebaker",
             "name": "White Horse Bakehouse",
             "ocSlug": "whitehorsebaker",
-            "amount": 98.64,
+            "amount": 98.44,
             "currency": "GBP"
           },
           {
@@ -4131,7 +4131,7 @@
             "orgKey": "ournetworks",
             "name": "Our Networks",
             "ocSlug": "ournetworks",
-            "amount": 10.3,
+            "amount": 10.28,
             "currency": "GBP"
           },
           {
@@ -4139,7 +4139,7 @@
             "orgKey": "blithe_yogi",
             "name": "Blithe Yoga",
             "ocSlug": "blithe_yogi",
-            "amount": 91.95,
+            "amount": 91.74,
             "currency": "GBP"
           },
           {
@@ -4147,7 +4147,7 @@
             "orgKey": "monadnock-systems-ltd",
             "name": "Monadnock Systems Ltd.",
             "ocSlug": "monadnock-systems-ltd",
-            "amount": 26.57,
+            "amount": 26.52,
             "currency": "GBP"
           },
           {
@@ -4155,7 +4155,7 @@
             "orgKey": "managyle",
             "name": "MANAGYLE",
             "ocSlug": "managyle",
-            "amount": 35.04,
+            "amount": 34.97,
             "currency": "EUR"
           },
           {
@@ -4163,7 +4163,7 @@
             "orgKey": "uniteddiversity",
             "name": "United Diversity",
             "ocSlug": "uniteddiversity",
-            "amount": 5.32,
+            "amount": 5.31,
             "currency": "GBP"
           },
           {
@@ -4171,7 +4171,7 @@
             "orgKey": "omoearth1",
             "name": "Omo Earth",
             "ocSlug": "omoearth1",
-            "amount": 14.24,
+            "amount": 14.22,
             "currency": "CAD"
           },
           {
@@ -4187,7 +4187,7 @@
             "orgKey": "cosa",
             "name": "COSA",
             "ocSlug": "cosa",
-            "amount": 43.88,
+            "amount": 43.82,
             "currency": "GBP"
           },
           {
@@ -4195,7 +4195,7 @@
             "orgKey": "visual-collaboration-tools-leanpub",
             "name": "Visual Collaboration Tools @ LeanPub",
             "ocSlug": "visual-collaboration-tools-leanpub",
-            "amount": 7.49,
+            "amount": 7.48,
             "currency": "EUR"
           },
           {
@@ -4203,7 +4203,7 @@
             "orgKey": "xr-nl",
             "name": "XR NL",
             "ocSlug": "xr-nl",
-            "amount": 35.39,
+            "amount": 35.34,
             "currency": "EUR"
           },
           {
@@ -4211,7 +4211,7 @@
             "orgKey": "sociocracyforall",
             "name": "Sociocracy for All",
             "ocSlug": "sociocracy4all1",
-            "amount": 37.92,
+            "amount": 37.84,
             "currency": "GBP"
           },
           {
@@ -4219,7 +4219,7 @@
             "orgKey": "strucutured-thought-llc",
             "name": "Strucutured Thought, LLC",
             "ocSlug": "strucutured-thought-llc",
-            "amount": 77.23,
+            "amount": 77.04,
             "currency": "GBP"
           },
           {
@@ -4227,7 +4227,7 @@
             "orgKey": "lagenation",
             "name": "Lage der Nation",
             "ocSlug": "lagenation",
-            "amount": 702.73,
+            "amount": 699.92,
             "currency": "EUR"
           },
           {
@@ -4235,7 +4235,7 @@
             "orgKey": "regeneros-ltd",
             "name": "Regeneros Ltd",
             "ocSlug": "regeneros-ltd",
-            "amount": 55.65,
+            "amount": 55.52,
             "currency": "GBP"
           },
           {
@@ -4243,7 +4243,7 @@
             "orgKey": "bathcoopall",
             "name": "Bath Cooperative Alliance",
             "ocSlug": "bathcoopall",
-            "amount": 11.0,
+            "amount": 10.99,
             "currency": "GBP"
           },
           {
@@ -4251,7 +4251,7 @@
             "orgKey": "bump-sh",
             "name": "Bump.sh",
             "ocSlug": "bumpsh",
-            "amount": 46.77,
+            "amount": 46.65,
             "currency": "GBP"
           },
           {
@@ -4259,7 +4259,7 @@
             "orgKey": "office-tomoki-inc",
             "name": "Office TOMOKI Inc",
             "ocSlug": "office-tomoki-inc",
-            "amount": 7.94,
+            "amount": 7.9,
             "currency": "EUR"
           },
           {
@@ -4267,7 +4267,7 @@
             "orgKey": "frisinka-oue",
             "name": "frisinka OÜ",
             "ocSlug": "frisinka-oue",
-            "amount": 29.39,
+            "amount": 29.28,
             "currency": "EUR"
           },
           {
@@ -4275,7 +4275,7 @@
             "orgKey": "entriwise",
             "name": "Entriwise",
             "ocSlug": "entriwise1",
-            "amount": 5.87,
+            "amount": 5.85,
             "currency": "EUR"
           },
           {
@@ -4283,7 +4283,7 @@
             "orgKey": "maykinmedia",
             "name": "Maykin Media",
             "ocSlug": "maykinmedia",
-            "amount": 41.12,
+            "amount": 40.99,
             "currency": "EUR"
           },
           {
@@ -4291,7 +4291,7 @@
             "orgKey": "openfoodnetwork",
             "name": "Open Food Network USA",
             "ocSlug": "ofnusa",
-            "amount": 3.24,
+            "amount": 3.23,
             "currency": "GBP"
           },
           {
@@ -4299,7 +4299,7 @@
             "orgKey": "lmagnaudet-pro",
             "name": "LMAGNAUDET PRO",
             "ocSlug": "lmagnaudet-pro",
-            "amount": 6.02,
+            "amount": 6.0,
             "currency": "EUR"
           },
           {
@@ -4307,7 +4307,7 @@
             "orgKey": "tdt-elche-sistemas-de-telecomunicaciones-s-l-u",
             "name": "TDT Elche Sistemas de telecomunicaciones S.L.U.",
             "ocSlug": "tdt-elche-sistemas-de-telecomunicaciones-s-l-u",
-            "amount": 5.32,
+            "amount": 5.31,
             "currency": "EUR"
           },
           {
@@ -4315,7 +4315,7 @@
             "orgKey": "ccednet_rcdec",
             "name": "Canadian CED Network",
             "ocSlug": "ccednet_rcdec",
-            "amount": 12.73,
+            "amount": 12.7,
             "currency": "GBP"
           },
           {
@@ -4331,7 +4331,7 @@
             "orgKey": "ncc-group",
             "name": "NCC Group",
             "ocSlug": "ncc-group",
-            "amount": 141.65,
+            "amount": 141.06,
             "currency": "EUR"
           },
           {
@@ -4339,7 +4339,7 @@
             "orgKey": "som-connexio-sccl",
             "name": "Som Connexió SCCL",
             "ocSlug": "som-connexio-sccl",
-            "amount": 98.52,
+            "amount": 98.39,
             "currency": "GBP"
           },
           {
@@ -4347,7 +4347,7 @@
             "orgKey": "quantronica",
             "name": "QUANTRONICA",
             "ocSlug": "quantronica",
-            "amount": 28.07,
+            "amount": 28.01,
             "currency": "EUR"
           },
           {
@@ -4355,7 +4355,7 @@
             "orgKey": "platonicsystems",
             "name": "Platonic.Systems",
             "ocSlug": "platonicsystems",
-            "amount": 225.64,
+            "amount": 225.31,
             "currency": "EUR"
           },
           {
@@ -4363,7 +4363,7 @@
             "orgKey": "netribution-ltd",
             "name": "Netribution Ltd",
             "ocSlug": "netribution-ltd",
-            "amount": 3.58,
+            "amount": 3.57,
             "currency": "GBP"
           },
           {
@@ -4371,7 +4371,7 @@
             "orgKey": "forest-centre-culturel-asbl",
             "name": "Forest, Centre Culturel asbl",
             "ocSlug": "forest-centre-culturel-asbl",
-            "amount": 9.07,
+            "amount": 9.03,
             "currency": "EUR"
           },
           {
@@ -4379,7 +4379,7 @@
             "orgKey": "medlabboulder",
             "name": "Media Enterprise Design Lab @ CU Boulder",
             "ocSlug": "medlabboulder",
-            "amount": 21.45,
+            "amount": 21.39,
             "currency": "GBP"
           },
           {
@@ -4387,7 +4387,7 @@
             "orgKey": "hkdave95",
             "name": "JADER Ltd",
             "ocSlug": "dar_jader",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -4395,7 +4395,7 @@
             "orgKey": "the-vegan-habit",
             "name": "The Vegan Habit",
             "ocSlug": "the-vegan-habit",
-            "amount": 3.97,
+            "amount": 3.96,
             "currency": "GBP"
           },
           {
@@ -4403,7 +4403,7 @@
             "orgKey": "clg_pmc79",
             "name": "Collège Pierre et Marie Curie NIORT",
             "ocSlug": "clg_pmc79",
-            "amount": 10.09,
+            "amount": 10.04,
             "currency": "EUR"
           },
           {
@@ -4411,7 +4411,7 @@
             "orgKey": "acpd-services-ltd",
             "name": "ACPD Services Ltd",
             "ocSlug": "acpd-services-ltd",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -4419,7 +4419,7 @@
             "orgKey": "permakulturahr",
             "name": "Croatian Permaculture",
             "ocSlug": "permakulturahr",
-            "amount": 34.43,
+            "amount": 34.31,
             "currency": "GBP"
           },
           {
@@ -4435,7 +4435,7 @@
             "orgKey": "n",
             "name": "Sahara Project (Preston) Ltd",
             "ocSlug": "saharainpreston",
-            "amount": 5.96,
+            "amount": 5.94,
             "currency": "GBP"
           },
           {
@@ -4443,7 +4443,7 @@
             "orgKey": "sga-communicaitons",
             "name": "SGA Communicaitons",
             "ocSlug": "sga-communicaitons",
-            "amount": 0.34,
+            "amount": 0.33,
             "currency": "EUR"
           },
           {
@@ -4451,7 +4451,7 @@
             "orgKey": "cognitect-inc",
             "name": "Cognitect, Inc.",
             "ocSlug": "cognitect-inc",
-            "amount": 198.63,
+            "amount": 198.09,
             "currency": "GBP"
           },
           {
@@ -4459,7 +4459,7 @@
             "orgKey": "comraderycoop",
             "name": "Comradery Worker Coop",
             "ocSlug": "comraderycoop",
-            "amount": 7.35,
+            "amount": 7.33,
             "currency": "GBP"
           },
           {
@@ -4467,7 +4467,7 @@
             "orgKey": "cup28",
             "name": "CUP28",
             "ocSlug": "cup28",
-            "amount": 0.34,
+            "amount": 0.33,
             "currency": "EUR"
           },
           {
@@ -4475,7 +4475,7 @@
             "orgKey": "aprendamos-family-of-services",
             "name": "Aprendamos Family of Services",
             "ocSlug": "aprendamos-family-of-services",
-            "amount": 3.97,
+            "amount": 3.96,
             "currency": "GBP"
           },
           {
@@ -4483,7 +4483,7 @@
             "orgKey": "bfcleancoop",
             "name": "Belfast Cleaning Cooperative",
             "ocSlug": "bfcleancoop",
-            "amount": 16.81,
+            "amount": 16.74,
             "currency": "EUR"
           },
           {
@@ -4491,7 +4491,7 @@
             "orgKey": "vanrenew",
             "name": "Alder Coast Group",
             "ocSlug": "vanrenew",
-            "amount": 66.14,
+            "amount": 65.96,
             "currency": "GBP"
           },
           {
@@ -4499,7 +4499,7 @@
             "orgKey": "trustinmove",
             "name": "Ouvre-Boites 44 - Trust in Move",
             "ocSlug": "trustinmove",
-            "amount": 8.4,
+            "amount": 8.37,
             "currency": "EUR"
           },
           {
@@ -4507,7 +4507,7 @@
             "orgKey": "reetnetwork",
             "name": "Reset",
             "ocSlug": "reset",
-            "amount": 13.67,
+            "amount": 13.65,
             "currency": "CAD"
           },
           {
@@ -4515,7 +4515,7 @@
             "orgKey": "dojnaz_hb",
             "name": "Dojnaz",
             "ocSlug": "dojnaz_hb",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -4523,7 +4523,7 @@
             "orgKey": "aallondon",
             "name": "AAL London Hub Technologies",
             "ocSlug": "aryaaltd",
-            "amount": 278.08,
+            "amount": 277.33,
             "currency": "GBP"
           },
           {
@@ -4531,7 +4531,7 @@
             "orgKey": "coompanion",
             "name": "Coompanion",
             "ocSlug": "coompanion",
-            "amount": 71.51,
+            "amount": 71.31,
             "currency": "GBP"
           },
           {
@@ -4547,7 +4547,7 @@
             "orgKey": "extinction-rebellion-act",
             "name": "Extinction Rebellion ACT",
             "ocSlug": "extinction-rebellion-act",
-            "amount": 16.81,
+            "amount": 16.74,
             "currency": "EUR"
           },
           {
@@ -4555,7 +4555,7 @@
             "orgKey": "commonground",
             "name": "Common Ground",
             "ocSlug": "commonground",
-            "amount": 9.48,
+            "amount": 9.46,
             "currency": "EUR"
           },
           {
@@ -4563,7 +4563,7 @@
             "orgKey": "geschichtefm-gmbh",
             "name": "GeschichteFM GmbH",
             "ocSlug": "geschichtefm-gmbh",
-            "amount": 112.06,
+            "amount": 111.58,
             "currency": "EUR"
           },
           {
@@ -4571,7 +4571,7 @@
             "orgKey": "advicecloud",
             "name": "Advice Cloud",
             "ocSlug": "advicecloud",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -4579,7 +4579,7 @@
             "orgKey": "where-to-print-documents",
             "name": "Document Printing",
             "ocSlug": "where-to-print-documents",
-            "amount": 1.99,
+            "amount": 1.98,
             "currency": "GBP"
           },
           {
@@ -4587,7 +4587,7 @@
             "orgKey": "hexcasinoca",
             "name": "CasinoHex Canada",
             "ocSlug": "hexcasinoca",
-            "amount": 65.0,
+            "amount": 64.71,
             "currency": "EUR"
           },
           {
@@ -4595,7 +4595,7 @@
             "orgKey": "stand-up-in-le-parc",
             "name": "Stand up in le parc",
             "ocSlug": "stand-up-in-le-parc",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -4603,7 +4603,7 @@
             "orgKey": "fision-codes",
             "name": "Fission",
             "ocSlug": "fission",
-            "amount": 371.35,
+            "amount": 370.05,
             "currency": "CAD"
           },
           {
@@ -4619,7 +4619,7 @@
             "orgKey": "open-flysky",
             "name": "FLYSKY",
             "ocSlug": "flysky-technology-co-ltd",
-            "amount": 2941.61,
+            "amount": 2928.87,
             "currency": "EUR"
           },
           {
@@ -4627,7 +4627,7 @@
             "orgKey": "featherhq",
             "name": "Feathers Cloud",
             "ocSlug": "feathers-cloud",
-            "amount": 21.04,
+            "amount": 21.0,
             "currency": "CAD"
           },
           {
@@ -4635,7 +4635,7 @@
             "orgKey": "outschool",
             "name": "Outschool",
             "ocSlug": "outschool",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -4643,7 +4643,7 @@
             "orgKey": "the-northern-circuit",
             "name": "The Northern Circuit",
             "ocSlug": "the-northern-circuit",
-            "amount": 19.86,
+            "amount": 19.81,
             "currency": "GBP"
           },
           {
@@ -4651,7 +4651,7 @@
             "orgKey": "reichsolutions",
             "name": "Reich.solutions",
             "ocSlug": "reichsolutions",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -4659,7 +4659,7 @@
             "orgKey": "urgewald-e-v",
             "name": "urgewald e.V.",
             "ocSlug": "urgewald-e-v",
-            "amount": 0.34,
+            "amount": 0.33,
             "currency": "EUR"
           },
           {
@@ -4667,7 +4667,7 @@
             "orgKey": "te-muka-rau",
             "name": "Te Muka Rau",
             "ocSlug": "te-muka-rau",
-            "amount": 530.56,
+            "amount": 528.96,
             "currency": "NZD"
           },
           {
@@ -4675,7 +4675,7 @@
             "orgKey": "perpetual-education",
             "name": "Perpetual Education",
             "ocSlug": "perpetual-education",
-            "amount": 0.6,
+            "amount": 0.59,
             "currency": "GBP"
           },
           {
@@ -4691,7 +4691,7 @@
             "orgKey": "open-food-network-usa",
             "name": "OFNUSA Organization",
             "ocSlug": "open-food-network-usa",
-            "amount": 13.51,
+            "amount": 13.47,
             "currency": "GBP"
           },
           {
@@ -4699,7 +4699,7 @@
             "orgKey": "asbl-emozon",
             "name": "ASBL emozon",
             "ocSlug": "asbl-emozon",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -4707,7 +4707,7 @@
             "orgKey": "deta",
             "name": "Abstract Computing UG",
             "ocSlug": "deta",
-            "amount": 25.23,
+            "amount": 25.16,
             "currency": "EUR"
           },
           {
@@ -4723,7 +4723,7 @@
             "orgKey": "jaya-krishna",
             "name": "Jaya Krishna",
             "ocSlug": "jaya-krishna",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -4731,7 +4731,7 @@
             "orgKey": "motionwreck-games-community",
             "name": "MotionWreck Games Community",
             "ocSlug": "motionwreck-games-community",
-            "amount": 168.09,
+            "amount": 167.36,
             "currency": "EUR"
           },
           {
@@ -4739,7 +4739,7 @@
             "orgKey": "solidfund-uk",
             "name": "SolidFund UK",
             "ocSlug": "solidfund-uk",
-            "amount": 112.06,
+            "amount": 111.58,
             "currency": "EUR"
           },
           {
@@ -4747,7 +4747,7 @@
             "orgKey": "soiree-info-awirs",
             "name": "Soirée info Awirs",
             "ocSlug": "soiree-info-awirs",
-            "amount": 8.4,
+            "amount": 8.37,
             "currency": "EUR"
           },
           {
@@ -4755,7 +4755,7 @@
             "orgKey": "rui134649",
             "name": "Rui",
             "ocSlug": "rui134649",
-            "amount": 4.2,
+            "amount": 4.18,
             "currency": "EUR"
           },
           {
@@ -4763,7 +4763,7 @@
             "orgKey": "pro-de-burgerlobby",
             "name": "PRO de burgerlobby",
             "ocSlug": "pro-de-burgerlobby",
-            "amount": 21.85,
+            "amount": 21.76,
             "currency": "EUR"
           },
           {
@@ -4771,7 +4771,7 @@
             "orgKey": "flexiana",
             "name": "Flexiana",
             "ocSlug": "flexiana",
-            "amount": 166.85,
+            "amount": 166.4,
             "currency": "GBP"
           },
           {
@@ -4779,7 +4779,7 @@
             "orgKey": "arcadiamediagroup",
             "name": "The Arcadia Group",
             "ocSlug": "thearcadiagroup",
-            "amount": 168.09,
+            "amount": 167.36,
             "currency": "EUR"
           },
           {
@@ -4787,7 +4787,7 @@
             "orgKey": "cosmos",
             "name": "Cosmos Co-op",
             "ocSlug": "cosmos",
-            "amount": 16.09,
+            "amount": 16.05,
             "currency": "GBP"
           },
           {
@@ -4795,7 +4795,7 @@
             "orgKey": "prisma",
             "name": "Prisma",
             "ocSlug": "prisma3",
-            "amount": 28.02,
+            "amount": 27.89,
             "currency": "EUR"
           },
           {
@@ -4803,7 +4803,7 @@
             "orgKey": "atwareag",
             "name": "satware AG",
             "ocSlug": "satware-ag",
-            "amount": 12.33,
+            "amount": 12.27,
             "currency": "EUR"
           },
           {
@@ -4811,7 +4811,7 @@
             "orgKey": "soapbox-pub",
             "name": "soapbox.pub",
             "ocSlug": "soapbox-pub",
-            "amount": 17.05,
+            "amount": 17.01,
             "currency": "JPY"
           },
           {
@@ -4819,7 +4819,7 @@
             "orgKey": "epicsound",
             "name": "Epic Sound",
             "ocSlug": "epicsound",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -4827,7 +4827,7 @@
             "orgKey": "webgewandt",
             "name": "Webgewandt",
             "ocSlug": "webgewandt",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -4835,7 +4835,7 @@
             "orgKey": "numtide",
             "name": "Numtide",
             "ocSlug": "numtide",
-            "amount": 316.57,
+            "amount": 315.26,
             "currency": "EUR"
           },
           {
@@ -4843,7 +4843,7 @@
             "orgKey": "toutemonannee",
             "name": "Des images et des mots",
             "ocSlug": "toutemonannee",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -4851,7 +4851,7 @@
             "orgKey": "kuutamoap",
             "name": "kuutamo",
             "ocSlug": "kuutamo",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -4859,7 +4859,7 @@
             "orgKey": "sweetgood",
             "name": "SWEETGOOD",
             "ocSlug": "sweetgood",
-            "amount": 47.07,
+            "amount": 46.86,
             "currency": "EUR"
           },
           {
@@ -4867,7 +4867,7 @@
             "orgKey": "octoenergy",
             "name": "Octopus Energy - Kraken Tech",
             "ocSlug": "octopus-energy-kraken-tech",
-            "amount": 556.16,
+            "amount": 554.66,
             "currency": "GBP"
           },
           {
@@ -4883,7 +4883,7 @@
             "orgKey": "nyantec",
             "name": "nyantec",
             "ocSlug": "nyantec",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -4891,7 +4891,7 @@
             "orgKey": "activout-ab",
             "name": "Activout AB",
             "ocSlug": "activout-ab",
-            "amount": 10.0,
+            "amount": 9.95,
             "currency": "SEK"
           },
           {
@@ -4899,7 +4899,7 @@
             "orgKey": "sourcegraph",
             "name": "Sourcegraph",
             "ocSlug": "sourcegraph",
-            "amount": 350.07,
+            "amount": 348.76,
             "currency": "EUR"
           },
           {
@@ -4907,7 +4907,7 @@
             "orgKey": "oblyk",
             "name": "Oblyk",
             "ocSlug": "oblyk",
-            "amount": 6.96,
+            "amount": 6.93,
             "currency": "EUR"
           },
           {
@@ -4923,7 +4923,7 @@
             "orgKey": "frontendmasters",
             "name": "Frontend Masters",
             "ocSlug": "frontendmasters",
-            "amount": 52.97,
+            "amount": 52.82,
             "currency": "GBP"
           },
           {
@@ -4931,7 +4931,7 @@
             "orgKey": "vvvv",
             "name": "vvvv",
             "ocSlug": "vvvv",
-            "amount": 4.37,
+            "amount": 4.35,
             "currency": "EUR"
           },
           {
@@ -4939,7 +4939,7 @@
             "orgKey": "belugames",
             "name": "Belugames",
             "ocSlug": "belugames",
-            "amount": 22.41,
+            "amount": 22.32,
             "currency": "EUR"
           },
           {
@@ -4947,7 +4947,7 @@
             "orgKey": "domedia",
             "name": "DOMEDIA",
             "ocSlug": "domedia",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -4955,7 +4955,7 @@
             "orgKey": "sarl-luiggi-sansonetti",
             "name": "SARL LUIGGI SANSONETTI",
             "ocSlug": "sarl-luiggi-sansonetti",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -4963,7 +4963,7 @@
             "orgKey": "new-zealand-sheriffs",
             "name": "New Zealand Sheriffs",
             "ocSlug": "new-zealand-sheriffs",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -4971,7 +4971,7 @@
             "orgKey": "debacteur",
             "name": "Quentin",
             "ocSlug": "debacteur",
-            "amount": 30.26,
+            "amount": 30.13,
             "currency": "EUR"
           },
           {
@@ -4979,7 +4979,7 @@
             "orgKey": "dork-farm-gmbh",
             "name": "Dork Farm GmbH",
             "ocSlug": "dork-farm-gmbh",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -4987,7 +4987,7 @@
             "orgKey": "future-strategy-club",
             "name": "Future Strategy Club",
             "ocSlug": "future-strategy-club",
-            "amount": 59.59,
+            "amount": 59.43,
             "currency": "GBP"
           },
           {
@@ -4995,7 +4995,7 @@
             "orgKey": "verseapp",
             "name": "Planetary",
             "ocSlug": "planetary",
-            "amount": 25.08,
+            "amount": 25.05,
             "currency": "NZD"
           },
           {
@@ -5003,7 +5003,7 @@
             "orgKey": "opolis",
             "name": "Opolis",
             "ocSlug": "opolis",
-            "amount": 98.17,
+            "amount": 98.0,
             "currency": "CAD"
           },
           {
@@ -5027,7 +5027,7 @@
             "orgKey": "data-compliance-europe",
             "name": "Data Compliance Europe",
             "ocSlug": "data-compliance-europe",
-            "amount": 21.85,
+            "amount": 21.76,
             "currency": "EUR"
           },
           {
@@ -5035,7 +5035,7 @@
             "orgKey": "888-co-operative-causeway",
             "name": "888 Co-operative Causeway",
             "ocSlug": "888-co-operative-causeway",
-            "amount": 3.18,
+            "amount": 3.17,
             "currency": "GBP"
           },
           {
@@ -5043,7 +5043,7 @@
             "orgKey": "castlebridge",
             "name": "Castlebridge",
             "ocSlug": "castlebridge",
-            "amount": 26.89,
+            "amount": 26.78,
             "currency": "EUR"
           },
           {
@@ -5051,7 +5051,7 @@
             "orgKey": "vintage-ireland",
             "name": "Vintage Ireland",
             "ocSlug": "vintage-ireland",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -5059,7 +5059,7 @@
             "orgKey": "dweb",
             "name": "DWeb",
             "ocSlug": "dweb",
-            "amount": 14.3,
+            "amount": 14.26,
             "currency": "GBP"
           },
           {
@@ -5067,7 +5067,7 @@
             "orgKey": "tiqre",
             "name": "Tiqre",
             "ocSlug": "tiqre",
-            "amount": 4.03,
+            "amount": 4.02,
             "currency": "EUR"
           },
           {
@@ -5075,7 +5075,7 @@
             "orgKey": "steelesrock-strategy-consulting",
             "name": "Steelesrock Strategy Consulting",
             "ocSlug": "steelesrock-strategy-consulting",
-            "amount": 28.02,
+            "amount": 27.89,
             "currency": "EUR"
           },
           {
@@ -5083,7 +5083,7 @@
             "orgKey": "electromagnetic-field",
             "name": "Electromagnetic Field",
             "ocSlug": "electromagnetic-field",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -5091,7 +5091,7 @@
             "orgKey": "data-commons-cooperative",
             "name": "Data Commons Cooperative",
             "ocSlug": "data-commons-cooperative",
-            "amount": 3.97,
+            "amount": 3.96,
             "currency": "GBP"
           },
           {
@@ -5099,7 +5099,7 @@
             "orgKey": "forge-vtt",
             "name": "The Forge",
             "ocSlug": "forge-vtt",
-            "amount": 24.65,
+            "amount": 24.55,
             "currency": "EUR"
           },
           {
@@ -5107,7 +5107,7 @@
             "orgKey": "alberta-data-partnerships",
             "name": "Alberta Data Partnerships",
             "ocSlug": "alberta-data-partnerships",
-            "amount": 157.78,
+            "amount": 157.51,
             "currency": "CAD"
           },
           {
@@ -5115,7 +5115,7 @@
             "orgKey": "chatmosphere",
             "name": "chatmosphere",
             "ocSlug": "chatmospherecc",
-            "amount": 44.82,
+            "amount": 44.63,
             "currency": "EUR"
           },
           {
@@ -5123,7 +5123,7 @@
             "orgKey": "ptp",
             "name": "Progressive Technology Project",
             "ocSlug": "ptp",
-            "amount": 52.44,
+            "amount": 52.3,
             "currency": "GBP"
           },
           {
@@ -5131,7 +5131,7 @@
             "orgKey": "the-drymifolia-collective",
             "name": "the drymifolia collective",
             "ocSlug": "the-drymifolia-collective",
-            "amount": 12.1,
+            "amount": 12.05,
             "currency": "EUR"
           },
           {
@@ -5139,7 +5139,7 @@
             "orgKey": "may-first-movement-tech",
             "name": "May First Movement Technology",
             "ocSlug": "may-first-movement-tech",
-            "amount": 14.3,
+            "amount": 14.26,
             "currency": "GBP"
           },
           {
@@ -5147,7 +5147,7 @@
             "orgKey": "fintegral",
             "name": "Fresh Integral Communications",
             "ocSlug": "fintegral",
-            "amount": 5.04,
+            "amount": 5.02,
             "currency": "EUR"
           },
           {
@@ -5155,7 +5155,7 @@
             "orgKey": "maisonprevert1",
             "name": "Maison Jacques Prévert",
             "ocSlug": "maisonprevert1",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -5163,7 +5163,7 @@
             "orgKey": "mullvad-vpn-ab",
             "name": "Mullvad VPN AB",
             "ocSlug": "mullvad-vpn-ab",
-            "amount": 112.06,
+            "amount": 111.58,
             "currency": "EUR"
           },
           {
@@ -5171,7 +5171,7 @@
             "orgKey": "sei",
             "name": "セイ",
             "ocSlug": "sei",
-            "amount": 4.26,
+            "amount": 4.25,
             "currency": "JPY"
           },
           {
@@ -5179,7 +5179,7 @@
             "orgKey": "threathunterai",
             "name": "ThreatHunter.ai",
             "ocSlug": "threathunterai",
-            "amount": 1294.31,
+            "amount": 1288.7,
             "currency": "EUR"
           },
           {
@@ -5195,7 +5195,7 @@
             "orgKey": "connectedbydata",
             "name": "Connected by Data",
             "ocSlug": "connectedbydata",
-            "amount": 14.3,
+            "amount": 14.26,
             "currency": "GBP"
           },
           {
@@ -5203,7 +5203,7 @@
             "orgKey": "dgapps",
             "name": "dgApps",
             "ocSlug": "dgapps",
-            "amount": 15.97,
+            "amount": 15.9,
             "currency": "EUR"
           },
           {
@@ -5211,7 +5211,7 @@
             "orgKey": "trustmypaper",
             "name": "Trust My Paper",
             "ocSlug": "trustmypaper",
-            "amount": 19.5,
+            "amount": 19.41,
             "currency": "EUR"
           },
           {
@@ -5219,7 +5219,7 @@
             "orgKey": "huggingface",
             "name": "Hugging Face",
             "ocSlug": "huggingface",
-            "amount": 7.01,
+            "amount": 7.0,
             "currency": "CAD"
           },
           {
@@ -5235,7 +5235,7 @@
             "orgKey": "nordix-foundation",
             "name": "Nordix Foundation",
             "ocSlug": "nordix-foundation",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           },
           {
@@ -5251,7 +5251,7 @@
             "orgKey": "stileeducation",
             "name": "Stile Education",
             "ocSlug": "stileeducation",
-            "amount": 30.26,
+            "amount": 30.13,
             "currency": "EUR"
           },
           {
@@ -5259,7 +5259,7 @@
             "orgKey": "planfredapp",
             "name": "PLANFRED",
             "ocSlug": "planfredapp",
-            "amount": 17.65,
+            "amount": 17.57,
             "currency": "EUR"
           },
           {
@@ -5267,7 +5267,7 @@
             "orgKey": "gl-drome",
             "name": "GL Drôme",
             "ocSlug": "gl-drome",
-            "amount": 6.67,
+            "amount": 6.64,
             "currency": "EUR"
           },
           {
@@ -5275,7 +5275,7 @@
             "orgKey": "altagamma-srl",
             "name": "altagamma srl",
             "ocSlug": "altagamma-srl",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -5283,7 +5283,7 @@
             "orgKey": "gamblecritic",
             "name": "Gamble Critic",
             "ocSlug": "gamblecritic",
-            "amount": 6.84,
+            "amount": 6.82,
             "currency": "AUD"
           },
           {
@@ -5291,7 +5291,7 @@
             "orgKey": "personalkollen",
             "name": "Personalkollen",
             "ocSlug": "personalkollen",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -5299,7 +5299,7 @@
             "orgKey": "paul-russell",
             "name": "Paul Russell",
             "ocSlug": "paul-russell",
-            "amount": 8.4,
+            "amount": 8.38,
             "currency": "NZD"
           },
           {
@@ -5307,7 +5307,7 @@
             "orgKey": "coopartisans",
             "name": "Artisans Cooperative",
             "ocSlug": "coopartisans",
-            "amount": 2.12,
+            "amount": 2.11,
             "currency": "GBP"
           },
           {
@@ -5315,7 +5315,7 @@
             "orgKey": "splendidchaps",
             "name": "Splendid Chaps Productions",
             "ocSlug": "splendidchaps",
-            "amount": 6.81,
+            "amount": 6.78,
             "currency": "EUR"
           },
           {
@@ -5323,7 +5323,7 @@
             "orgKey": "local-it",
             "name": "local-it",
             "ocSlug": "local-it",
-            "amount": 18.54,
+            "amount": 18.49,
             "currency": "GBP"
           },
           {
@@ -5331,7 +5331,7 @@
             "orgKey": "igrovye-avtomaty-ua",
             "name": "Ігрові автомати",
             "ocSlug": "igrovye-avtomaty-ua",
-            "amount": 5.49,
+            "amount": 5.47,
             "currency": "EUR"
           },
           {
@@ -5339,7 +5339,7 @@
             "orgKey": "jose-karlos",
             "name": "José karlos",
             "ocSlug": "jose-karlos",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -5347,7 +5347,7 @@
             "orgKey": "fairlo1",
             "name": "Fairlo",
             "ocSlug": "fairlo1",
-            "amount": 33.62,
+            "amount": 33.47,
             "currency": "EUR"
           },
           {
@@ -5355,7 +5355,7 @@
             "orgKey": "fluctus",
             "name": "Fluctus",
             "ocSlug": "fluctus",
-            "amount": 327.78,
+            "amount": 326.36,
             "currency": "EUR"
           },
           {
@@ -5363,7 +5363,7 @@
             "orgKey": "wnn2",
             "name": "WNN2",
             "ocSlug": "wnn2",
-            "amount": 7.01,
+            "amount": 7.0,
             "currency": "CAD"
           },
           {
@@ -5371,7 +5371,7 @@
             "orgKey": "ludo-fablab",
             "name": "Ludo-Fablab",
             "ocSlug": "ludo-fablab",
-            "amount": 152.4,
+            "amount": 151.74,
             "currency": "EUR"
           },
           {
@@ -5379,7 +5379,7 @@
             "orgKey": "writing-metier",
             "name": "Writing Metier",
             "ocSlug": "writing-metier",
-            "amount": 10.99,
+            "amount": 10.96,
             "currency": "AUD"
           },
           {
@@ -5387,7 +5387,7 @@
             "orgKey": "gin-shack-event-bars",
             "name": "Gin Shack Event Bars",
             "ocSlug": "gin-shack-event-bars",
-            "amount": 6.62,
+            "amount": 6.6,
             "currency": "GBP"
           },
           {
@@ -5395,7 +5395,7 @@
             "orgKey": "springburn-harriers",
             "name": "Springburn Harriers",
             "ocSlug": "springburn-harriers",
-            "amount": 17.08,
+            "amount": 17.04,
             "currency": "GBP"
           },
           {
@@ -5403,7 +5403,7 @@
             "orgKey": "sdi",
             "name": "Sentient Digital, Inc.",
             "ocSlug": "sdi",
-            "amount": 8.07,
+            "amount": 8.03,
             "currency": "EUR"
           },
           {
@@ -5411,7 +5411,7 @@
             "orgKey": "bellahouston-harriers1",
             "name": "Bellahouston Harriers",
             "ocSlug": "bellahouston-harriers1",
-            "amount": 13.71,
+            "amount": 13.67,
             "currency": "GBP"
           },
           {
@@ -5427,7 +5427,7 @@
             "orgKey": "jaeckert-and-odaniel-onlinemar",
             "name": "Jaeckert & O'Daniel Onlinemarketing",
             "ocSlug": "jaeckert-and-odaniel-onlinemar",
-            "amount": 23.42,
+            "amount": 23.32,
             "currency": "EUR"
           },
           {
@@ -5435,7 +5435,7 @@
             "orgKey": "docraptor",
             "name": "DocRaptor",
             "ocSlug": "docraptor",
-            "amount": 43.7,
+            "amount": 43.51,
             "currency": "EUR"
           },
           {
@@ -5443,7 +5443,7 @@
             "orgKey": "transition-cambridge",
             "name": "Transition Cambridge",
             "ocSlug": "transition-cambridge",
-            "amount": 30.46,
+            "amount": 30.37,
             "currency": "GBP"
           },
           {
@@ -5451,7 +5451,7 @@
             "orgKey": "centre-nucleus",
             "name": "Centre NUCLEUS",
             "ocSlug": "centre-nucleus",
-            "amount": 5.6,
+            "amount": 5.58,
             "currency": "EUR"
           },
           {
@@ -5467,7 +5467,7 @@
             "orgKey": "intrinsicsoftware",
             "name": "Intrinsic",
             "ocSlug": "intrinsic",
-            "amount": 134.47,
+            "amount": 133.89,
             "currency": "EUR"
           },
           {
@@ -5475,7 +5475,7 @@
             "orgKey": "quatro-trust",
             "name": "Quatro Trust",
             "ocSlug": "quatro-trust",
-            "amount": 84.04,
+            "amount": 83.77,
             "currency": "NZD"
           },
           {
@@ -5483,7 +5483,7 @@
             "orgKey": "morntag",
             "name": "morntag",
             "ocSlug": "morntag",
-            "amount": 9.25,
+            "amount": 9.21,
             "currency": "EUR"
           },
           {
@@ -5499,7 +5499,7 @@
             "orgKey": "werr",
             "name": "WERR",
             "ocSlug": "werr",
-            "amount": 13.24,
+            "amount": 13.21,
             "currency": "GBP"
           },
           {
@@ -5507,7 +5507,7 @@
             "orgKey": "nature-works",
             "name": "Nature Works",
             "ocSlug": "nature-works",
-            "amount": 2.83,
+            "amount": 2.82,
             "currency": "EUR"
           },
           {
@@ -5515,7 +5515,7 @@
             "orgKey": "sydfyns-forening-for-kreativ-bevaegelse",
             "name": "Sydfyns Forening for Kreativ Bevægelse",
             "ocSlug": "sydfyns-forening-for-kreativ-bevaegelse",
-            "amount": 11.21,
+            "amount": 11.16,
             "currency": "EUR"
           },
           {
@@ -5523,7 +5523,7 @@
             "orgKey": "u-maxx",
             "name": "maxuroda.pro",
             "ocSlug": "maxuroda-pro",
-            "amount": 1.68,
+            "amount": 1.67,
             "currency": "EUR"
           },
           {
@@ -5539,7 +5539,7 @@
             "orgKey": "framer",
             "name": "Framer",
             "ocSlug": "framer",
-            "amount": 70.12,
+            "amount": 70.0,
             "currency": "CAD"
           },
           {
@@ -5547,7 +5547,7 @@
             "orgKey": "cyrilwaechter",
             "name": "Cyril Waechter BIM Insight",
             "ocSlug": "cyril-waechter-bim-insight",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -5555,7 +5555,7 @@
             "orgKey": "rainlab-inc",
             "name": "Rainlab Inc.",
             "ocSlug": "rainlab-inc",
-            "amount": 3.92,
+            "amount": 3.91,
             "currency": "EUR"
           },
           {
@@ -5563,7 +5563,7 @@
             "orgKey": "stichting-ponder-source",
             "name": "Stichting Ponder Source",
             "ocSlug": "stichting-ponder-source",
-            "amount": 47.63,
+            "amount": 47.42,
             "currency": "EUR"
           },
           {
@@ -5579,7 +5579,7 @@
             "orgKey": "lqqk",
             "name": "LQQK",
             "ocSlug": "lqqk",
-            "amount": 16.81,
+            "amount": 16.74,
             "currency": "EUR"
           },
           {
@@ -5595,7 +5595,7 @@
             "orgKey": "arcanitesolutions",
             "name": "Arcanite",
             "ocSlug": "arcanite",
-            "amount": 22.41,
+            "amount": 22.32,
             "currency": "EUR"
           },
           {
@@ -5603,7 +5603,7 @@
             "orgKey": "you4-shi2",
             "name": "祐実",
             "ocSlug": "you4-shi2",
-            "amount": 4.74,
+            "amount": 4.73,
             "currency": "JPY"
           },
           {
@@ -5611,7 +5611,7 @@
             "orgKey": "serverproject-dev",
             "name": "Meisdata",
             "ocSlug": "meisdataio",
-            "amount": 1.91,
+            "amount": 1.9,
             "currency": "EUR"
           },
           {
@@ -5619,7 +5619,7 @@
             "orgKey": "stacktrace",
             "name": "StackTrace",
             "ocSlug": "stacktrace",
-            "amount": 100.86,
+            "amount": 100.42,
             "currency": "EUR"
           },
           {
@@ -5627,7 +5627,7 @@
             "orgKey": "mausbrand",
             "name": "Mausbrand",
             "ocSlug": "mausbrand",
-            "amount": 5.04,
+            "amount": 5.02,
             "currency": "EUR"
           },
           {
@@ -5635,7 +5635,7 @@
             "orgKey": "w3c",
             "name": "W3C",
             "ocSlug": "w3c1",
-            "amount": 26.89,
+            "amount": 26.78,
             "currency": "EUR"
           },
           {
@@ -5643,7 +5643,7 @@
             "orgKey": "remix-the-commons1",
             "name": "Association Remix",
             "ocSlug": "remix-the-commons1",
-            "amount": 441.42,
+            "amount": 439.54,
             "currency": "GBP"
           },
           {
@@ -5651,7 +5651,7 @@
             "orgKey": "participation-bureau",
             "name": "Partizipationsbüro",
             "ocSlug": "participation-bureau",
-            "amount": 96.93,
+            "amount": 96.51,
             "currency": "EUR"
           },
           {
@@ -5659,7 +5659,7 @@
             "orgKey": "flash-games-for-mobile",
             "name": "Flash Games for Mobile",
             "ocSlug": "flash-games-for-mobile",
-            "amount": 2.24,
+            "amount": 2.23,
             "currency": "EUR"
           },
           {
@@ -5667,7 +5667,7 @@
             "orgKey": "crazy-marvin",
             "name": "Crazy-Marvin",
             "ocSlug": "crazy-marvin",
-            "amount": 3.36,
+            "amount": 3.35,
             "currency": "EUR"
           }
         ],
@@ -5678,7 +5678,7 @@
       "name": "open_source_pledge",
       "status": "ok",
       "error": null,
-      "fetched_at": "2026-10-12T05:56:42Z",
+      "fetched_at": "2026-10-12T19:32:16Z",
       "count": 37,
       "meta": {
         "index_slugs": 37,
@@ -5764,7 +5764,7 @@
         },
         {
           "login": "pilcrowonpaper",
-          "name": "pilcrow",
+          "name": "Pilcrow",
           "type": "user"
         }
       ],
@@ -10249,7 +10249,7 @@
         },
         {
           "login": "pilcrowonpaper",
-          "name": "pilcrow",
+          "name": "Pilcrow",
           "type": "user"
         },
         {
@@ -40049,9 +40049,9 @@
       "sources": [
         "oc"
       ],
-      "publicUsd": 2659819.48,
+      "publicUsd": 2659819.46,
       "publicUsdBySource": {
-        "oc": 2659819.48,
+        "oc": 2659819.46,
         "osp": null,
         "gh": null,
         "own": null
@@ -41954,7 +41954,7 @@
       "slug": "voidzero-dev",
       "name": "VoidZero",
       "login": null,
-      "site": "https://fosstodon.org/@opensourcepledge",
+      "site": "https://voidzero.dev",
       "sources": [
         "osp"
       ],
@@ -42159,6 +42159,320 @@
       "collectives": [],
       "ospSlug": "saas-pegasus",
       "reportUrl": "https://opensourcepledge.com/members/saas-pegasus/"
+    },
+    {
+      "slug": "n32-tech",
+      "name": "n32.tech",
+      "login": "n32-tech",
+      "site": "https://www.n32.dev/",
+      "sources": [
+        "gh"
+      ],
+      "publicUsd": null,
+      "publicUsdBySource": {
+        "oc": null,
+        "osp": null,
+        "gh": null,
+        "own": null
+      },
+      "ghBeneficiaries": 1,
+      "beneficiaries": [
+        {
+          "login": "drizzle-team",
+          "name": "Drizzle Team",
+          "type": "org"
+        }
+      ],
+      "collectives": [],
+      "ospSlug": null,
+      "reportUrl": null,
+      "hold": {
+        "kind": "zero_reading",
+        "reason": "first zero reading; a disappearance is published only after 2 consecutive zero readings",
+        "since": "2026-10-12",
+        "review_on": null,
+        "zeroReadings": 1,
+        "carriedFrom": "data/weekly/2026-10-06.json"
+      }
+    },
+    {
+      "slug": "openai",
+      "name": "OpenAI",
+      "login": "openai",
+      "site": "https://openai.com/",
+      "sources": [
+        "gh"
+      ],
+      "publicUsd": null,
+      "publicUsdBySource": {
+        "oc": null,
+        "osp": null,
+        "gh": null,
+        "own": null
+      },
+      "ghBeneficiaries": 50,
+      "beneficiaries": [
+        {
+          "login": "zkat",
+          "name": "Kat Marchán",
+          "type": "user"
+        },
+        {
+          "login": "nedbat",
+          "name": "Ned Batchelder",
+          "type": "user"
+        },
+        {
+          "login": "ehuss",
+          "name": "Eric Huss",
+          "type": "user"
+        },
+        {
+          "login": "seanmonstar",
+          "name": "Sean McArthur",
+          "type": "user"
+        },
+        {
+          "login": "brettcannon",
+          "name": "Brett Cannon",
+          "type": "user"
+        },
+        {
+          "login": "Byron",
+          "name": "Sebastian Thiel",
+          "type": "user"
+        },
+        {
+          "login": "dhardy",
+          "name": "Diggory Hardy",
+          "type": "user"
+        },
+        {
+          "login": "sunshowers",
+          "name": "Rain",
+          "type": "user"
+        },
+        {
+          "login": "RReverser",
+          "name": "Ingvar Stepanyan",
+          "type": "user"
+        },
+        {
+          "login": "ctz",
+          "name": "Joe Birr-Pixton",
+          "type": "user"
+        },
+        {
+          "login": "Swatinem",
+          "name": "Arpad Borsos",
+          "type": "user"
+        },
+        {
+          "login": "koxudaxi",
+          "name": "Koudai Aono",
+          "type": "user"
+        },
+        {
+          "login": "gaborbernat",
+          "name": "Bernát Gábor",
+          "type": "user"
+        },
+        {
+          "login": "jplatte",
+          "name": "Jonas Platte",
+          "type": "user"
+        },
+        {
+          "login": "sirosen",
+          "name": "Stephen Rosen",
+          "type": "user"
+        },
+        {
+          "login": "hugovk",
+          "name": "Hugo van Kemenade",
+          "type": "user"
+        },
+        {
+          "login": "ZacSweers",
+          "name": "Zac Sweers",
+          "type": "user"
+        },
+        {
+          "login": "eifinger",
+          "name": "Kevin Stillhammer",
+          "type": "user"
+        },
+        {
+          "login": "messense",
+          "name": "messense",
+          "type": "user"
+        },
+        {
+          "login": "asottile",
+          "name": "anthony sottile",
+          "type": "user"
+        },
+        {
+          "login": "dtolnay",
+          "name": "David Tolnay",
+          "type": "user"
+        },
+        {
+          "login": "HerringtonDarkholme",
+          "name": "Herrington Darkholme",
+          "type": "user"
+        },
+        {
+          "login": "GuillaumeGomez",
+          "name": "Guillaume Gomez",
+          "type": "user"
+        },
+        {
+          "login": "jhpratt",
+          "name": "Jacob Pratt",
+          "type": "user"
+        },
+        {
+          "login": "Pierre-Sassoulas",
+          "name": "Pierre Sassoulas",
+          "type": "user"
+        },
+        {
+          "login": "aio-libs",
+          "name": "aio-libs",
+          "type": "org"
+        },
+        {
+          "login": "ofek",
+          "name": "Ofek Lev",
+          "type": "user"
+        },
+        {
+          "login": "nvzqz",
+          "name": "Nikolai Vazquez",
+          "type": "user"
+        },
+        {
+          "login": "richfelker",
+          "name": "Rich Felker",
+          "type": "user"
+        },
+        {
+          "login": "tqdm",
+          "name": "tqdm developers",
+          "type": "org"
+        },
+        {
+          "login": "weihanglo",
+          "name": "Weihang Lo",
+          "type": "user"
+        },
+        {
+          "login": "tree-sitter",
+          "name": "tree-sitter",
+          "type": "org"
+        },
+        {
+          "login": "encode",
+          "name": "Encode",
+          "type": "org"
+        },
+        {
+          "login": "tokio-rs",
+          "name": "Tokio",
+          "type": "org"
+        },
+        {
+          "login": "pnpm",
+          "name": "pnpm",
+          "type": "org"
+        },
+        {
+          "login": "jyn514",
+          "name": "jyn",
+          "type": "user"
+        },
+        {
+          "login": "prettier",
+          "name": "Prettier",
+          "type": "org"
+        },
+        {
+          "login": "python-trio",
+          "name": "python-trio",
+          "type": "org"
+        },
+        {
+          "login": "lcnr",
+          "name": null,
+          "type": "user"
+        },
+        {
+          "login": "NobodyXu",
+          "name": "Jiahao XU",
+          "type": "user"
+        },
+        {
+          "login": "telepresenceio",
+          "name": "Telepresence",
+          "type": "org"
+        },
+        {
+          "login": "clap-rs",
+          "name": "clap-rs",
+          "type": "org"
+        },
+        {
+          "login": "taiki-e",
+          "name": "Taiki Endo",
+          "type": "user"
+        },
+        {
+          "login": "rust-analyzer",
+          "name": "rust-analyzer",
+          "type": "org"
+        },
+        {
+          "login": "15r10nk",
+          "name": "Frank Hoffmann",
+          "type": "user"
+        },
+        {
+          "login": "ichard26",
+          "name": "Richard Si",
+          "type": "user"
+        },
+        {
+          "login": "rkyv",
+          "name": "rkyv",
+          "type": "org"
+        },
+        {
+          "login": "karpetrosyan",
+          "name": "Kar Petrosyan",
+          "type": "user"
+        },
+        {
+          "login": "pydantic",
+          "name": "Pydantic",
+          "type": "org"
+        },
+        {
+          "login": "python-websockets",
+          "name": "python-websockets",
+          "type": "org"
+        }
+      ],
+      "collectives": [],
+      "ospSlug": null,
+      "reportUrl": null,
+      "hold": {
+        "kind": "manual",
+        "reason": "GitHub Sponsors sponsoring list read as empty on a single run (2026-10-12); keep last known value until the next Monday run confirms",
+        "since": "2026-10-12",
+        "review_on": "2026-10-19",
+        "carriedFrom": "data/weekly/2026-10-06.json"
+      }
     }
   ],
   "diff": {
@@ -42168,67 +42482,17 @@
     "suspicious": false,
     "suspicious_reasons": [],
     "counts": {
-      "new_sponsors": 2,
-      "disappeared_sponsors": 4,
+      "new_sponsors": 0,
+      "disappeared_sponsors": 0,
       "unverified_partial": 0,
       "new_sponsorships": 10,
       "amount_changes": 2,
-      "beneficiary_changes": 9
+      "beneficiary_changes": 9,
+      "held": 2,
+      "renamed": 2
     },
-    "new_sponsors": [
-      {
-        "slug": "sxl-cn",
-        "name": "上线了",
-        "sources": [
-          "oc"
-        ],
-        "publicUsd": 6980.0,
-        "in_catalog": null
-      },
-      {
-        "slug": "duotai-net",
-        "name": "多态",
-        "sources": [
-          "oc"
-        ],
-        "publicUsd": 42.0,
-        "in_catalog": null
-      }
-    ],
-    "disappeared_sponsors": [
-      {
-        "slug": "n32-tech",
-        "name": "n32.tech",
-        "publicUsd": null,
-        "sources": [
-          "gh"
-        ]
-      },
-      {
-        "slug": "openai",
-        "name": "OpenAI",
-        "publicUsd": null,
-        "sources": [
-          "gh"
-        ]
-      },
-      {
-        "slug": "unknown",
-        "name": "上线了",
-        "publicUsd": 6980.0,
-        "sources": [
-          "oc"
-        ]
-      },
-      {
-        "slug": "unknown-x",
-        "name": "多态",
-        "publicUsd": 42.0,
-        "sources": [
-          "oc"
-        ]
-      }
-    ],
+    "new_sponsors": [],
+    "disappeared_sponsors": [],
     "unverified_partial": [],
     "new_sponsorships": [
       {
@@ -42344,6 +42608,44 @@
         "name": "P Foundation",
         "from": 5,
         "to": 4
+      }
+    ],
+    "held": [
+      {
+        "slug": "n32-tech",
+        "name": "n32.tech",
+        "publicUsd": null,
+        "sources": [
+          "gh"
+        ],
+        "hold_reason": "first zero reading; a disappearance is published only after 2 consecutive zero readings",
+        "review_on": null,
+        "hold_kind": "zero_reading"
+      },
+      {
+        "slug": "openai",
+        "name": "OpenAI",
+        "publicUsd": null,
+        "sources": [
+          "gh"
+        ],
+        "hold_reason": "GitHub Sponsors sponsoring list read as empty on a single run (2026-10-12); keep last known value until the next Monday run confirms",
+        "review_on": "2026-10-19",
+        "hold_kind": "manual"
+      }
+    ],
+    "renamed": [
+      {
+        "from": "unknown",
+        "to": "sxl-cn",
+        "name": "上线了",
+        "matchedBy": "oc_site_name"
+      },
+      {
+        "from": "unknown-x",
+        "to": "duotai-net",
+        "name": "多态",
+        "matchedBy": "oc_site_name"
       }
     ]
   },
@@ -43118,12 +43420,16 @@
       "reason": "exclusion:spam_casino"
     },
     {
+      "slug": "oinsmania",
+      "reason": "denylist:gambling:social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
+    },
+    {
       "slug": "svizzera",
       "reason": "exclusion:spam_casino"
     },
     {
       "slug": "funrize-social-casino",
-      "reason": "exclusion:spam_casino"
+      "reason": "denylist:gambling:social casino (funrize.com)"
     },
     {
       "slug": "bulkoid",
@@ -43229,6 +43535,7 @@
     "Amount diffs are like-with-like (oc↔oc, osp↔osp, own↔own).",
     "Verified disappearances require each covering source to have succeeded for that entity; otherwise → unverified_partial.",
     "Suspects are FLAG-only and are never excluded by keyword alone.",
-    "Retention filter matches the catalog build: gh/osp/own, or OC with ≥3 collectives or ≥$5k public."
+    "Retention filter matches the catalog build: gh/osp/own, or OC with ≥3 collectives or ≥$5k public.",
+    "Triage 2026-10-12: rebuilt from run 38297846759 with the rules of PR #28 (a disappearance needs 2 consecutive zero readings; stable Open Collective identity, so unknown -> sxl-cn and unknown-x -> duotai-net are renames, not disappear + new). openai keeps its last known GitHub Sponsors value (manual hold, review 2026-10-19). voidzero-dev site set to https://voidzero.dev (verified HTTP 200, VoidZero)."
   ]
 }
