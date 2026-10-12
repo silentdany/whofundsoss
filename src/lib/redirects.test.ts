@@ -93,3 +93,23 @@ test("prototype names are never treated as slugs to redirect", () => {
     assert.equal(redirectTarget(url, url.host, COM, () => false), null);
   }
 });
+
+test("after the catalog rebuild every renamed old slug 308s to the new slug (never new -> old)", async () => {
+  const catalog = (await import("../data/catalog.json", { with: { type: "json" } })).default as {
+    index: { slug: string }[];
+  };
+  const { COMPANY_SLUG_RENAMES, companyRenameTarget } = await import("./redirects.ts");
+  const slugs = new Set(catalog.index.map((r) => r.slug));
+  const exists = (s: string) => slugs.has(s);
+  let checked = 0;
+  for (const [oldSlug, newSlug] of COMPANY_SLUG_RENAMES) {
+    if (!slugs.has(newSlug)) continue;
+    assert.equal(slugs.has(oldSlug), false, `${oldSlug} still in catalog`);
+    assert.equal(companyRenameTarget(`/company/${oldSlug}`, exists), `/company/${newSlug}`);
+    assert.equal(companyRenameTarget(`/company/${newSlug}`, exists), null);
+    checked++;
+  }
+  assert.ok(checked >= 7, `only ${checked} renames checked`);
+  const hop = redirectTarget(new URL("https://x.test/company/oinsmania"), "x.test", "https://x.test", exists);
+  assert.equal(hop, "https://x.test/company/coinsmania");
+});

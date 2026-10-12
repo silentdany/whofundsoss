@@ -1,0 +1,4 @@
+{
+  "_comment": "slug -> canonical site. Applied by scripts/weekly after scraping; wins over any scraped site (e.g. OSP pages that only link a social profile).",
+  "voidzero-dev": "https://voidzero.dev"
+}

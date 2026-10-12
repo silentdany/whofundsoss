@@ -22,7 +22,7 @@ FILES = [
     ROOT / "public/denylist.json",
     ROOT / "public/denylist.md",
     *sorted((ROOT / "data/holds").glob("*.csv")),
-    *sorted((ROOT / "data/exclusions").glob("*.csv")),
+    # data/exclusions/*.csv is keyed by name / GitHub login / site, not slug: left alone.
 ]
 
 
@@ -45,15 +45,15 @@ def main(argv: list[str]) -> int:
     for f in FILES:
         if not f.exists():
             continue
-        text = f.read_text(encoding="utf-8")
+        text = f.read_bytes().decode("utf-8")  # keep CRLF as is
         new = text
         for o, n in todo.items():
-            new = re.sub(rf"(?<![a-z0-9-]){re.escape(o)}(?![a-z0-9-])", n, new)
+            new = re.sub(rf"(?<![\w-]){re.escape(o)}(?![\w-])", n, new)
         if new != text:
             changed += 1
             print(f"migrate {f.relative_to(ROOT)}")
             if write:
-                f.write_text(new, encoding="utf-8")
+                f.write_bytes(new.encode("utf-8"))
     print(f"renames applicable: {todo or 'none'}; files changed: {changed}")
     return 0
 

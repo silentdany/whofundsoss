@@ -629,3 +629,118 @@ def apply_holds(
         diff.held.append({**row, "hold_reason": tag["reason"], "review_on": tag["review_on"], "hold_kind": tag["kind"]})
     diff.disappeared_sponsors = kept_disappeared
     return out
+
+
+DEFAULT_SITE_OVERRIDES = Path(__file__).resolve().parents[2] / "data" / "overrides" / "site-overrides.json"
+
+
+def load_site_overrides(path: Path | None = None) -> dict[str, str]:
+    """Read data/overrides/site-overrides.json ({slug: site}). Missing file → {}.
+    Keys starting with "_" are comments. Fails closed on invalid content."""
+    path = path or DEFAULT_SITE_OVERRIDES
+    if not path.exists():
+        return {}
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError(f"{path}: expected a JSON object {{slug: site}}")
+    out: dict[str, str] = {}
+    for k, v in raw.items():
+        if k.startswith("_"):
+            continue
+        if not isinstance(v, str) or not v.startswith(("https://", "http://")):
+            raise ValueError(f"{path}: site for {k!r} must be an http(s) URL, got {v!r}")
+        out[k.lower()] = v
+    return out
+
+
+def apply_site_overrides(companies: list[dict], overrides: dict[str, str]) -> list[dict]:
+    """Force the configured site on matching slugs (old/new slug aliases included)."""
+    if not overrides:
+        return companies
+    from .slug_aliases import slug_equivalents
+
+    expanded = {alias.lower(): site for slug, site in overrides.items() for alias in slug_equivalents(slug)}
+    for c in companies:
+        site = expanded.get((c.get("slug") or "").lower())
+        if site:
+            c["site"] = site
+    return companies
+
+
+DROP_READINGS_TO_PUBLISH = 2
+DROP_RATIO = 0.5  # a drop of more than 50% of a count needs confirmation
+DROP_HOLD_REASON = (
+    f"count dropped by more than {int(DROP_RATIO * 100)}%; published only after "
+    f"{DROP_READINGS_TO_PUBLISH} consecutive readings"
+)
+
+
+def _ben_count(rec: dict) -> int | None:
+    v = rec.get("ghBeneficiaries")
+    if v is None:
+        bens = rec.get("beneficiaries")
+        return len(bens) if isinstance(bens, list) else None
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def apply_drop_confirmation(
+    diff: DiffResult,
+    companies: list[dict],
+    baseline: list[dict],
+    *,
+    run_date: str,
+) -> list[dict]:
+    """Extend the two-zero-readings rule to sharp drops.
+
+    If a sponsor's beneficiary count falls by more than DROP_RATIO versus the
+    baseline (and is not zero, which apply_holds already covers), the previous
+    value is kept and tagged `pendingDrop`. If the baseline record already
+    carries `pendingDrop` (last week was the first low reading) and the drop
+    is still >50% of the last published value, the new value is published.
+    Mutates companies in place and diff (beneficiary_changes -> held).
+    """
+    base = _index_companies(baseline)
+    held_slugs: set[str] = set()
+    for c in companies:
+        key = (c.get("slug") or "").lower()
+        prev = base.get(key)
+        if prev is None or c.get("hold"):
+            continue
+        before, now = _ben_count(prev), _ben_count(c)
+        c.pop("pendingDrop", None)
+        if not before or now is None or now == 0 or now >= before * (1 - DROP_RATIO):
+            continue
+        if prev.get("pendingDrop"):
+            continue  # second consecutive sharp-drop reading: publish
+        c["pendingDrop"] = {
+            "field": "ghBeneficiaries",
+            "from": before,
+            "to": now,
+            "since": run_date,
+            "readings": 1,
+            "reason": DROP_HOLD_REASON,
+            "carriedFrom": diff.baseline_path,
+        }
+        c["ghBeneficiaries"] = prev.get("ghBeneficiaries")
+        c["beneficiaries"] = prev.get("beneficiaries")
+        held_slugs.add(key)
+        diff.held.append({
+            "slug": c.get("slug"),
+            "name": c.get("name"),
+            "from": before,
+            "to": now,
+            "hold_reason": DROP_HOLD_REASON,
+            "review_on": None,
+            "hold_kind": "sharp_drop",
+        })
+    if held_slugs:
+        diff.beneficiary_changes = [
+            r for r in diff.beneficiary_changes if (r.get("slug") or "").lower() not in held_slugs
+        ]
+        diff.new_sponsorships = [
+            r for r in diff.new_sponsorships if (r.get("sponsor") or "").lower() not in held_slugs
+        ]
+    return companies

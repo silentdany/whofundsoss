@@ -351,7 +351,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
         ),
     )
     _section(
-        "Held (disappearance not published; last known value kept)",
+        "Held (change not published yet; last known value kept)",
         diff.get("held") or [],
         lambda r: f"`{r['slug']}` · {r.get('name') or ''} · review on {r.get('review_on') or 'next run'} · {r.get('hold_reason') or ''}",
     )
