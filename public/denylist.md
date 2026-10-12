@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-10-12.3 · as of 2026-10-12 · **105** entries
+**Version** 2026-10-12.5 · as of 2026-10-12 · **106** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -10,13 +10,13 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 |---|---:|
 | adult | 1 |
 | commercial-unrelated | 4 |
-| fake-engagement | 27 |
+| fake-engagement | 28 |
 | fake-reviews | 3 |
 | fake-traffic | 8 |
 | gambling | 54 |
 | link-spam | 5 |
 | piracy | 3 |
-| **Total** | **105** |
+| **Total** | **106** |
 
 ## Criteria
 
@@ -63,6 +63,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `socialboosting` | fake-engagement | sells followers / likes |
 | `socialdawn` | fake-engagement | sells followers / likes |
 | `stormlikes` | fake-engagement | sells followers / likes |
+| `thunderclap-it` | fake-engagement | Buy Instagram Followers (spam_followers) |
 | `volgersboost` | fake-engagement | sells followers (NL) |
 | `want-to-boost-your-channel-on-youtube-buy-youtube-subscribers-from-sidesmedia-watch-your-subs-grow` | fake-engagement | sells YouTube subscribers |
 | `buy-google-reviews` | fake-reviews | sells Google reviews |
