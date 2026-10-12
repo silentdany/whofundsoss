@@ -392,27 +392,34 @@ HOLDS_HEADER = ("slug", "source", "reason", "decided_by", "since", "review_on")
 
 
 class HoldsFileError(ValueError):
-    """Raised when weekly-holds.csv has a missing or wrong header."""
+    """weekly-holds.csv is unusable: wrong header or at least one invalid row.
+
+    The run must stop: a hold that cannot be read would otherwise let the
+    disappearance it exists to prevent be published.
+    """
 
 
 def load_holds(path: Path | None = None) -> list[dict]:
     """Read data/holds/weekly-holds.csv. Missing file → no holds.
 
     - utf-8-sig so a BOM written by a spreadsheet editor is ignored;
-    - header must be exactly HOLDS_HEADER, else HoldsFileError;
-    - slug and review_on (ISO YYYY-MM-DD) are required; an invalid row is
-      skipped with a logged warning naming its line number;
+    - header must be exactly HOLDS_HEADER;
+    - every non-blank row needs the right number of columns, a slug and an
+      ISO YYYY-MM-DD review_on;
     - parsed with csv.DictReader, so quoted fields may contain commas.
+
+    Fails closed: a wrong header or ANY invalid non-blank row raises
+    HoldsFileError listing every problem with its line number. Fully blank
+    rows (including ",,,,,") are ignored.
     """
     import csv
-    import logging
     from datetime import date
 
-    log = logging.getLogger(__name__)
     path = path or DEFAULT_HOLDS_CSV
     if not path.exists():
         return []
     out: list[dict] = []
+    errors: list[str] = []
     with path.open(encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
         header = tuple((h or "").strip() for h in (reader.fieldnames or []))
@@ -422,14 +429,19 @@ def load_holds(path: Path | None = None) -> list[dict]:
             )
         for row in reader:
             line = reader.line_num
-            if None in row or any(v is None for v in row.values()):
-                log.warning("%s line %d: wrong number of columns, row ignored: %r", path, line, row)
-                continue
+            extra = row.pop(None, None)
             clean = {k.strip(): (v or "").strip() for k, v in row.items()}
-            if not any(clean.values()):
+            if not extra and not any(clean.values()):
+                continue
+            label = f"line {line}" + (f" (slug {clean['slug']})" if clean.get("slug") else "")
+            if extra or any(v is None for v in row.values()):
+                errors.append(
+                    f"{label}: expected {len(HOLDS_HEADER)} columns "
+                    "(quote the reason if it contains a comma)"
+                )
                 continue
             if not clean["slug"]:
-                log.warning("%s line %d: missing slug, row ignored", path, line)
+                errors.append(f"{label}: missing slug")
                 continue
             review_on = clean["review_on"]
             try:
@@ -437,12 +449,14 @@ def load_holds(path: Path | None = None) -> list[dict]:
             except ValueError:
                 ok = False
             if not ok:
-                log.warning(
-                    "%s line %d (slug %s): review_on %r is missing or not an ISO YYYY-MM-DD date, row ignored",
-                    path, line, clean["slug"], review_on,
-                )
+                errors.append(f"{label}: review_on {review_on!r} is missing or not an ISO YYYY-MM-DD date")
                 continue
             out.append(clean)
+    if errors:
+        raise HoldsFileError(
+            f"{path}: {len(errors)} invalid hold row(s); fix the file, nothing was published:\n  - "
+            + "\n  - ".join(errors)
+        )
     return out
 
 
