@@ -11,6 +11,8 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
+from .normalize import canonical_text
+
 # Broad keywords. Applied on NFKC-normalized name + login + slug + site + sector.
 SUSPECT_PATTERNS: dict[str, re.Pattern[str]] = {
     "casino": re.compile(
@@ -56,8 +58,11 @@ LEGIT_ALLOW = {
 
 
 def _norm(text: str) -> str:
-    """NFKC normalize; keep casefold for Latin, preserve non-Latin for regex."""
-    return unicodedata.normalize("NFKC", text or "").casefold()
+    """NFKC normalize, fold mixed-script homoglyphs to Latin, then casefold.
+
+    Non-Latin words are preserved so native-script patterns still match.
+    """
+    return canonical_text(text).casefold()
 
 
 @dataclass(frozen=True)

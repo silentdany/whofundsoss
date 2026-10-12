@@ -65,6 +65,7 @@ def merge_companies(
                     "collectives": list(item.get("collectives") or []),
                     "ospSlug": item.get("ospSlug"),
                     "reportUrl": item.get("reportUrl"),
+                    "ocAccounts": [item["ocSlug"].lower()] if short == "oc" and item.get("ocSlug") else [],
                 }
             else:
                 if short not in cur["sources"]:
@@ -92,6 +93,11 @@ def merge_companies(
                         cur["publicUsdBySource"]["osp"] = float(item["publicUsd"])
                     elif short == "gh":
                         cur["publicUsdBySource"]["gh"] = float(item["publicUsd"])
+                if short == "oc" and item.get("ocSlug"):
+                    acc = item["ocSlug"].lower()
+                    cur.setdefault("ocAccounts", [])
+                    if acc not in cur["ocAccounts"]:
+                        cur["ocAccounts"].append(acc)
                 if not cur.get("site") and site:
                     cur["site"] = site
                 if (not cur.get("name") or cur["name"] == key) and name:
@@ -202,6 +208,10 @@ def build_payload(
                 "collectives": c.get("collectives"),
                 "ospSlug": c.get("ospSlug"),
                 "reportUrl": c.get("reportUrl"),
+                # Identity + hold state must survive into the file: next week's
+                # run reads this file as its baseline.
+                **({"ocAccounts": c["ocAccounts"]} if c.get("ocAccounts") else {}),
+                **({"hold": c["hold"]} if c.get("hold") else {}),
             }
             for c in companies
         ],
@@ -343,7 +353,12 @@ def render_markdown(payload: dict[str, Any]) -> str:
     _section(
         "Held (disappearance not published; last known value kept)",
         diff.get("held") or [],
-        lambda r: f"`{r['slug']}` · {r.get('name') or ''} · review on {r.get('review_on') or '?'} · {r.get('hold_reason') or ''}",
+        lambda r: f"`{r['slug']}` · {r.get('name') or ''} · review on {r.get('review_on') or 'next run'} · {r.get('hold_reason') or ''}",
+    )
+    _section(
+        "Renamed (same entity, new slug)",
+        diff.get("renamed") or [],
+        lambda r: f"`{r['from']}` → `{r['to']}` · {r.get('name') or ''} · matched by {r.get('matchedBy')}",
     )
     _section("New sponsorships", diff["new_sponsorships"], lambda r: f"`{r['sponsor']}` → `{r['beneficiary']}`")
     _section(

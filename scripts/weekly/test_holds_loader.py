@@ -77,6 +77,21 @@ class LoadHoldsTest(unittest.TestCase):
     def test_all_rows_invalid_fails_run(self):
         self._assert_fails("a,gh,x,CdP,2026-10-12,\nb,gh,x,CdP,2026-10-12,nope\n", "2 invalid hold row")
 
+    def test_non_utf8_file_fails_cleanly(self):
+        d = tempfile.mkdtemp()
+        p = Path(d) / "weekly-holds.csv"
+        p.write_bytes((HEADER + "openai,gh,r\xe9sum\xe9,CdP,2026-10-12,2026-10-19\n").encode("latin-1"))
+        with self.assertRaises(HoldsFileError) as cm:
+            load_holds(p)
+        self.assertIn("not valid UTF-8", str(cm.exception))
+        self.assertIsNone(cm.exception.__cause__)
+
+    def test_directory_path_fails_cleanly(self):
+        d = Path(tempfile.mkdtemp())
+        with self.assertRaises(HoldsFileError) as cm:
+            load_holds(d)
+        self.assertIn("is a directory", str(cm.exception))
+
     def test_quoted_reason_with_commas(self):
         p = self._write(HEADER + 'openai,gh,"empty read, single run, keep value",CdP,2026-10-12,2026-10-19\n')
         holds = load_holds(p)
@@ -95,7 +110,7 @@ class LoadHoldsTest(unittest.TestCase):
 class RunFailsOnBadHoldsTest(unittest.TestCase):
     """run.main stops before any fetch with a one-line fatal message, no traceback."""
 
-    def _run_with(self, text: str):
+    def _run_with(self, text, as_dir: bool = False):
         import contextlib
         import io
         from unittest import mock
@@ -105,7 +120,12 @@ class RunFailsOnBadHoldsTest(unittest.TestCase):
 
         d = tempfile.mkdtemp()
         p = Path(d) / "weekly-holds.csv"
-        p.write_text(text, encoding="utf-8")
+        if as_dir:
+            p.mkdir()
+        elif isinstance(text, bytes):
+            p.write_bytes(text)
+        else:
+            p.write_text(text, encoding="utf-8")
         err = io.StringIO()
         fetch = mock.Mock(side_effect=AssertionError("must not fetch"))
         with mock.patch.object(diff_mod, "DEFAULT_HOLDS_CSV", p), \
@@ -129,6 +149,20 @@ class RunFailsOnBadHoldsTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("fatal: holds: ", err)
         self.assertIn("expected", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_non_utf8_exits_1_without_traceback(self):
+        code, err = self._run_with((HEADER + "openai,gh,caf\xe9,CdP,2026-10-12,2026-10-19\n").encode("latin-1"))
+        self.assertEqual(code, 1)
+        self.assertTrue(err.startswith("fatal: holds: "), err)
+        self.assertIn("not valid UTF-8", err)
+        self.assertNotIn("Traceback", err)
+
+    def test_directory_exits_1_without_traceback(self):
+        code, err = self._run_with(None, as_dir=True)
+        self.assertEqual(code, 1)
+        self.assertTrue(err.startswith("fatal: holds: "), err)
+        self.assertIn("is a directory", err)
         self.assertNotIn("Traceback", err)
 
 

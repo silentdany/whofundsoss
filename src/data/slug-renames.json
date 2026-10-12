@@ -1,0 +1,18 @@
+{
+  "note": "Old -> new company slugs from canonical_text (accents, homoglyphs). Served as 308 redirects.",
+  "renames": {
+    "b-rkert-werke-gmbh-co-kg": "burkert-werke-gmbh-co-kg",
+    "casino-p-nett": "casino-pa-nett",
+    "casinotop-espa-a": "casinotop-espana",
+    "et-reo": "etereo",
+    "ilmaiset-pitk-vetovihjeet": "ilmaiset-pitkavetovihjeet",
+    "neuland-b-ro-f-r-informatik": "neuland-buro-fur-informatik",
+    "oinsmania": "coinsmania",
+    "s-ddeutsche-zeitung": "suddeutsche-zeitung",
+    "sch-co": "schuco",
+    "sm-l-n-uten-sikkerhet": "smalan-uten-sikkerhet",
+    "solcellsf-retag": "solcellsforetag",
+    "t-mavera": "timavera",
+    "vlt-v-lt": "vlt-volt"
+  }
+}
