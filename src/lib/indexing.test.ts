@@ -16,8 +16,8 @@ const DENIED_IN_CATALOG = DENIED.filter((slug) => bySlug.has(slug));
 const NAMED_BY_CDP = ["uudetkasinot-com", "fire-stick-tricks", "buy-google-reviews", "socialboosting", "nettikasinot-media"];
 
 
-test("denylist public export version is 2026-10-12.3", () => {
-  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.3");
+test("denylist public export version is 2026-10-12.4", () => {
+  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.4");
   assert.equal(Object.keys(SPAM_DENYLIST).length, 105);
   assert.equal(isSpamDenylisted("redreply"), false);
 });

@@ -106,3 +106,27 @@ class TestOpenaiHoldIntact(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestPendingDropPersists(unittest.TestCase):
+    def test_write_reload_then_second_reading_publishes(self):
+        from datetime import date
+        from scripts.weekly.diff import DiffResult
+        from scripts.weekly.report import build_payload
+
+        week0 = [_rec(50)]
+        diff, comps = TestSharpDropRule()._run(week0, [_rec(15)])
+        payload = build_payload(run_date=date(2026, 10, 12), source_results=[], companies=comps,
+                                diff=diff, suspects=[], denylist_version="v", denylist_count=0,
+                                exclusions_count=0, excluded_from_report=[], duration_s=0,
+                                coverage=COV)
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "2026-10-12.json"
+            p.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            reloaded = json.loads(p.read_text(encoding="utf-8"))["companies"]
+        self.assertEqual(reloaded[0]["ghBeneficiaries"], 50)
+        self.assertEqual(reloaded[0]["pendingDrop"]["to"], 15)
+        diff2 = diff_snapshots([_rec(14)], reloaded, baseline_kind="weekly", baseline_path=str(p), coverage=COV)
+        out = apply_drop_confirmation(diff2, [_rec(14)], reloaded, run_date="2026-10-19")
+        self.assertEqual(out[0]["ghBeneficiaries"], 14)
+        self.assertNotIn("pendingDrop", out[0])

@@ -212,6 +212,7 @@ def build_payload(
                 # run reads this file as its baseline.
                 **({"ocAccounts": c["ocAccounts"]} if c.get("ocAccounts") else {}),
                 **({"hold": c["hold"]} if c.get("hold") else {}),
+                **({"pendingDrop": c["pendingDrop"]} if c.get("pendingDrop") else {}),
             }
             for c in companies
         ],

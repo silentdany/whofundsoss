@@ -22,6 +22,7 @@ from scripts.weekly.diff import (
     apply_site_overrides,
     load_site_overrides,
 )
+from scripts.weekly.denylist import parse_spam_denylist
 from scripts.weekly.report import render_markdown
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,6 +48,9 @@ def main(argv: list[str]) -> int:
             e["slug"] = new
 
     apply_site_overrides(companies, load_site_overrides())
+
+    version, dl = parse_spam_denylist()
+    payload["denylist"] = {**(payload.get("denylist") or {}), "version": version, "count": len(dl)}
 
     d = payload["diff"]
     diff = DiffResult(baseline_kind=d.get("baseline_kind"), baseline_path=d.get("baseline_path"))

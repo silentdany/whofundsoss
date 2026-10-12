@@ -416,10 +416,11 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
         if not CATALOG.exists():
             self.skipTest("catalog.json missing")
         idx = build_catalog_index(CATALOG)
-        if "oinsmania" not in idx.by_slug:
-            self.skipTest("oinsmania not in catalog")
+        # Catalog rebuild 2026-10-12: canonical slug is coinsmania (was oinsmania).
+        self.assertIn("coinsmania", idx.by_slug)
+        self.assertNotIn("oinsmania", idx.by_slug)
         for label, v in self.VARIANTS.items():
-            self.assertEqual(idx.resolve(name=v), "oinsmania", label)
+            self.assertEqual(idx.resolve(name=v), "coinsmania", label)
 
     def test_native_script_untouched(self):
         from scripts.weekly.normalize import canonical_text
