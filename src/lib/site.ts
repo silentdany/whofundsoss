@@ -61,6 +61,7 @@ export const PAGE_TITLES = {
   watchlist: formatTitle("Open source funding watchlist"),
   method: formatTitle("Method: how we count open source funding"),
   denylist: formatTitle("Spam denylist: noindex exclusions"),
+  api: formatTitle("Public API: read-only open source funding data"),
 } as const;
 
 /** Absolute path of the dynamic share card for a public page. */

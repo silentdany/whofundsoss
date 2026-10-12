@@ -164,6 +164,7 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
             { to: "/mysteries", label: "Mysteries" },
             { to: "/watchlist", label: "Watchlist" },
             { to: "/denylist", label: "Spam denylist" },
+            { to: "/api", label: "Public API" },
           ]}
         />
       </div>

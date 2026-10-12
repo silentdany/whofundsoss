@@ -19,10 +19,16 @@ import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
+import { Route as ApiIndexRouteImport } from './routes/api/index'
+import { Route as ApiDenylistRouteImport } from './routes/api/denylist'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiMovementsRouteImport } from './routes/api/movements'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
 import { Route as OgSplatRouteImport } from './routes/og/$'
 import { Route as ProjectSlugRouteImport } from './routes/project.$slug'
+import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
+import { Route as ApiProjectsSlugRouteImport } from './routes/api/projects/$slug'
+import { Route as ApiSponsorsSlugRouteImport } from './routes/api/sponsors/$slug'
 import { Route as ApiV1DeltasRouteImport } from './routes/api/v1/deltas'
 import { Route as ApiV1LeaderboardRouteImport } from './routes/api/v1/leaderboard'
 import { Route as ApiV1ExportCompaniesRouteImport } from './routes/api/v1/export/companies'
@@ -84,9 +90,24 @@ const WatchlistRoute = WatchlistRouteImport.update({
   path: '/watchlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiIndexRoute = ApiIndexRouteImport.update({
+  id: '/api/',
+  path: '/api/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDenylistRoute = ApiDenylistRouteImport.update({
+  id: '/api/denylist',
+  path: '/api/denylist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMovementsRoute = ApiMovementsRouteImport.update({
+  id: '/api/movements',
+  path: '/api/movements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompanySlugRoute = CompanySlugRouteImport.update({
@@ -102,6 +123,21 @@ const OgSplatRoute = OgSplatRouteImport.update({
 const ProjectSlugRoute = ProjectSlugRouteImport.update({
   id: '/project/$slug',
   path: '/project/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
+  id: '/api/projects/',
+  path: '/api/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsSlugRoute = ApiProjectsSlugRouteImport.update({
+  id: '/api/projects/$slug',
+  path: '/api/projects/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSponsorsSlugRoute = ApiSponsorsSlugRouteImport.update({
+  id: '/api/sponsors/$slug',
+  path: '/api/sponsors/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1DeltasRoute = ApiV1DeltasRouteImport.update({
@@ -168,12 +204,18 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
+  '/api/denylist': typeof ApiDenylistRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/movements': typeof ApiMovementsRoute
   '/company/$slug': typeof CompanySlugRoute
   '/og/$': typeof OgSplatRoute
   '/project/$slug': typeof ProjectSlugRoute
+  '/api/': typeof ApiIndexRoute
+  '/api/projects/$slug': typeof ApiProjectsSlugRoute
+  '/api/sponsors/$slug': typeof ApiSponsorsSlugRoute
   '/api/v1/deltas': typeof ApiV1DeltasRoute
   '/api/v1/leaderboard': typeof ApiV1LeaderboardRoute
+  '/api/projects/': typeof ApiProjectsIndexRoute
   '/api/v1/export/companies': typeof ApiV1ExportCompaniesRoute
   '/api/v1/export/snapshots': typeof ApiV1ExportSnapshotsRoute
   '/api/v1/export/sponsorships': typeof ApiV1ExportSponsorshipsRoute
@@ -194,12 +236,18 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
+  '/api/denylist': typeof ApiDenylistRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/movements': typeof ApiMovementsRoute
   '/company/$slug': typeof CompanySlugRoute
   '/og/$': typeof OgSplatRoute
   '/project/$slug': typeof ProjectSlugRoute
+  '/api': typeof ApiIndexRoute
+  '/api/projects/$slug': typeof ApiProjectsSlugRoute
+  '/api/sponsors/$slug': typeof ApiSponsorsSlugRoute
   '/api/v1/deltas': typeof ApiV1DeltasRoute
   '/api/v1/leaderboard': typeof ApiV1LeaderboardRoute
+  '/api/projects': typeof ApiProjectsIndexRoute
   '/api/v1/export/companies': typeof ApiV1ExportCompaniesRoute
   '/api/v1/export/snapshots': typeof ApiV1ExportSnapshotsRoute
   '/api/v1/export/sponsorships': typeof ApiV1ExportSponsorshipsRoute
@@ -221,12 +269,18 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof WatchlistRoute
+  '/api/denylist': typeof ApiDenylistRoute
   '/api/health': typeof ApiHealthRoute
+  '/api/movements': typeof ApiMovementsRoute
   '/company/$slug': typeof CompanySlugRoute
   '/og/$': typeof OgSplatRoute
   '/project/$slug': typeof ProjectSlugRoute
+  '/api/': typeof ApiIndexRoute
+  '/api/projects/$slug': typeof ApiProjectsSlugRoute
+  '/api/sponsors/$slug': typeof ApiSponsorsSlugRoute
   '/api/v1/deltas': typeof ApiV1DeltasRoute
   '/api/v1/leaderboard': typeof ApiV1LeaderboardRoute
+  '/api/projects/': typeof ApiProjectsIndexRoute
   '/api/v1/export/companies': typeof ApiV1ExportCompaniesRoute
   '/api/v1/export/snapshots': typeof ApiV1ExportSnapshotsRoute
   '/api/v1/export/sponsorships': typeof ApiV1ExportSponsorshipsRoute
@@ -249,12 +303,18 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/watchlist'
+    | '/api/denylist'
     | '/api/health'
+    | '/api/movements'
     | '/company/$slug'
     | '/og/$'
     | '/project/$slug'
+    | '/api/'
+    | '/api/projects/$slug'
+    | '/api/sponsors/$slug'
     | '/api/v1/deltas'
     | '/api/v1/leaderboard'
+    | '/api/projects/'
     | '/api/v1/export/companies'
     | '/api/v1/export/snapshots'
     | '/api/v1/export/sponsorships'
@@ -275,12 +335,18 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/watchlist'
+    | '/api/denylist'
     | '/api/health'
+    | '/api/movements'
     | '/company/$slug'
     | '/og/$'
     | '/project/$slug'
+    | '/api'
+    | '/api/projects/$slug'
+    | '/api/sponsors/$slug'
     | '/api/v1/deltas'
     | '/api/v1/leaderboard'
+    | '/api/projects'
     | '/api/v1/export/companies'
     | '/api/v1/export/snapshots'
     | '/api/v1/export/sponsorships'
@@ -301,12 +367,18 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/watchlist'
+    | '/api/denylist'
     | '/api/health'
+    | '/api/movements'
     | '/company/$slug'
     | '/og/$'
     | '/project/$slug'
+    | '/api/'
+    | '/api/projects/$slug'
+    | '/api/sponsors/$slug'
     | '/api/v1/deltas'
     | '/api/v1/leaderboard'
+    | '/api/projects/'
     | '/api/v1/export/companies'
     | '/api/v1/export/snapshots'
     | '/api/v1/export/sponsorships'
@@ -328,12 +400,18 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WatchlistRoute: typeof WatchlistRoute
+  ApiDenylistRoute: typeof ApiDenylistRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  ApiMovementsRoute: typeof ApiMovementsRoute
   CompanySlugRoute: typeof CompanySlugRoute
   OgSplatRoute: typeof OgSplatRoute
   ProjectSlugRoute: typeof ProjectSlugRoute
+  ApiIndexRoute: typeof ApiIndexRoute
+  ApiProjectsSlugRoute: typeof ApiProjectsSlugRoute
+  ApiSponsorsSlugRoute: typeof ApiSponsorsSlugRoute
   ApiV1DeltasRoute: typeof ApiV1DeltasRoute
   ApiV1LeaderboardRoute: typeof ApiV1LeaderboardRoute
+  ApiProjectsIndexRoute: typeof ApiProjectsIndexRoute
   ApiV1ExportCompaniesRoute: typeof ApiV1ExportCompaniesRoute
   ApiV1ExportSnapshotsRoute: typeof ApiV1ExportSnapshotsRoute
   ApiV1ExportSponsorshipsRoute: typeof ApiV1ExportSponsorshipsRoute
@@ -416,11 +494,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WatchlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/': {
+      id: '/api/'
+      path: '/api'
+      fullPath: '/api/'
+      preLoaderRoute: typeof ApiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/denylist': {
+      id: '/api/denylist'
+      path: '/api/denylist'
+      fullPath: '/api/denylist'
+      preLoaderRoute: typeof ApiDenylistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
       fullPath: '/api/health'
       preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/movements': {
+      id: '/api/movements'
+      path: '/api/movements'
+      fullPath: '/api/movements'
+      preLoaderRoute: typeof ApiMovementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/company/$slug': {
@@ -442,6 +541,27 @@ declare module '@tanstack/react-router' {
       path: '/project/$slug'
       fullPath: '/project/$slug'
       preLoaderRoute: typeof ProjectSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/': {
+      id: '/api/projects/'
+      path: '/api/projects'
+      fullPath: '/api/projects/'
+      preLoaderRoute: typeof ApiProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$slug': {
+      id: '/api/projects/$slug'
+      path: '/api/projects/$slug'
+      fullPath: '/api/projects/$slug'
+      preLoaderRoute: typeof ApiProjectsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sponsors/$slug': {
+      id: '/api/sponsors/$slug'
+      path: '/api/sponsors/$slug'
+      fullPath: '/api/sponsors/$slug'
+      preLoaderRoute: typeof ApiSponsorsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/deltas': {
@@ -528,12 +648,18 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WatchlistRoute: WatchlistRoute,
+  ApiDenylistRoute: ApiDenylistRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ApiMovementsRoute: ApiMovementsRoute,
   CompanySlugRoute: CompanySlugRoute,
   OgSplatRoute: OgSplatRoute,
   ProjectSlugRoute: ProjectSlugRoute,
+  ApiIndexRoute: ApiIndexRoute,
+  ApiProjectsSlugRoute: ApiProjectsSlugRoute,
+  ApiSponsorsSlugRoute: ApiSponsorsSlugRoute,
   ApiV1DeltasRoute: ApiV1DeltasRoute,
   ApiV1LeaderboardRoute: ApiV1LeaderboardRoute,
+  ApiProjectsIndexRoute: ApiProjectsIndexRoute,
   ApiV1ExportCompaniesRoute: ApiV1ExportCompaniesRoute,
   ApiV1ExportSnapshotsRoute: ApiV1ExportSnapshotsRoute,
   ApiV1ExportSponsorshipsRoute: ApiV1ExportSponsorshipsRoute,
