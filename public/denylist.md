@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-10-12.3 · as of 2026-10-12 · **105** entries
+**Version** 2026-10-12.4 · as of 2026-10-12 · **105** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
