@@ -343,3 +343,29 @@ test("same hold rule as the site: held hidden in API, shared parser", async () =
   const { parseHolds } = await import("../holds.ts");
   assert.equal(holdSlugs, parseHolds);
 });
+
+test("renamed slugs stay hidden in the API before and after a rebuild (QA a94c4e9 P1)", async () => {
+  const { expandSlugs } = await import("../slug-aliases.ts");
+  const { activeHolds, isHeld } = await import("../holds.ts");
+  const cases: [string, string][] = [
+    ["oinsmania", "coinsmania"],
+    ["ilmaiset-pitk-vetovihjeet", "ilmaiset-pitkavetovihjeet"],
+    ["sm-l-n-uten-sikkerhet", "smalan-uten-sikkerhet"],
+  ];
+  const base = { catalog, denylistVersion: "v", publicDenylist: {} };
+  for (const [oldSlug, newSlug] of cases) {
+    for (const written of [oldSlug, newSlug]) {
+      const viaSpam = createPublicApi({ ...base, spam: expandSlugs([written]), excluded: new Set(), held: new Set() });
+      const viaExcl = createPublicApi({ ...base, spam: new Set(), excluded: expandSlugs([written]), held: new Set() });
+      const viaHold = createPublicApi({ ...base, spam: new Set(), excluded: new Set(), held: new Map([[written, ""]]) });
+      for (const api of [viaSpam, viaExcl, viaHold]) {
+        assert.equal(api.hidden(oldSlug), true, `${written} hides ${oldSlug}`);
+        assert.equal(api.hidden(newSlug), true, `${written} hides ${newSlug}`);
+      }
+      const holds = new Map([[written, "2099-01-01"]]);
+      assert.ok(isHeld(holds, oldSlug, "2026-10-19") && isHeld(holds, newSlug, "2026-10-19"));
+      const active = activeHolds(holds, "2026-10-19");
+      assert.ok(active.has(oldSlug) && active.has(newSlug));
+    }
+  }
+});

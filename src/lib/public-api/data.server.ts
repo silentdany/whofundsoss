@@ -1,3 +1,4 @@
+import { expandSlugs } from "@/lib/slug-aliases";
 /**
  * Server wiring for the public API. Everything is bundled at build time from
  * the site snapshot (src/data/catalog.json, data/weekly/*.json, the denylist
@@ -36,8 +37,9 @@ const held = holdSlugs(holdsCsv);
 export const api = createPublicApi({
   catalog,
   denylistVersion: SPAM_DENYLIST_VERSION,
-  spam: new Set(Object.keys(SPAM_DENYLIST)),
-  excluded: exclusionSlugs(exclusionsCsv, catalog.index, parseGenericHosts(genericHostsPy)),
+  // Old and new slug forms (slug-renames.json) are both filtered.
+  spam: expandSlugs(Object.keys(SPAM_DENYLIST)),
+  excluded: expandSlugs(exclusionSlugs(exclusionsCsv, catalog.index, parseGenericHosts(genericHostsPy))),
   held,
   publicDenylist,
 });

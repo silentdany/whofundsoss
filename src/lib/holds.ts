@@ -1,3 +1,4 @@
+import { expandSlugs, slugEquivalents } from "@/lib/slug-aliases";
 /**
  * Weekly holds (data/holds/weekly-holds.csv), shared by the site and the public
  * API so a held company is hidden in both. A hold is active while
@@ -50,13 +51,14 @@ export function todayUtc(): string {
 }
 
 export function isHeld(holds: ReadonlyMap<string, string>, slug: string, today: string): boolean {
-  if (!holds.has(slug)) return false;
-  const until = holds.get(slug) ?? "";
+  const key = slugEquivalents(slug).find((k) => holds.has(k));
+  if (key === undefined) return false;
+  const until = holds.get(key) ?? "";
   return !until || today < until;
 }
 
 export function activeHolds(holds: ReadonlyMap<string, string>, today: string): Set<string> {
-  return new Set([...holds.keys()].filter((slug) => isHeld(holds, slug, today)));
+  return expandSlugs([...holds.keys()].filter((slug) => isHeld(holds, slug, today)));
 }
 
 type CatalogShape = {

@@ -127,15 +127,20 @@ def is_excluded(
     site_l = (site or "").strip().lower()
 
     if denylist is not None:
-        for key in (slug_l, login_l, name_slug, legacy_name_slug, slugify(slug or "")):
+        from .slug_aliases import slug_equivalents
+
+        base_keys = (slug_l, login_l, name_slug, legacy_name_slug, slugify(slug or ""))
+        for key in (k for b in base_keys for k in slug_equivalents(b)):
             if key and key in denylist:
                 e = denylist[key]
                 return f"denylist:{e.category}:{e.reason}"
 
     if exclusions is None:
         return None
+    from .slug_aliases import slug_equivalents
+
     for row in exclusions:
-        if login_l and row.login_github and row.login_github.lower() == login_l:
+        if login_l and row.login_github and row.login_github.lower() in slug_equivalents(login_l):
             return f"exclusion:{row.exclusion_raison}"
         if name_l and row.entreprise and (
             canonical_text(row.entreprise).strip().lower() == name_l
