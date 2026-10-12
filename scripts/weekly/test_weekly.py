@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 from scripts.weekly.denylist import is_excluded, load_raw_exclusions, parse_spam_denylist
-from scripts.weekly.diff import CoverageReport, catalog_as_companies, diff_snapshots
+from scripts.weekly.diff import CoverageReport, apply_holds, catalog_as_companies, diff_snapshots, load_holds
 from scripts.weekly.normalize import (
     build_catalog_index,
     company_slug,
@@ -38,7 +38,7 @@ class TestDenylistParse(unittest.TestCase):
 
     def test_raw_exclusions_count(self):
         rows = load_raw_exclusions()
-        self.assertEqual(len(rows), 132)
+        self.assertEqual(len(rows), 133)
 
     def test_is_excluded_denylist(self):
         _, entries = parse_spam_denylist()
@@ -203,6 +203,35 @@ class TestDiffCoverage(unittest.TestCase):
         rows = catalog_as_companies(catalog)
         sentry = next(r for r in rows if r["slug"] == "getsentry")
         self.assertEqual(sentry["publicUsdBySource"]["osp"], 750000.0)
+
+
+class TestHolds(unittest.TestCase):
+    def _diff(self):
+        base = [{"slug": "openai", "name": "OpenAI", "sources": ["gh"], "login": "openai", "ghBeneficiaries": 50}]
+        cov = CoverageReport(sources={"github_sponsors": {"full": True, "status": "ok", "meta": {"ok_logins": ["openai"]}}})
+        diff = diff_snapshots([], base, baseline_kind="weekly", baseline_path="data/weekly/prev.json", coverage=cov)
+        return base, diff
+
+    def test_live_holds_file_has_openai(self):
+        self.assertIn("openai", {h["slug"] for h in load_holds()})
+
+    def test_active_hold_carries_last_known_value(self):
+        base, diff = self._diff()
+        self.assertEqual([r["slug"] for r in diff.disappeared_sponsors], ["openai"])
+        holds = [{"slug": "openai", "reason": "single reading", "since": "2026-10-12", "review_on": "2026-10-19"}]
+        out = apply_holds(diff, [], base, holds, run_date="2026-10-12")
+        self.assertEqual(diff.disappeared_sponsors, [])
+        self.assertEqual([h["slug"] for h in diff.held], ["openai"])
+        self.assertEqual(out[0]["ghBeneficiaries"], 50)
+        self.assertEqual(out[0]["hold"]["review_on"], "2026-10-19")
+
+    def test_expired_hold_publishes_disappearance(self):
+        base, diff = self._diff()
+        n = len(diff.disappeared_sponsors)
+        holds = [{"slug": "openai", "reason": "x", "since": "2026-10-12", "review_on": "2026-10-19"}]
+        out = apply_holds(diff, [], base, holds, run_date="2026-10-19")
+        self.assertEqual(len(diff.disappeared_sponsors), n)
+        self.assertEqual(out, [])
 
 
 class TestMergeRetention(unittest.TestCase):

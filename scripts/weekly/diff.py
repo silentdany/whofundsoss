@@ -42,6 +42,7 @@ class DiffResult:
     new_sponsorships: list[dict] = field(default_factory=list)
     amount_changes: list[dict] = field(default_factory=list)
     beneficiary_changes: list[dict] = field(default_factory=list)
+    held: list[dict] = field(default_factory=list)
     suspicious: bool = False
     suspicious_reasons: list[str] = field(default_factory=list)
     baseline_size: int = 0
@@ -60,6 +61,7 @@ class DiffResult:
                 "new_sponsorships": len(self.new_sponsorships),
                 "amount_changes": len(self.amount_changes),
                 "beneficiary_changes": len(self.beneficiary_changes),
+                "held": len(self.held),
             },
             "new_sponsors": self.new_sponsors,
             "disappeared_sponsors": self.disappeared_sponsors,
@@ -67,6 +69,7 @@ class DiffResult:
             "new_sponsorships": self.new_sponsorships,
             "amount_changes": self.amount_changes,
             "beneficiary_changes": self.beneficiary_changes,
+            "held": self.held,
         }
 
 
@@ -379,4 +382,64 @@ def explain_new_against_catalog(new_sponsors: list[dict], catalog_path: Path) ->
         else:
             annotated["note"] = "absent from catalog.json (genuine new or below prior retention)"
         out.append(annotated)
+    return out
+
+
+DEFAULT_HOLDS_CSV = Path(__file__).resolve().parents[2] / "data" / "holds" / "weekly-holds.csv"
+
+
+def load_holds(path: Path | None = None) -> list[dict]:
+    """Read data/holds/weekly-holds.csv. Missing file → no holds."""
+    import csv
+
+    path = path or DEFAULT_HOLDS_CSV
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8", newline="") as fh:
+        return [
+            {k: (v or "").strip() for k, v in row.items()}
+            for row in csv.DictReader(fh)
+            if (row.get("slug") or "").strip()
+        ]
+
+
+def apply_holds(
+    diff: DiffResult,
+    companies: list[dict],
+    baseline: list[dict],
+    holds: list[dict],
+    *,
+    run_date: str,
+) -> list[dict]:
+    """Keep the last known record of held companies instead of publishing a disappearance.
+
+    A hold is active while run_date < review_on. Returns the (possibly extended)
+    companies list; mutates diff (disappeared_sponsors → held).
+    """
+    active = {
+        h["slug"].lower(): h
+        for h in holds
+        if h.get("slug") and (not h.get("review_on") or run_date < h["review_on"])
+    }
+    if not active:
+        return companies
+    base = _index_companies(baseline)
+    kept_disappeared = []
+    out = list(companies)
+    for row in diff.disappeared_sponsors:
+        hold = active.get((row.get("slug") or "").lower())
+        if hold is None or row.get("slug") not in base:
+            kept_disappeared.append(row)
+            continue
+        carried = dict(base[row["slug"]])
+        carried.pop("hold", None)
+        carried["hold"] = {
+            "reason": hold.get("reason"),
+            "since": hold.get("since"),
+            "review_on": hold.get("review_on"),
+            "carriedFrom": diff.baseline_path,
+        }
+        out.append(carried)
+        diff.held.append({**row, "hold_reason": hold.get("reason"), "review_on": hold.get("review_on")})
+    diff.disappeared_sponsors = kept_disappeared
     return out

@@ -12,8 +12,8 @@
  *
  * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam).
  *
- * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-06.5).
- * v2026-10-06.5 · as of 2026-10-06
+ * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-12.1).
+ * v2026-10-12.1 · as of 2026-10-12
  */
 export type SpamCategory =
   | "gambling"
@@ -24,7 +24,7 @@ export type SpamCategory =
   | "piracy"
   | "adult";
 
-export const SPAM_DENYLIST_VERSION = "2026-10-06.5";
+export const SPAM_DENYLIST_VERSION = "2026-10-12.1";
 
 /** Who flagged it: "qa" = QA sitemap review, "dev" = Dev pass, "data" = Data triage. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -52,6 +52,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "fortune-tiger": { category: "gambling", source: "dev", reason: "slot gambling game" },
   "fruityking-nz": { category: "gambling", source: "dev", reason: "online casino" },
   "fun88": { category: "gambling", source: "dev", reason: "online casino / sportsbook" },
+  "funrize-social-casino": { category: "gambling", source: "data", reason: "social casino (funrize.com)" },
   "hollandsegokken-nl": { category: "gambling", source: "dev", reason: "Dutch online gambling" },
   "https-chicken-roadd-com": { category: "gambling", source: "dev", reason: "crash gambling game" },
   "ilmaiset-pitk-vetovihjeet": { category: "gambling", source: "dev", reason: "betting tips / betting bonuses" },
@@ -65,6 +66,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "nettikasinot": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "nettikasinot-media": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "nettikasinot-org": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
+  "oinsmania": { category: "gambling", source: "data", reason: "social casino (coinsmania.com); name uses a Cyrillic С homoglyph" },
   "ok-win": { category: "gambling", source: "dev", reason: "colour prediction gambling app" },
   "parhaatnettikasinot-com": { category: "gambling", source: "qa", reason: "Finnish online casino listing" },
   "parimatch": { category: "gambling", source: "dev", reason: "sportsbook / casino" },
