@@ -11,7 +11,7 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
-from .normalize import fold_homoglyphs
+from .normalize import canonical_text
 
 # Broad keywords. Applied on NFKC-normalized name + login + slug + site + sector.
 SUSPECT_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -62,7 +62,7 @@ def _norm(text: str) -> str:
 
     Non-Latin words are preserved so native-script patterns still match.
     """
-    return fold_homoglyphs(unicodedata.normalize("NFKC", text or "")).casefold()
+    return canonical_text(text).casefold()
 
 
 @dataclass(frozen=True)

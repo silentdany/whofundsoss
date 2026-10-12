@@ -354,6 +354,60 @@ class TestHomoglyphs(unittest.TestCase):
         self.assertIsNotNone(is_excluded(slug="coinsmania", name="Coinsmania", exclusions=rows))
 
 
+class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
+    VARIANTS = {
+        "cyrillic_es_first": "\u0421oinsmania",
+        "cyrillic_a_last": "Coinsmani\u0430",
+        "greek_lunate_sigma": "\u03f9oinsmania",
+        "double_struck_c": "\u2102oinsmania",
+        "fullwidth_c": "\uff23oinsmania",
+        "zero_width_inside": "Coins\u200bmania",
+        "all_at_once": "\uff23oins\u200dmani\u0430",
+    }
+
+    def test_canonical_text(self):
+        from scripts.weekly.normalize import canonical_text
+        for label, v in self.VARIANTS.items():
+            self.assertEqual(canonical_text(v), "Coinsmania", label)
+
+    def test_slug_is_stable_across_variants(self):
+        for label, v in self.VARIANTS.items():
+            self.assertEqual(slugify(v), "coinsmania", label)
+        self.assertEqual(slugify("Ｇｅｎｅｒａｌ Catalyst"), "general-catalyst")
+
+    def test_no_variant_bypasses_denylist_or_exclusions(self):
+        _, dl = parse_spam_denylist()
+        ex = load_raw_exclusions()
+        for label, v in self.VARIANTS.items():
+            # No site, slug derived from the name: the worst case for a bypass.
+            reason = is_excluded(slug=slugify(v), name=v, site="", login="", denylist=dl, exclusions=ex)
+            self.assertIsNotNone(reason, label)
+
+    def test_denylist_slug_itself_canonicalized(self):
+        from scripts.weekly.denylist import DenylistEntry
+        dl = {"coinsmania": DenylistEntry(slug="coinsmania", category="gambling", source="data", reason="casino")}
+        if dl is None:
+            self.skipTest("DenylistEntry shape differs")
+        for label, v in self.VARIANTS.items():
+            self.assertIsNotNone(is_excluded(slug=v, name="", denylist=dl, exclusions=[]), label)
+
+    def test_variant_merges_into_catalog_row_not_a_duplicate(self):
+        if not CATALOG.exists():
+            self.skipTest("catalog.json missing")
+        idx = build_catalog_index(CATALOG)
+        if "oinsmania" not in idx.by_slug:
+            self.skipTest("oinsmania not in catalog")
+        for label, v in self.VARIANTS.items():
+            self.assertEqual(idx.resolve(name=v), "oinsmania", label)
+
+    def test_native_script_untouched(self):
+        from scripts.weekly.normalize import canonical_text
+        self.assertEqual(canonical_text("онлайн казино"), "онлайн казино")
+        self.assertEqual(canonical_text("Ставки на спорт"), "Ставки на спорт")  # "на" is not "ha"
+        # No slug churn for live denylisted names
+        self.assertEqual(slugify("Funrize\u2122 Social Casino"), "funrize-social-casino")
+
+
 class TestExistingDataPr(unittest.TestCase):
     PRS = [
         {"number": 24, "url": "u24", "state": "OPEN", "headRefName": "data/weekly-run-1", "files": [{"path": "data/weekly/2026-10-12.json"}]},
@@ -377,16 +431,24 @@ class TestExistingDataPr(unittest.TestCase):
         with self.assertRaises(ValueError):
             find_existing(self.PRS, "2026-10-12; rm -rf /")
 
-    def test_workflow_patch_gates_scrape_and_pr_steps(self):
-        # The workflow change ships as docs/weekly-scraper-dedupe.patch (the bot token
-        # cannot push .github/workflows). Once applied, the live workflow is checked too.
+    def test_workflow_patch_uses_read_only_github_token(self):
+        # Ships as docs/weekly-scraper-dedupe.patch (the bot token cannot push
+        # .github/workflows). Once applied, the live workflow is checked too.
         root = Path(__file__).resolve().parents[2]
         patch = (root / "docs" / "weekly-scraper-dedupe.patch").read_text()
-        self.assertIn("scripts.weekly.existing_data_pr", patch)
-        self.assertEqual(patch.count("+        if: steps.dedupe.outputs.skip != 'true'"), 3)
+        added = "\n".join(l[1:] for l in patch.splitlines() if l.startswith("+") and not l.startswith("+++"))
+        self.assertIn("scripts.weekly.existing_data_pr", added)
+        self.assertIn("GH_TOKEN: ${{ github.token }}", added)
+        self.assertIn("pull-requests: read", added)
+        self.assertIn("contents: read", added)
+        guard = added[added.index("dedupe:"):added.index("needs: dedupe")]
+        self.assertNotIn("PAT", guard.replace("no PAT", ""))
+        self.assertNotIn("secrets.", guard)
+        self.assertIn("needs: dedupe", added)
+        self.assertIn("if: needs.dedupe.outputs.skip != 'true'", added)
         wf = (root / ".github" / "workflows" / "weekly-scraper.yml").read_text()
         if "existing_data_pr" in wf:
-            self.assertEqual(wf.count("if: steps.dedupe.outputs.skip != 'true'"), 3)
+            self.assertIn("if: needs.dedupe.outputs.skip != 'true'", wf)
 
 
 class TestMergeRetention(unittest.TestCase):

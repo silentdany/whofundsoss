@@ -1,5 +1,5 @@
 diff --git a/.github/workflows/weekly-scraper.yml b/.github/workflows/weekly-scraper.yml
-index 9d80dea..f7e7bf7 100644
+index 9d80dea..e99cc81 100644
 --- a/.github/workflows/weekly-scraper.yml
 +++ b/.github/workflows/weekly-scraper.yml
 @@ -20,6 +20,11 @@ on:
@@ -14,16 +14,32 @@ index 9d80dea..f7e7bf7 100644
  
  # Minimum permissions. Do not broaden.
  permissions:
-@@ -74,10 +79,36 @@ jobs:
-         with:
-           python-version: "3.12"
+@@ -31,7 +36,50 @@ concurrency:
+   cancel-in-progress: false
  
-+      # A late cron (e.g. run 38246276121, 14:00 Paris) must not open a second
-+      # data PR for a date that already has one. Closed, unmerged PRs do not count.
+ jobs:
++  # A late cron (e.g. run 38246276121, 14:00 Paris) must not open a second data
++  # PR for a date that already has one. Read-only job on the built-in
++  # GITHUB_TOKEN (no PAT). Closed, unmerged PRs do not count.
++  dedupe:
++    runs-on: ubuntu-latest
++    timeout-minutes: 5
++    permissions:
++      contents: read
++      pull-requests: read
++    outputs:
++      skip: ${{ steps.check.outputs.skip }}
++    steps:
++      - name: Checkout (guard script only)
++        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
++        with:
++          persist-credentials: false
++          sparse-checkout: scripts/weekly
++
 +      - name: Skip if a data PR already exists for this date
-+        id: dedupe
++        id: check
 +        env:
-+          GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
++          GH_TOKEN: ${{ github.token }}
 +          INPUT_FORCE: ${{ inputs.force }}
 +        run: |
 +          set -euo pipefail
@@ -43,27 +59,9 @@ index 9d80dea..f7e7bf7 100644
 +            echo "skip=false" >> "$GITHUB_OUTPUT"
 +          fi
 +
-       - name: Unit tests (no network)
-         run: python3 -m unittest scripts.weekly.test_weekly scripts.weekly.test_qa_blockers -v
- 
-       - name: Run weekly scraper
-+        if: steps.dedupe.outputs.skip != 'true'
-         env:
-           # Never echo. Actions masks secrets; we still avoid printing env.
-           GH_TOKEN: ${{ secrets.GH_SPONSORS_TOKEN || secrets.WFO_WEEKLY_PAT }}
-@@ -100,6 +131,7 @@ jobs:
-           python3 -c "import json,sys; p=json.load(open('data/weekly/'+sys.argv[1]+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st); assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'" "$DATE"
- 
-       - name: Upload weekly artifact
-+        if: steps.dedupe.outputs.skip != 'true'
-         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-         with:
-           name: weekly-${{ github.run_id }}
-@@ -109,6 +141,7 @@ jobs:
-           if-no-files-found: error
- 
-       - name: Open data-only PR from main
-+        if: steps.dedupe.outputs.skip != 'true'
-         env:
-           GH_TOKEN: ${{ secrets.WFO_WEEKLY_PAT }}
-           WFO_WEEKLY_PAT: ${{ secrets.WFO_WEEKLY_PAT }}
+   scrape:
++    needs: dedupe
++    if: needs.dedupe.outputs.skip != 'true'
+     runs-on: ubuntu-latest
+     timeout-minutes: 90
+     steps:

@@ -63,8 +63,14 @@ _HOMOGLYPHS = {
     "Α": "A", "Β": "B", "Ε": "E", "Ζ": "Z", "Η": "H", "Ι": "I", "Κ": "K", "Μ": "M",
     "Ν": "N", "Ο": "O", "Ρ": "P", "Τ": "T", "Υ": "Y", "Χ": "X",
     "ο": "o", "α": "a", "ι": "i", "κ": "k", "ν": "v", "ρ": "p", "τ": "t", "υ": "u", "χ": "x",
+    # Greek lunate sigma / yot (not touched by NFKC)
+    "Ϲ": "C", "ϲ": "c", "Ϳ": "J", "ϳ": "j",
+    # Letterlike symbols that survive NFKC
+    "℮": "e", "Ⅽ": "C", "ⅽ": "c", "Ⅰ": "I", "ⅰ": "i", "Ⅴ": "V", "ⅴ": "v", "Ⅹ": "X", "ⅹ": "x",
+    "Ⅼ": "L", "ⅼ": "l", "Ⅾ": "D", "ⅾ": "d", "Ⅿ": "M", "ⅿ": "m",
 }
 _HOMOGLYPH_TABLE = str.maketrans(_HOMOGLYPHS)
+_PRE_NFKC = str.maketrans({"\u2122": "", "\u00ae": "", "\u00a9": "", "\u2120": "", "\u03f9": "\u0421", "\u03f2": "\u0441", "\u037f": "\u0408", "\u03f3": "\u0458"})
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
 _LATIN_RE = re.compile(r"[A-Za-z]")
 
@@ -85,16 +91,40 @@ def fold_homoglyphs(text: str) -> str:
         folded = word.translate(_HOMOGLYPH_TABLE)
         if folded == word:
             return word
-        if _LATIN_RE.search(word) or not re.search(r"[^\x00-\x7f]", folded):
+        # Only mixed-script words are spoofs. A word with no Latin letter
+        # ("на", "ВСЕ") is real Cyrillic/Greek text and is left alone.
+        if _LATIN_RE.search(word):
             return folded
         return word
 
     return _WORD_RE.sub(_fold, text)
 
 
+# Zero-width and invisible format characters that split or disguise words.
+_ZERO_WIDTH_RE = re.compile("[\u00ad\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufeff]")
+
+
+def canonical_text(text: str | None) -> str:
+    """NFKC, then homoglyph fold (Cyrillic/Greek/letterlike), then strip zero-width.
+
+    Applied before slug generation and before every denylist / exclusion match,
+    so 'Coinsmani\u0430', '\u03f9oinsmania', '\u2102oinsmania' and fullwidth
+    '\uff23oinsmania' all read as 'Coinsmania'.
+    """
+    import unicodedata
+
+    # Lunate sigma/yot: NFKC would turn them into regular Σ/ς/J, losing the
+    # C-likeness, so map those few first. Then NFKC (fullwidth, ℂ, ligatures).
+    t = (text or "").translate(_PRE_NFKC)
+    t = unicodedata.normalize("NFKC", t)
+    t = _ZERO_WIDTH_RE.sub("", t)
+    t = fold_homoglyphs(t)
+    return _ZERO_WIDTH_RE.sub("", t)
+
+
 def slugify(text: str) -> str:
     """ASCII kebab-case, same spirit as the catalog name→slug path."""
-    s = (text or "").strip().lower()
+    s = canonical_text(text).strip().lower()
     s = re.sub(r"[^a-z0-9]+", "-", s)
     return s.strip("-")
 

@@ -243,6 +243,13 @@ def stable_ids(company: dict) -> set[str]:
     return ids
 
 
+def _matched_by(shared: set[str]) -> str:
+    for prefix, label in (("oc:", "oc_account"), ("gh:", "gh_login"), ("osp:", "osp_slug")):
+        if any(i.startswith(prefix) for i in shared):
+            return label
+    return "oc_site_name"
+
+
 def _oc_fallback_id(company: dict) -> str | None:
     """For baselines written before ocAccounts existed: OC-only rows match on
     exact site domain + name (both must be present)."""
@@ -324,7 +331,7 @@ def diff_snapshots(
             "from": old_key,
             "to": new_key,
             "name": cur[new_key].get("name"),
-            "matchedBy": stable_ids(cur[new_key]) & stable_ids(b) and "oc_account" or "oc_site_name",
+            "matchedBy": _matched_by(stable_ids(cur[new_key]) & stable_ids(b)),
         })
 
     for key, c in cur.items():
