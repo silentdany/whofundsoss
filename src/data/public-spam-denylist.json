@@ -1,12 +1,13 @@
 {
   "title": "WhoFundsOSS public spam denylist",
-  "version": "2026-10-12.1",
+  "version": "2026-10-12.2",
   "as_of": "2026-10-12",
   "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
   "counts": {
-    "total": 101,
+    "total": 106,
     "by_category": {
       "adult": 1,
+      "commercial-unrelated": 5,
       "fake-engagement": 27,
       "fake-reviews": 3,
       "fake-traffic": 8,
@@ -22,13 +23,39 @@
     "fake-traffic": "Sells website traffic.",
     "link-spam": "Sells backlinks, black-hat SEO forums, essay/homework mills used for link spam, and link-building agencies that buy sponsorships for backlinks.",
     "piracy": "Piracy guides, Pirate Bay proxies, Fire TV Stick sideloading / IPTV guides.",
-    "adult": "Adult directories."
+    "adult": "Adult directories.",
+    "commercial-unrelated": "Commercial sponsors with no open-source link (cannabis shops, credit repair, consumer loans, unrelated businesses)."
   },
   "entries": [
     {
       "slug": "john-s-directory",
       "category": "adult",
       "reason": "adult directory"
+    },
+    {
+      "slug": "creditcaptain-leading-ai-credit-repair-service",
+      "category": "commercial-unrelated",
+      "reason": "credit repair"
+    },
+    {
+      "slug": "releaf-medical-cannabis-glossary",
+      "category": "commercial-unrelated",
+      "reason": "cannabis shop"
+    },
+    {
+      "slug": "releaf-medizinischer-cannabis-shop",
+      "category": "commercial-unrelated",
+      "reason": "cannabis shop"
+    },
+    {
+      "slug": "sm-l-n-uten-sikkerhet",
+      "category": "commercial-unrelated",
+      "reason": "loans"
+    },
+    {
+      "slug": "sxl-cn",
+      "category": "commercial-unrelated",
+      "reason": "commercial, unrelated to OSS"
     },
     {
       "slug": "blastup",

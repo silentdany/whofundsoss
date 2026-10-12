@@ -16,9 +16,9 @@ const DENIED_IN_CATALOG = DENIED.filter((slug) => bySlug.has(slug));
 const NAMED_BY_CDP = ["uudetkasinot-com", "fire-stick-tricks", "buy-google-reviews", "socialboosting", "nettikasinot-media"];
 
 
-test("denylist public export version is 2026-10-12.1", () => {
-  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.1");
-  assert.equal(Object.keys(SPAM_DENYLIST).length, 101);
+test("denylist public export version is 2026-10-12.2", () => {
+  assert.equal(SPAM_DENYLIST_VERSION, "2026-10-12.2");
+  assert.equal(Object.keys(SPAM_DENYLIST).length, 106);
   assert.equal(isSpamDenylisted("redreply"), false);
 });
 
@@ -79,7 +79,7 @@ test("every QA-flagged slug kept in the denylist is tagged qa, rejected ones are
     assert.equal(isSpamDenylisted(slug), false, slug);
   }
   assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "qa").length, 32);
-  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 10);
+  assert.equal(Object.values(SPAM_DENYLIST).filter((entry) => entry.source === "data").length, 15);
 });
 
 test("sitemap includes gated /project paths and never a sub-gate project", () => {
