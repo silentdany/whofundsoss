@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-10-12.1 · as of 2026-10-12 · **101** entries
+**Version** 2026-10-12.3 · as of 2026-10-12 · **105** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -9,13 +9,14 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | Category | Count |
 |---|---:|
 | adult | 1 |
+| commercial-unrelated | 4 |
 | fake-engagement | 27 |
 | fake-reviews | 3 |
 | fake-traffic | 8 |
 | gambling | 54 |
 | link-spam | 5 |
 | piracy | 3 |
-| **Total** | **101** |
+| **Total** | **105** |
 
 ## Criteria
 
@@ -26,12 +27,17 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 - **link-spam** — Sells backlinks, black-hat SEO forums, essay/homework mills used for link spam, and link-building agencies that buy sponsorships for backlinks.
 - **piracy** — Piracy guides, Pirate Bay proxies, Fire TV Stick sideloading / IPTV guides.
 - **adult** — Adult directories.
+- **commercial-unrelated** — Commercial sponsors with no open-source link (cannabis shops, credit repair, consumer loans, unrelated businesses).
 
 ## Entries (already documented as excluded)
 
 | Slug | Category | Reason |
 |---|---|---|
 | `john-s-directory` | adult | adult directory |
+| `creditcaptain-leading-ai-credit-repair-service` | commercial-unrelated | credit repair |
+| `releaf-medical-cannabis-glossary` | commercial-unrelated | cannabis shop |
+| `releaf-medizinischer-cannabis-shop` | commercial-unrelated | cannabis shop |
+| `sm-l-n-uten-sikkerhet` | commercial-unrelated | loans |
 | `blastup` | fake-engagement | sells followers / likes |
 | `bulkoid` | fake-engagement | sells followers / likes |
 | `bulkviews` | fake-engagement | sells YouTube views |
@@ -146,4 +152,5 @@ These were reviewed and left out of the denylist because they are not clearly sp
 - `open-apk-file` — file utility
 - `upgrow` — growth agency
 - `redreply` — Reddit marketing SaaS; not clearly spam
+- `sxl-cn`: Strikingly (sxl.cn), Open Collective backer of babel, vuejs, webpack; kept in the ranking (Dany, 2026-10-12)
 

@@ -408,7 +408,8 @@ def load_holds(path: Path | None = None) -> list[dict]:
       ISO YYYY-MM-DD review_on;
     - parsed with csv.DictReader, so quoted fields may contain commas.
 
-    Fails closed: a wrong header or ANY invalid non-blank row raises
+    Fails closed: an unreadable file (not UTF-8, a directory, an OS error),
+    a wrong header or ANY invalid non-blank row raises
     HoldsFileError listing every problem with its line number. Fully blank
     rows (including ",,,,,") are ignored.
     """
@@ -420,38 +421,48 @@ def load_holds(path: Path | None = None) -> list[dict]:
         return []
     out: list[dict] = []
     errors: list[str] = []
-    with path.open(encoding="utf-8-sig", newline="") as fh:
-        reader = csv.DictReader(fh)
-        header = tuple((h or "").strip() for h in (reader.fieldnames or []))
-        if header != HOLDS_HEADER:
-            raise HoldsFileError(
-                f"{path}: invalid header {list(header)!r}; expected {list(HOLDS_HEADER)!r}"
-            )
-        for row in reader:
-            line = reader.line_num
-            extra = row.pop(None, None)
-            clean = {k.strip(): (v or "").strip() for k, v in row.items()}
-            if not extra and not any(clean.values()):
-                continue
-            label = f"line {line}" + (f" (slug {clean['slug']})" if clean.get("slug") else "")
-            if extra or any(v is None for v in row.values()):
-                errors.append(
-                    f"{label}: expected {len(HOLDS_HEADER)} columns "
-                    "(quote the reason if it contains a comma)"
+    try:
+        with path.open(encoding="utf-8-sig", newline="") as fh:
+            reader = csv.DictReader(fh)
+            header = tuple((h or "").strip() for h in (reader.fieldnames or []))
+            if header != HOLDS_HEADER:
+                raise HoldsFileError(
+                    f"{path}: invalid header {list(header)!r}; expected {list(HOLDS_HEADER)!r}"
                 )
-                continue
-            if not clean["slug"]:
-                errors.append(f"{label}: missing slug")
-                continue
-            review_on = clean["review_on"]
-            try:
-                ok = len(review_on) == 10 and date.fromisoformat(review_on).isoformat() == review_on
-            except ValueError:
-                ok = False
-            if not ok:
-                errors.append(f"{label}: review_on {review_on!r} is missing or not an ISO YYYY-MM-DD date")
-                continue
-            out.append(clean)
+            for row in reader:
+                line = reader.line_num
+                extra = row.pop(None, None)
+                clean = {k.strip(): (v or "").strip() for k, v in row.items()}
+                if not extra and not any(clean.values()):
+                    continue
+                label = f"line {line}" + (f" (slug {clean['slug']})" if clean.get("slug") else "")
+                if extra or any(v is None for v in row.values()):
+                    errors.append(
+                        f"{label}: expected {len(HOLDS_HEADER)} columns "
+                        "(quote the reason if it contains a comma)"
+                    )
+                    continue
+                if not clean["slug"]:
+                    errors.append(f"{label}: missing slug")
+                    continue
+                review_on = clean["review_on"]
+                try:
+                    ok = len(review_on) == 10 and date.fromisoformat(review_on).isoformat() == review_on
+                except ValueError:
+                    ok = False
+                if not ok:
+                    errors.append(f"{label}: review_on {review_on!r} is missing or not an ISO YYYY-MM-DD date")
+                    continue
+                out.append(clean)
+    except UnicodeDecodeError as e:
+        raise HoldsFileError(
+            f"{path}: not valid UTF-8 (byte {e.start}: {e.reason}); "
+            "save the file as UTF-8 (CSV UTF-8 in Excel)"
+        ) from None
+    except IsADirectoryError:
+        raise HoldsFileError(f"{path}: is a directory, expected a CSV file") from None
+    except OSError as e:
+        raise HoldsFileError(f"{path}: cannot read ({e.strerror or e})") from None
     if errors:
         raise HoldsFileError(
             f"{path}: {len(errors)} invalid hold row(s); fix the file, nothing was published:\n  - "
