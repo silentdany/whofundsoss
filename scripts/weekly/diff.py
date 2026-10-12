@@ -709,6 +709,15 @@ def apply_drop_confirmation(
         prev = base.get(key)
         if prev is None or c.get("hold"):
             continue
+        pend = c.get("pendingDrop")
+        if pend and pend.get("since") == run_date:
+            # Already applied for this run (rules re-applied to a written file).
+            held_slugs.add(key)
+            if not any(r.get("slug") == c.get("slug") and r.get("hold_kind") == "sharp_drop" for r in diff.held):
+                diff.held.append({"slug": c.get("slug"), "name": c.get("name"), "from": pend.get("from"),
+                                  "to": pend.get("to"), "hold_reason": DROP_HOLD_REASON,
+                                  "review_on": None, "hold_kind": "sharp_drop"})
+            continue
         before, now = _ben_count(prev), _ben_count(c)
         c.pop("pendingDrop", None)
         if not before or now is None or now == 0 or now >= before * (1 - DROP_RATIO):

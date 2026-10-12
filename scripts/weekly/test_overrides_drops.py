@@ -130,3 +130,12 @@ class TestPendingDropPersists(unittest.TestCase):
         out = apply_drop_confirmation(diff2, [_rec(14)], reloaded, run_date="2026-10-19")
         self.assertEqual(out[0]["ghBeneficiaries"], 14)
         self.assertNotIn("pendingDrop", out[0])
+
+
+class TestDropRuleIdempotent(unittest.TestCase):
+    def test_reapplying_same_run_keeps_pending(self):
+        diff, out = TestSharpDropRule()._run([_rec(50)], [_rec(15)])
+        out = apply_drop_confirmation(diff, out, [_rec(50)], run_date="2026-10-12")
+        self.assertEqual(out[0]["pendingDrop"]["to"], 15)
+        self.assertEqual(out[0]["ghBeneficiaries"], 50)
+        self.assertEqual(len([r for r in diff.held if r["hold_kind"] == "sharp_drop"]), 1)
