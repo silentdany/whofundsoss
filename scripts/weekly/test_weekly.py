@@ -279,6 +279,22 @@ class TestTwoZeroRule(unittest.TestCase):
         self.assertEqual(len(diff.disappeared_sponsors), 1)
 
 
+class TestPayloadKeepsState(unittest.TestCase):
+    def test_hold_and_oc_accounts_survive_build_payload(self):
+        from datetime import date
+        from scripts.weekly.diff import DiffResult
+        from scripts.weekly.report import build_payload
+        comps = [{"slug": "openai", "name": "OpenAI", "hold": {"kind": "manual"}, "ocAccounts": []},
+                 {"slug": "sxl-cn", "name": "上线了", "ocAccounts": ["strikingly"]}]
+        p = build_payload(run_date=date(2026, 10, 12), source_results=[], companies=comps,
+                          diff=DiffResult(baseline_kind="weekly", baseline_path=None), suspects=[],
+                          denylist_version="v", denylist_count=0, exclusions_count=0,
+                          excluded_from_report=[], duration_s=0, coverage=CoverageReport())
+        self.assertEqual(p["companies"][0]["hold"], {"kind": "manual"})
+        self.assertNotIn("ocAccounts", p["companies"][0])
+        self.assertEqual(p["companies"][1]["ocAccounts"], ["strikingly"])
+
+
 class TestStableOcIdentity(unittest.TestCase):
     COV = CoverageReport(sources={"open_collective": {"full": True, "status": "ok", "meta": {"ok_collective_slugs": ["babel", "vuejs", "webpack", "mochajs", "parcel"]}}})
 

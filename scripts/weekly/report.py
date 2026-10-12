@@ -208,6 +208,10 @@ def build_payload(
                 "collectives": c.get("collectives"),
                 "ospSlug": c.get("ospSlug"),
                 "reportUrl": c.get("reportUrl"),
+                # Identity + hold state must survive into the file: next week's
+                # run reads this file as its baseline.
+                **({"ocAccounts": c["ocAccounts"]} if c.get("ocAccounts") else {}),
+                **({"hold": c["hold"]} if c.get("hold") else {}),
             }
             for c in companies
         ],
