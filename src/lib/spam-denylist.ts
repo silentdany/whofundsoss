@@ -1,3 +1,4 @@
+import { slugEquivalents } from "@/lib/slug-aliases";
 /**
  * SEO spam denylist (versioned, explicit, no heuristic).
  *
@@ -147,7 +148,8 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "sm-l-n-uten-sikkerhet": { category: "commercial-unrelated", source: "data", reason: "loans" },
 };
 
+/** Matches the written key and its rename equivalent (slug-renames.json), both ways. */
 export function isSpamDenylisted(slug: string): boolean {
-  return Object.prototype.hasOwnProperty.call(SPAM_DENYLIST, slug);
+  return slugEquivalents(slug).some((k) => Object.prototype.hasOwnProperty.call(SPAM_DENYLIST, k));
 }
 

@@ -581,10 +581,14 @@ def apply_holds(
     Returns the (possibly extended) companies list; mutates diff
     (disappeared_sponsors -> held).
     """
+    from .slug_aliases import slug_equivalents
+
+    # A hold keyed on the old slug also covers the renamed one, and vice versa.
     active = {
-        h["slug"].lower(): h
+        alias: h
         for h in holds
         if h.get("slug") and (not h.get("review_on") or run_date < h["review_on"])
+        for alias in slug_equivalents(h["slug"])
     }
     if not active and not require_two_zero:
         return companies
