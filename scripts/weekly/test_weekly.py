@@ -668,3 +668,40 @@ class TestSlugRenames(unittest.TestCase):
         self.assertEqual(idx.resolve(name="Et\u00e9reo"), "et-reo")
         self.assertEqual(idx.aliases.get(legacy_slugify("Et\u00e9reo")), "et-reo")
         self.assertEqual(idx.aliases.get("etereo"), "et-reo")
+
+
+class TestRenamedKeysStayFiltered(unittest.TestCase):
+    """QA a94c4e9 P1: denylist, exclusions and holds match old and new slugs."""
+
+    CASES = [
+        ("oinsmania", "coinsmania"),
+        ("ilmaiset-pitk-vetovihjeet", "ilmaiset-pitkavetovihjeet"),
+        ("sm-l-n-uten-sikkerhet", "smalan-uten-sikkerhet"),
+    ]
+
+    def test_denylist_before_and_after_rebuild(self):
+        _, dl = parse_spam_denylist()
+        for old, new in self.CASES:
+            for s in (old, new):
+                self.assertIsNotNone(is_excluded(slug=s, login=s, denylist=dl, exclusions=[]), s)
+
+    def test_exclusion_login_before_and_after(self):
+        from scripts.weekly.denylist import ExclusionEntry
+        import dataclasses
+        fields = {f.name for f in dataclasses.fields(ExclusionEntry)}
+        for old, new in self.CASES:
+            for key, probe in ((old, new), (new, old), (old, old)):
+                row = ExclusionEntry(**{f: "" for f in fields} | {"login_github": key, "exclusion_raison": "qa"})
+                self.assertEqual(is_excluded(slug=probe, exclusions=[row]), "exclusion:qa", (key, probe))
+
+    def test_holds_before_and_after(self):
+        for old, new in self.CASES:
+            # (hold key as written, slug in the catalog/weekly data)
+            for hold_key, cur in ((old, old), (old, new), (new, old)):
+                base = [{"slug": cur, "name": "X", "sources": ["gh"], "login": cur, "ghBeneficiaries": 5}]
+                cov = CoverageReport(sources={"github_sponsors": {"full": True, "status": "ok", "meta": {"ok_logins": [cur]}}})
+                diff = diff_snapshots([], base, baseline_kind="weekly", baseline_path="p.json", coverage=cov)
+                holds = [{"slug": hold_key, "reason": "qa", "since": "2026-10-12", "review_on": "2026-12-01"}]
+                out = apply_holds(diff, [], base, holds, run_date="2026-10-19", require_two_zero=False)
+                self.assertEqual([h["slug"] for h in diff.held], [cur], (hold_key, cur))
+                self.assertEqual(out[0]["hold"]["kind"], "manual")
