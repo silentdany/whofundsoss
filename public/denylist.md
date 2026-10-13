@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-10-12.4 · as of 2026-10-12 · **105** entries
+**Version** 2026-10-12.5 · as of 2026-10-12 · **107** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -10,13 +10,13 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 |---|---:|
 | adult | 1 |
 | commercial-unrelated | 4 |
-| fake-engagement | 27 |
+| fake-engagement | 29 |
 | fake-reviews | 3 |
 | fake-traffic | 8 |
 | gambling | 54 |
 | link-spam | 5 |
 | piracy | 3 |
-| **Total** | **105** |
+| **Total** | **107** |
 
 ## Criteria
 
@@ -63,6 +63,8 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `socialboosting` | fake-engagement | sells followers / likes |
 | `socialdawn` | fake-engagement | sells followers / likes |
 | `stormlikes` | fake-engagement | sells followers / likes |
+| `thunderclap-com` | fake-engagement | Buy Instagram Followers (spam_followers); thunderclap.com, same page as thunderclap-it |
+| `thunderclap-it` | fake-engagement | Buy Instagram Followers (spam_followers) |
 | `volgersboost` | fake-engagement | sells followers (NL) |
 | `want-to-boost-your-channel-on-youtube-buy-youtube-subscribers-from-sidesmedia-watch-your-subs-grow` | fake-engagement | sells YouTube subscribers |
 | `buy-google-reviews` | fake-reviews | sells Google reviews |
@@ -91,6 +93,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `bonustwist` | gambling | casino bonus site |
 | `book-of-ra-german` | gambling | German slot machine site |
 | `bsc-news` | gambling | Thai gambling affiliate (name พนัน) |
+| `coinsmania` | gambling | social casino (coinsmania.com); name uses a Cyrillic С homoglyph |
 | `daman-game` | gambling | colour prediction gambling app |
 | `daman-game-login` | gambling | colour prediction gambling app |
 | `fortune-games` | gambling | sweepstakes casino |
@@ -111,7 +114,6 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `nettikasinot` | gambling | Finnish online casino listing |
 | `nettikasinot-media` | gambling | Finnish online casino listing |
 | `nettikasinot-org` | gambling | Finnish online casino listing |
-| `coinsmania` | gambling | social casino (coinsmania.com); name uses a Cyrillic С homoglyph |
 | `ok-win` | gambling | colour prediction gambling app |
 | `parhaatnettikasinot-com` | gambling | Finnish online casino listing |
 | `parimatch` | gambling | sportsbook / casino |

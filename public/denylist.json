@@ -1,14 +1,14 @@
 {
   "title": "WhoFundsOSS public spam denylist",
-  "version": "2026-10-12.4",
+  "version": "2026-10-12.5",
   "as_of": "2026-10-12",
   "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
   "counts": {
-    "total": 105,
+    "total": 107,
     "by_category": {
       "adult": 1,
       "commercial-unrelated": 4,
-      "fake-engagement": 27,
+      "fake-engagement": 29,
       "fake-reviews": 3,
       "fake-traffic": 8,
       "gambling": 54,
@@ -178,6 +178,16 @@
       "reason": "sells followers / likes"
     },
     {
+      "slug": "thunderclap-com",
+      "category": "fake-engagement",
+      "reason": "Buy Instagram Followers (spam_followers); thunderclap.com, same page as thunderclap-it"
+    },
+    {
+      "slug": "thunderclap-it",
+      "category": "fake-engagement",
+      "reason": "Buy Instagram Followers (spam_followers)"
+    },
+    {
       "slug": "volgersboost",
       "category": "fake-engagement",
       "reason": "sells followers (NL)"
@@ -318,6 +328,11 @@
       "reason": "Thai gambling affiliate (name พนัน)"
     },
     {
+      "slug": "coinsmania",
+      "category": "gambling",
+      "reason": "social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
+    },
+    {
       "slug": "daman-game",
       "category": "gambling",
       "reason": "colour prediction gambling app"
@@ -416,11 +431,6 @@
       "slug": "nettikasinot-org",
       "category": "gambling",
       "reason": "Finnish online casino listing"
-    },
-    {
-      "slug": "coinsmania",
-      "category": "gambling",
-      "reason": "social casino (coinsmania.com); name uses a Cyrillic С homoglyph"
     },
     {
       "slug": "ok-win",

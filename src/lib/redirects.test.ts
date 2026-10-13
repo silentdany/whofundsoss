@@ -128,3 +128,14 @@ test("API: /api/sponsors/<old-slug> 308s to the new slug; page-only fallback nev
   const hop = redirectTarget(new URL("https://x.test/api/sponsors/oinsmania?x=1"), "x.test", "https://x.test", has);
   assert.equal(hop, "https://x.test/api/sponsors/coinsmania?x=1");
 });
+
+test("API 308s carry the API's CORS headers; page 308s do not", async () => {
+  const { redirectHeaders } = await import("./redirects.ts");
+  const { CORS_HEADERS } = await import("./public-api/http.ts");
+  const api = redirectHeaders("/api/sponsors/oinsmania", "https://x.test/api/sponsors/coinsmania");
+  assert.equal(api.location, "https://x.test/api/sponsors/coinsmania");
+  assert.equal(api["access-control-allow-origin"], CORS_HEADERS["access-control-allow-origin"]);
+  assert.equal(api["access-control-allow-origin"], "*");
+  const page = redirectHeaders("/company/oinsmania", "https://x.test/company/coinsmania");
+  assert.deepEqual(page, { location: "https://x.test/company/coinsmania" });
+});

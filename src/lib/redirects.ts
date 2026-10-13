@@ -4,6 +4,7 @@
  * host hop to SITE_URL once a custom domain is live. Always a single hop:
  * `whofundsoss.vercel.app/classement` goes straight to `{SITE_URL}/ranking`.
  */
+import { CORS_HEADERS } from "@/lib/public-api/http";
 import { SLUG_RENAMED_FROM, SLUG_RENAMES } from "@/lib/slug-aliases";
 
 export const SLUG_REDIRECTS: Record<string, string> = {
@@ -86,4 +87,9 @@ export function redirectTarget(
   if (slugTarget) return `${requestUrl.origin}${slugTarget}${requestUrl.search}`;
   if (isPage && normalized !== rawPath) return `${requestUrl.origin}${normalized}${requestUrl.search}`;
   return null;
+}
+
+/** Headers for a 308. API paths carry the same open CORS headers as API responses, so cross-origin fetches can follow it. */
+export function redirectHeaders(pathname: string, location: string): Record<string, string> {
+  return /^\/api(\/|$)/i.test(pathname) ? { location, ...CORS_HEADERS } : { location };
 }

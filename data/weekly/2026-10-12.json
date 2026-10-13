@@ -1607,8 +1607,8 @@
     }
   ],
   "denylist": {
-    "version": "2026-10-12.4",
-    "count": 105
+    "version": "2026-10-12.5",
+    "count": 107
   },
   "exclusions": {
     "count": 133

@@ -731,3 +731,12 @@ class TestRenamedKeysStayFiltered(unittest.TestCase):
                 out = apply_holds(diff, [], base, holds, run_date="2026-10-19", require_two_zero=False)
                 self.assertEqual([h["slug"] for h in diff.held], [cur], (hold_key, cur))
                 self.assertEqual(out[0]["hold"]["kind"], "manual")
+
+
+class TestPublicDenylistGenerated(unittest.TestCase):
+    def test_public_copies_match_export_script(self):
+        import subprocess
+        import sys
+        r = subprocess.run([sys.executable, "scripts/data/export-denylist.py", "--check"],
+                           cwd=Path(__file__).resolve().parents[2], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
