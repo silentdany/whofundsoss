@@ -203,3 +203,58 @@ test("off-cycle snapshots are never selected as an official week", async () => {
   assert.equal(pair.status, "ok");
   if (pair.status === "ok") assert.deepEqual([pair.prev.week, pair.curr.week], ["2026-10-06", "2026-10-12"]);
 });
+
+import { buildSnapshotsCsv, isOffCycle, officialWeeksFrom } from "./weekly-snapshots.ts";
+
+test("offCycle accepts boolean true and string \"true\" only", async () => {
+  assert.equal(isOffCycle(true), true);
+  assert.equal(isOffCycle("true"), true);
+  for (const v of [false, "false", "TRUE", 1, "1", null, undefined]) assert.equal(isOffCycle(v), false);
+  const files = {
+    "2026-10-15": { ...file("2026-10-15"), offCycle: "true" },
+    "2026-10-14": { ...file("2026-10-14"), offCycle: true },
+    "2026-10-12": file("2026-10-12"),
+    "2026-10-06": file("2026-10-06"),
+  };
+  const pair = await selectLatestTwo(Object.keys(files), loaderOf(files));
+  assert.equal(pair.status, "ok");
+  if (pair.status === "ok") assert.deepEqual([pair.prev.week, pair.curr.week], ["2026-10-06", "2026-10-12"]);
+});
+
+test("available weeks never list off-cycle, invalid or unreadable weeks", async () => {
+  const files = {
+    "2026-10-15": { ...file("2026-10-15"), offCycle: "true" },
+    "2026-10-14": { ...file("2026-10-14"), offCycle: true },
+    "2026-10-12": file("2026-10-12"),
+    "2026-10-07": new Error("unreadable"),
+    "2026-10-06": file("2026-10-06"),
+  };
+  const weeks = await officialWeeksFrom([...Object.keys(files), "2026-13-99"], loaderOf(files));
+  assert.deepEqual(weeks, ["2026-10-12", "2026-10-06"]);
+});
+
+test("snapshots CSV comes from the weekly files (oldest first, off-cycle excluded, filtered)", async () => {
+  const files = {
+    "2026-10-06": file("2026-10-06", [
+      { slug: "a", publicUsd: 10, collectives: ["x", "y"], beneficiaries: [{}] },
+      { slug: "spam", publicUsd: 99 },
+    ]),
+    "2026-10-12": { ...file("2026-10-12", [{ slug: "a", publicUsd: 12, collectives: ["x"] }]), runId: 42 },
+    "2026-10-14": { ...file("2026-10-14"), offCycle: true },
+  };
+  const csv = await buildSnapshotsCsv(Object.keys(files), loaderOf(files), (s) => s === "spam");
+  assert.deepEqual(csv.split("\n"), [
+    "collected_at,hash,companies,sponsorships,ranked,public_usd_ranked,public_usd_all",
+    "2026-10-06,run-2026-10-06,1,3,1,10,10",
+    "2026-10-12,42,1,1,1,12,12",
+  ]);
+});
+
+test("real data: snapshots CSV has one row per official weekly file", async () => {
+  const dir = new URL("../../data/weekly/", import.meta.url);
+  const weeks = readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10));
+  const load = async (w: string) => JSON.parse(readFileSync(new URL(`${w}.json`, dir), "utf8"));
+  const official = await officialWeeksFrom(weeks, load);
+  const rows = (await buildSnapshotsCsv(weeks, load)).split("\n").slice(1);
+  assert.deepEqual(rows.map((r) => r.split(",")[0]), [...official].sort());
+});

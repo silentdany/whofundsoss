@@ -5,6 +5,7 @@ from datetime import date
 from typing import Any
 
 from .diff import CoverageReport, DiffResult
+from .off_cycle import is_off_cycle
 from .normalize import CatalogIndex, build_catalog_index, passes_retention
 from .sources.base import SourceResult
 from .suspects import SuspectHit
@@ -242,7 +243,7 @@ def build_payload(
 def render_markdown(payload: dict[str, Any]) -> str:
     d = payload["date"]
     lines: list[str] = []
-    off = " · OFF-CYCLE (not an official week)" if payload.get("offCycle") else ""
+    off = " · OFF-CYCLE (not an official week)" if is_off_cycle(payload.get("offCycle")) else ""
     lines.append(f"# WhoFundsOSS weekly scrape · {d}{off}")
     lines.append("")
     lines.append(

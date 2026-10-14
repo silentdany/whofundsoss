@@ -10,12 +10,35 @@ import type { Meta, MovementsPayload } from "@/lib/types";
 export const WEEK_FILE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export const TOP_N = 200;
 
+/** Off-cycle marker as written by the scraper: boolean true or the string "true". */
+export function isOffCycle(value: unknown): boolean {
+  return value === true || value === "true";
+}
+
+/** The weeks that are official (valid date, file loads, not off-cycle), newest first. */
+export async function officialWeeksFrom(
+  weeks: Iterable<string>,
+  load: (week: string) => Promise<unknown>,
+): Promise<string[]> {
+  const out: string[] = [];
+  for (const week of [...new Set(weeks)].filter(isRealWeek).sort().reverse()) {
+    try {
+      const raw = await load(week);
+      if (raw && typeof raw === "object" && !isOffCycle((raw as Record<string, unknown>).offCycle)) out.push(week);
+    } catch {
+      // unreadable: not listed
+    }
+  }
+  return out;
+}
+
 export type WeeklyCompanyRow = {
   slug: string;
   name?: string | null;
   publicUsd?: number | null;
   ghBeneficiaries?: number | null;
   collectives?: unknown[] | null;
+  beneficiaries?: unknown[] | null;
   hold?: unknown;
   exclusionNote?: unknown;
 };
@@ -49,7 +72,7 @@ export function parseWeekly(week: string, raw: unknown): ParsedWeekly | null {
   const r = raw as Record<string, unknown>;
   if (r.date !== week) return null;
   // Off-cycle runs (allow_off_cycle) are never the official week.
-  if (r.offCycle === true) return null;
+  if (isOffCycle(r.offCycle)) return null;
   if (!Array.isArray(r.companies) || r.companies.length === 0) return null;
   const companies: WeeklyCompanyRow[] = [];
   const warnings: string[] = [];
@@ -154,13 +177,15 @@ export function weeklyToSnap(
       publicUsd: typeof c.publicUsd === "number" && Number.isFinite(c.publicUsd) ? c.publicUsd : 0,
       projects: Array.isArray(c.collectives) ? c.collectives.length : 0,
       ghBeneficiaries: typeof c.ghBeneficiaries === "number" ? c.ghBeneficiaries : 0,
+      links: (Array.isArray(c.collectives) ? c.collectives.length : 0) + (Array.isArray(c.beneficiaries) ? c.beneficiaries.length : 0),
     }));
   const order = [...rows].sort((a, b) => b.publicUsd - a.publicUsd || a.slug.localeCompare(b.slug));
   const rankBy = new Map<string, number>();
   order.forEach((r, i) => {
     if (i < TOP_N && r.publicUsd > 0) rankBy.set(r.slug, i + 1);
   });
-  const index = rows.map((r) => ({ ...r, rank: rankBy.get(r.slug) ?? null }));
+  const sponsorships = rows.reduce((n, r) => n + r.links, 0);
+  const index = rows.map(({ links: _links, ...r }) => ({ ...r, rank: rankBy.get(r.slug) ?? null }));
   const publicUsdAll = round2(index.reduce((s, r) => s + r.publicUsd, 0));
   const publicUsdRanked = round2(index.filter((r) => r.rank != null).reduce((s, r) => s + r.publicUsd, 0));
   return {
@@ -168,7 +193,8 @@ export function weeklyToSnap(
       collectedAt: w.week,
       hash: w.fingerprint,
       companies: index.length,
-      sponsorships: 0,
+      // Company→collective and company→GitHub beneficiary links in the week.
+      sponsorships,
       ranked: rankBy.size,
       publicUsdAll,
       publicUsdRanked,
@@ -235,4 +261,44 @@ export function buildWeeklyMovements(
     summary: { ...move.summary, newCompanies: newCompanies.length, leftCompanies: leftCompanies.length },
     insufficient: false,
   };
+}
+
+export const SNAPSHOTS_CSV_HEADER = [
+  "collected_at",
+  "hash",
+  "companies",
+  "sponsorships",
+  "ranked",
+  "public_usd_ranked",
+  "public_usd_all",
+] as const;
+
+/** Snapshots CSV, oldest week first; invalid or off-cycle weeks are left out. */
+export async function buildSnapshotsCsv(
+  weeks: Iterable<string>,
+  load: (week: string) => Promise<unknown>,
+  hidden: (slug: string) => boolean = () => false,
+  canonical: (slug: string) => string = (s) => s,
+): Promise<string> {
+  const lines: string[] = [SNAPSHOTS_CSV_HEADER.join(",")];
+  for (const week of [...new Set(weeks)].filter(isRealWeek).sort()) {
+    let raw: unknown;
+    try {
+      raw = await load(week);
+    } catch {
+      continue;
+    }
+    const parsed = parseWeekly(week, raw);
+    if (!parsed) continue;
+    const m = weeklyToSnap(parsed, hidden, canonical).meta;
+    lines.push(
+      [m.collectedAt, m.hash, m.companies, m.sponsorships, m.ranked, m.publicUsdRanked, m.publicUsdAll]
+        .map((v) => {
+          const t = String(v);
+          return /[",\n]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
+        })
+        .join(","),
+    );
+  }
+  return lines.join("\n");
 }

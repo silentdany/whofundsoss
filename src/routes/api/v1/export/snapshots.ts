@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/v1/export/snapshots")({
         const denied = authorize(request);
         if (denied) return denied;
         const { snapshotsCsv } = await import("@/lib/catalog.server");
-        return csv(snapshotsCsv(), "snapshots.csv");
+        return csv(await snapshotsCsv(), "snapshots.csv");
       },
     },
   },

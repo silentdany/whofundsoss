@@ -13,7 +13,12 @@ fi
 export GH_TOKEN="$TOKEN"
 export WFO_WEEKLY_PAT="$TOKEN"
 
-DATE="${DATE:-$(date -u +%F)}"
+# DATE is the Paris run date computed once by the workflow's off-cycle guard.
+# No fallback: a missing DATE fails instead of guessing a (UTC) date.
+if [ -z "${DATE:-}" ]; then
+  echo "ERROR: DATE is required (YYYY-MM-DD, Paris run date from the guard)" >&2
+  exit 1
+fi
 if ! [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
   echo "ERROR: invalid DATE (expected YYYY-MM-DD)" >&2
   exit 1
@@ -80,7 +85,7 @@ git push -u origin "HEAD:refs/heads/${BRANCH}"
 
 # Off-cycle snapshots are flagged in the PR title.
 OFF_CYCLE_TITLE=""
-if python3 -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get('offCycle') is True else 1)" "data/weekly/${DATE}.json" 2>/dev/null; then
+if python3 -m scripts.weekly.off_cycle --is-off-cycle-file "data/weekly/${DATE}.json"; then
   OFF_CYCLE_TITLE=" [off-cycle]"
 fi
 

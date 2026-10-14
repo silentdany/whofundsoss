@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 async function handle(request: Request) {
-  const { api, serve, loadWeek, WEEKS } = await import("@/lib/public-api/data.server");
+  const { api, serve, loadWeek, officialWeeks } = await import("@/lib/public-api/data.server");
   return serve(request, async (url) => {
     const week = url.searchParams.get("week");
-    return api.movements(week, await loadWeek(week), WEEKS);
+    return api.movements(week, await loadWeek(week), await officialWeeks());
   });
 }
 
