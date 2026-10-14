@@ -31,8 +31,16 @@ EXIT_REFUSED = 3
 
 
 def is_off_cycle(value: object) -> bool:
-    """The `offCycle` marker: boolean True or the string "true" (nothing else)."""
-    return value is True or value == "true"
+    """Value of a PRESENT `offCycle` marker. Fail-safe: anything but boolean
+    False (True, "true", "TRUE", " true", 1, None/null, "yes", "false"...) is
+    off-cycle, so an unexpected marker can never make a week official."""
+    return value is not False
+
+
+def off_cycle_marked(record: object) -> bool:
+    """True when a weekly file / hold / pendingDrop dict carries an `offCycle`
+    key whose value is not boolean False. Absent key = on-cycle."""
+    return isinstance(record, dict) and "offCycle" in record and is_off_cycle(record["offCycle"])
 
 
 class OffCycleRefused(Exception):
@@ -98,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
         except (OSError, ValueError) as e:
             print(f"::error::cannot read {a.is_off_cycle_file}: {e}", file=sys.stderr)
             return 2
-        return 0 if isinstance(data, dict) and is_off_cycle(data.get("offCycle")) else 1
+        return 0 if off_cycle_marked(data) else 1
     try:
         if not a.event:
             raise ValueError("--event is required")
