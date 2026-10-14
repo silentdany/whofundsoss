@@ -61,6 +61,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--gh-logins", default=None, help="Comma-separated GH logins (smoke only; marks GH coverage partial)")
     p.add_argument("--max-gh", type=int, default=None, help="Cap GH logins after catalog seed (smoke)")
     p.add_argument("--suspicious-pct", type=float, default=10.0)
+    p.add_argument(
+        "--off-cycle",
+        action="store_true",
+        help="Off-cycle run (not Monday Paris): never counts toward the two-readings rules",
+    )
     p.add_argument("--strict", action="store_true", help="Exit 1 if any source is unavailable")
     return p.parse_args(argv)
 
@@ -268,11 +273,11 @@ def main(argv: list[str] | None = None) -> int:
     # Holds (data/holds/weekly-holds.csv): a held disappearance is not published on a
     # single reading; the last known record is carried forward instead.
     companies = apply_holds(
-        diff, companies, baseline_companies, holds, run_date=run_date.isoformat()
+        diff, companies, baseline_companies, holds, run_date=run_date.isoformat(), off_cycle=args.off_cycle
     )
     # Sharp drops (>50% of a count) also need 2 consecutive readings.
     companies = apply_drop_confirmation(
-        diff, companies, baseline_companies, run_date=run_date.isoformat()
+        diff, companies, baseline_companies, run_date=run_date.isoformat(), off_cycle=args.off_cycle
     )
 
     # Recompute suspicious after filtering
@@ -318,6 +323,8 @@ def main(argv: list[str] | None = None) -> int:
         run_id=run_id,
         non_usd=non_usd,
     )
+    if args.off_cycle:
+        payload["offCycle"] = True
     payload["generatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     json_path = out_dir / f"{run_date.isoformat()}.json"
