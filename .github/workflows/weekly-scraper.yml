@@ -75,7 +75,9 @@ jobs:
           python3 -m unittest scripts.weekly.test_off_cycle
           OUT=$(python3 -m scripts.weekly.off_cycle --event "$EVENT_NAME" --allow "${INPUT_ALLOW_OFF_CYCLE:-false}")
           echo "$OUT"
-          [[ "$OUT" =~ ^off_cycle=(true|false)$'\n'date=[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "::error::unexpected guard output"; exit 1; }
+          OFF_LINE=$(printf '%s\n' "$OUT" | sed -n 1p)
+          DATE_LINE=$(printf '%s\n' "$OUT" | sed -n 2p)
+          [[ "$OFF_LINE" =~ ^off_cycle=(true|false)$ && "$DATE_LINE" =~ ^date=[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "::error::unexpected guard output"; exit 1; }
           echo "$OUT" >> "$GITHUB_OUTPUT"
 
       - name: Skip if a data PR already exists for this date
