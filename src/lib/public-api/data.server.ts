@@ -20,6 +20,7 @@ import {
   type WeeklyFile,
 } from "./core";
 import { createRateLimiter, servePublicApi } from "./http";
+import { isOffCycle, officialWeeksFrom } from "@/lib/weekly-snapshots";
 import type { ApiResult } from "./core";
 
 const catalog = raw as unknown as CatalogLike;
@@ -44,9 +45,19 @@ export const api = createPublicApi({
   publicDenylist,
 });
 
+/** A weekly file by date; off-cycle files are never an official week (null). */
 export async function loadWeek(week: string | null): Promise<WeeklyFile | null> {
   const load = week ? weeklyLoaders.get(week) : undefined;
-  return load ? await load() : null;
+  if (!load) return null;
+  const file = await load();
+  return isOffCycle((file as { offCycle?: unknown }).offCycle) ? null : file;
+}
+
+let official: Promise<string[]> | undefined;
+/** Official weeks (off-cycle and unreadable files excluded), newest first. */
+export function officialWeeks(): Promise<string[]> {
+  official ??= officialWeeksFrom(WEEKS, (w) => weeklyLoaders.get(w)!());
+  return official;
 }
 
 const limiter = createRateLimiter(60, 60_000);
