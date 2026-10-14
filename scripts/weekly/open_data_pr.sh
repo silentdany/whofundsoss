@@ -78,6 +78,12 @@ done < <(git diff --name-only origin/main...HEAD)
 # Push using gh credential helper (token never printed).
 git push -u origin "HEAD:refs/heads/${BRANCH}"
 
+# Off-cycle snapshots are flagged in the PR title.
+OFF_CYCLE_TITLE=""
+if python3 -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get('offCycle') is True else 1)" "data/weekly/${DATE}.json" 2>/dev/null; then
+  OFF_CYCLE_TITLE=" [off-cycle]"
+fi
+
 # Open PR if missing (base main). No auto-merge.
 if gh pr view "$BRANCH" --repo "$REPO" --json number >/dev/null 2>&1; then
   echo "PR for $BRANCH already exists"
@@ -87,7 +93,7 @@ else
     --repo "$REPO" \
     --base main \
     --head "$BRANCH" \
-    --title "data(weekly): sponsorship scrape ${RUN_ID}" \
+    --title "data(weekly): sponsorship scrape ${RUN_ID}${OFF_CYCLE_TITLE:-}" \
     --body "$(cat <<BODY
 Automated weekly scrape (cron \`17 4 * * 1\` UTC / workflow_dispatch).
 

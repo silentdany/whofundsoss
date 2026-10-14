@@ -21,7 +21,12 @@ on:
         required: false
         default: ""
       force:
-        description: "Skip the duplicate guard: run even if data for today already exists on main or in an open/merged data PR. This creates a SECOND data PR for the same date."
+        description: "Skip the duplicate guard: run even if data for today (Paris date) already exists on main or in an open/merged data PR. This creates a SECOND data PR for the same date. On a Monday the run is on-cycle and DOES count as that week's reading; it does not bypass the off-cycle guard on other days."
+        type: boolean
+        required: false
+        default: false
+      allow_off_cycle:
+        description: "Allow a manual run on a day other than Monday (Europe/Paris). The snapshot is marked offCycle and never counts toward the two-readings rules (cannot release pending holds early)."
         type: boolean
         required: false
         default: false
@@ -49,7 +54,8 @@ jobs:
       pull-requests: read
     outputs:
       skip: ${{ steps.check.outputs.skip }}
-      date: ${{ steps.check.outputs.date }}
+      date: ${{ steps.cycle.outputs.date }}
+      off_cycle: ${{ steps.cycle.outputs.off_cycle }}
     steps:
       - name: Checkout (guard script only)
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -57,15 +63,33 @@ jobs:
           persist-credentials: false
           sparse-checkout: scripts/weekly
 
+      # Manual runs off the Paris Monday are refused without allow_off_cycle
+      # (PR #41: a mid-week run released pending holds early).
+      - name: Off-cycle guard (Monday, Europe/Paris)
+        id: cycle
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ALLOW_OFF_CYCLE: ${{ inputs.allow_off_cycle }}
+        run: |
+          set -euo pipefail
+          python3 -m unittest scripts.weekly.test_off_cycle
+          OUT=$(python3 -m scripts.weekly.off_cycle --event "$EVENT_NAME" --allow "${INPUT_ALLOW_OFF_CYCLE:-false}")
+          echo "$OUT"
+          OFF_LINE=$(printf '%s\n' "$OUT" | sed -n 1p)
+          DATE_LINE=$(printf '%s\n' "$OUT" | sed -n 2p)
+          [[ "$OFF_LINE" =~ ^off_cycle=(true|false)$ && "$DATE_LINE" =~ ^date=[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "::error::unexpected guard output"; exit 1; }
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+
       - name: Skip if a data PR already exists for this date
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_FORCE: ${{ inputs.force }}
+          # Paris run date from the off-cycle guard (never `date -u`).
+          DATE: ${{ steps.cycle.outputs.date }}
         run: |
           set -euo pipefail
-          DATE=$(date -u +%F)
-          echo "date=${DATE}" >> "$GITHUB_OUTPUT"
+          [[ "$DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "::error::Invalid DATE from guard"; exit 1; }
           if [ "${INPUT_FORCE:-false}" = "true" ]; then
             echo "force=true: not checking for an existing data PR"
             echo "skip=false" >> "$GITHUB_OUTPUT"
@@ -149,7 +173,7 @@ jobs:
           python-version: "3.12"
 
       - name: Unit tests (no network)
-        run: python3 -m unittest scripts.weekly.test_weekly scripts.weekly.test_qa_blockers -v
+        run: python3 -m unittest scripts.weekly.test_weekly scripts.weekly.test_qa_blockers scripts.weekly.test_off_cycle scripts.weekly.test_off_cycle_rules -v
 
       - name: Run weekly scraper
         env:
@@ -163,6 +187,7 @@ jobs:
           INPUT_GH_LOGINS: ${{ inputs.gh_logins }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           RUN_DATE: ${{ needs.dedupe.outputs.date }}
+          OFF_CYCLE: ${{ needs.dedupe.outputs.off_cycle }}
         run: |
           set -euo pipefail
           DATE="${RUN_DATE}"
@@ -171,6 +196,7 @@ jobs:
           if [ -n "${INPUT_MAX_OC}" ]; then EXTRA+=(--max-oc "${INPUT_MAX_OC}"); fi
           if [ -n "${INPUT_MAX_OSP}" ]; then EXTRA+=(--max-osp "${INPUT_MAX_OSP}"); fi
           if [ -n "${INPUT_GH_LOGINS}" ]; then EXTRA+=(--gh-logins "${INPUT_GH_LOGINS}"); fi
+          if [ "${OFF_CYCLE}" = "true" ]; then EXTRA+=(--off-cycle); echo "::warning::off-cycle run: snapshot marked offCycle"; fi
           python3 -m scripts.weekly.run --date "$DATE" "${EXTRA[@]}"
           ls -la "data/weekly/${DATE}.json" "data/weekly/${DATE}.md"
           python3 -c "import json,sys; p=json.load(open('data/weekly/'+sys.argv[1]+'.json')); st=[s['status'] for s in p.get('sources',[])]; print('source statuses:', st); assert any(s=='ok' for s in st), 'refusing PR: every source unavailable'" "$DATE"

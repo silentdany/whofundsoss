@@ -242,7 +242,8 @@ def build_payload(
 def render_markdown(payload: dict[str, Any]) -> str:
     d = payload["date"]
     lines: list[str] = []
-    lines.append(f"# WhoFundsOSS weekly scrape · {d}")
+    off = " · OFF-CYCLE (not an official week)" if payload.get("offCycle") else ""
+    lines.append(f"# WhoFundsOSS weekly scrape · {d}{off}")
     lines.append("")
     lines.append(
         f"Run ID: `{payload.get('runId') or 'local'}` · "

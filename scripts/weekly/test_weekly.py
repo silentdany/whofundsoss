@@ -650,8 +650,10 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIn('if [ "$EXISTING" != "none" ]', guard)
         self.assertIn("*) echo \"::error::existing_data_pr failed", guard)
         self.assertIn("${OUT:0:300}", guard)
-        self.assertIn('echo "date=${DATE}" >> "$GITHUB_OUTPUT"', guard)
-        self.assertEqual(wf.count("date -u +%F"), 1)  # DATE computed once, in dedupe
+        # DATE computed once, in Europe/Paris, by the off-cycle guard (never `date -u`).
+        self.assertIn("date: ${{ steps.cycle.outputs.date }}", guard)
+        self.assertIn("DATE: ${{ steps.cycle.outputs.date }}", guard)
+        self.assertEqual(wf.count("date -u +%F"), 0)
         self.assertEqual(wf.count("RUN_DATE: ${{ needs.dedupe.outputs.date }}"), 2)
         self.assertIn("SECOND data PR", wf)
         self.assertIn("isCrossRepository,author", guard)
