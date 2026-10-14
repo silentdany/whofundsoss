@@ -501,6 +501,47 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertEqual(find_existing(prs, "2026-11-02")["number"], 43)  # by file
         self.assertIsNone(find_existing(prs, "2026-10-05"))
 
+    def test_date_prefix_needs_a_separator(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        base = {"number": 50, "url": "u50", "state": "OPEN", "isCrossRepository": False,
+                "author": {"login": "silentdany"}, "files": []}
+        for head in ("data/weekly-2026-10-120", "data/weekly-2026-10-123-x", "data/weekly-run-2026-10-12x"):
+            self.assertIsNone(find_existing([{**base, "headRefName": head}], "2026-10-12"), head)
+        with self.assertRaises(ValueError):  # a partial date is never a valid key
+            find_existing([{**base, "headRefName": "data/weekly-2026-10-12"}], "2026-10-1")
+        for head in ("data/weekly-2026-10-12", "data/weekly-2026-10-12-rebuild", "data/weekly-run-2026-10-12-1"):
+            self.assertEqual(find_existing([{**base, "headRefName": head}], "2026-10-12")["number"], 50, head)
+
+    def _cli(self, stdin, *args):
+        import subprocess
+        import sys
+        root = Path(__file__).resolve().parents[2]
+        return subprocess.run([sys.executable, "-m", "scripts.weekly.existing_data_pr", "2026-10-19", *args],
+                              input=stdin, cwd=root, capture_output=True, text=True)
+
+    def test_cli_fails_closed_on_bad_input(self):
+        for label, body in {"html": "<html><body>502 Bad Gateway</body></html>", "empty": "",
+                            "whitespace": "  \n", "object": '{"message": "Bad credentials"}',
+                            "list of non-objects": '["x", 1]', "null": "null"}.items():
+            r = self._cli(body)
+            self.assertEqual(r.returncode, 2, f"{label}: {r.stdout!r} {r.stderr!r}")
+            self.assertNotEqual(r.stdout.strip(), "none", label)
+
+    def test_cli_crash_exits_2_not_1(self):
+        from unittest import mock
+        from scripts.weekly import existing_data_pr as m
+        with mock.patch.object(m, "find_existing", side_effect=RuntimeError("boom")), \
+                mock.patch("sys.stdin") as stdin:
+            stdin.read.return_value = "[]"
+            self.assertEqual(m.main(["x", "2026-10-19"]), m.EXIT_ERROR)
+
+    def test_cli_none_marker_and_exists(self):
+        r = self._cli("[]")
+        self.assertEqual((r.returncode, r.stdout.strip()), (1, "none"))
+        pr = '[{"number": 1, "url": "u1", "state": "OPEN", "isCrossRepository": false, "author": {"login": "silentdany"}, "headRefName": "data/weekly-2026-10-19", "files": []}]'
+        r = self._cli(pr)
+        self.assertEqual((r.returncode, r.stdout.strip()), (0, "u1"))
+
     def test_cli_on_main_skips_and_otherwise_reads_prs(self):
         import subprocess
         import sys
@@ -509,7 +550,7 @@ class TestExistingDataPr(unittest.TestCase):
         r = subprocess.run(cmd + ["2026-10-12", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
         self.assertEqual((r.returncode, r.stdout.strip()), (0, "main:data/weekly/2026-10-12.json"))
         r = subprocess.run(cmd + ["2026-10-12"], input="[]", cwd=root, capture_output=True, text=True)
-        self.assertEqual(r.returncode, 1)
+        self.assertEqual((r.returncode, r.stdout.strip()), (1, "none"))
         r = subprocess.run(cmd + ["2026-10-12; x", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
         self.assertEqual(r.returncode, 2)
 
@@ -548,7 +589,14 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIn("scripts.weekly.existing_data_pr", guard)
         self.assertNotIn("secrets.", guard)
         self.assertIn("contents/data/weekly/${DATE}.json?ref=main", guard)
-        self.assertIn('--search "head:data/weekly- created:>=${DATE}"', guard)
+        self.assertNotIn("--search", guard)  # plain list: no search-index lag
+        self.assertIn('if [ "$EXISTING" != "none" ]', guard)
+        self.assertIn("*) echo \"::error::existing_data_pr failed", guard)
+        self.assertIn("${OUT:0:300}", guard)
+        self.assertIn('echo "date=${DATE}" >> "$GITHUB_OUTPUT"', guard)
+        self.assertEqual(wf.count("date -u +%F"), 1)  # DATE computed once, in dedupe
+        self.assertEqual(wf.count("RUN_DATE: ${{ needs.dedupe.outputs.date }}"), 2)
+        self.assertIn("SECOND data PR", wf)
         self.assertIn("isCrossRepository,author", guard)
         self.assertIn('"${ON_MAIN[@]}"', guard)
         self.assertNotIn("2>/dev/null", guard)

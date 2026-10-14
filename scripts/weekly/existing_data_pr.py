@@ -8,9 +8,11 @@ Also skips when data/weekly/<date>.json is already on main (--on-main, set by
 the workflow from the contents API).
 
 Input: JSON from
-  gh pr list --state all --search "head:data/weekly-" \
+  gh pr list --state all --limit 200 \
     --json number,url,state,headRefName,files,isCrossRepository,author
-Prints the first matching PR URL and exits 0 when one exists; exits 1 otherwise.
+Exit 0 + PR URL when data exists (skip); exit 1 + "none" when nothing
+exists (run); exit 2 on any error (bad usage, malformed / empty / non-list
+JSON, crash). The workflow fails closed on anything but 0 or 1+"none".
 """
 from __future__ import annotations
 
@@ -64,7 +66,8 @@ def find_existing(prs: list[dict], date: str, authors: frozenset[str] | None = N
         state = (pr.get("state") or "").upper()
         if state not in {"OPEN", "MERGED"}:
             continue
-        if head.startswith(by_name):
+        # Separator required: data/weekly-2026-10-1 must not match 2026-10-12.
+        if any(head == p or head.startswith(p + "-") for p in by_name):
             return pr
         paths = {f.get("path") for f in (pr.get("files") or []) if isinstance(f, dict)}
         if target in paths:
@@ -72,25 +75,46 @@ def find_existing(prs: list[dict], date: str, authors: frozenset[str] | None = N
     return None
 
 
-def main(argv: list[str]) -> int:
+EXIT_EXISTS, EXIT_NONE, EXIT_ERROR = 0, 1, 2
+
+
+def _main(argv: list[str]) -> int:
     on_main = "--on-main" in argv
     argv = [a for a in argv if a != "--on-main"]
     if len(argv) != 2:
         print("usage: existing_data_pr.py YYYY-MM-DD [--on-main] < prs.json", file=sys.stderr)
-        return 2
+        return EXIT_ERROR
     if not _DATE_RE.match(argv[1]):
         print("date must be YYYY-MM-DD", file=sys.stderr)
-        return 2
+        return EXIT_ERROR
     if on_main:
         # data/weekly/<date>.json already exists on main (checked by the caller).
         print(f"main:data/weekly/{argv[1]}.json")
-        return 0
-    prs = json.load(sys.stdin)
-    hit = find_existing(prs if isinstance(prs, list) else [], argv[1], allowed_authors())
+        return EXIT_EXISTS
+    raw = sys.stdin.read()
+    try:
+        prs = json.loads(raw)
+    except ValueError as e:
+        print(f"PR list is not valid JSON ({e}): {raw[:200]!r}", file=sys.stderr)
+        return EXIT_ERROR
+    if not isinstance(prs, list) or not all(isinstance(p, dict) for p in prs):
+        print(f"PR list must be a JSON list of objects, got {type(prs).__name__}", file=sys.stderr)
+        return EXIT_ERROR
+    hit = find_existing(prs, argv[1], allowed_authors())
     if hit:
         print(hit.get("url") or f"#{hit.get('number')}")
-        return 0
-    return 1
+        return EXIT_EXISTS
+    print("none")  # explicit marker: exit 1 alone could also be a crash
+    return EXIT_NONE
+
+
+def main(argv: list[str]) -> int:
+    """Fail closed: any unexpected exception exits 2, never 1 ("run")."""
+    try:
+        return _main(argv)
+    except Exception as e:  # noqa: BLE001
+        print(f"existing_data_pr crashed: {type(e).__name__}: {e}", file=sys.stderr)
+        return EXIT_ERROR
 
 
 if __name__ == "__main__":
