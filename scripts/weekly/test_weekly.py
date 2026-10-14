@@ -471,10 +471,10 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
 
 class TestExistingDataPr(unittest.TestCase):
     PRS = [
-        {"number": 24, "url": "u24", "state": "OPEN", "headRefName": "data/weekly-run-1", "files": [{"path": "data/weekly/2026-10-12.json"}]},
-        {"number": 25, "url": "u25", "state": "CLOSED", "headRefName": "data/weekly-run-2", "files": [{"path": "data/weekly/2026-10-19.json"}]},
-        {"number": 7, "url": "u7", "state": "MERGED", "headRefName": "data/weekly-run-3", "files": [{"path": "data/weekly/2026-10-06.json"}]},
-        {"number": 9, "url": "u9", "state": "OPEN", "headRefName": "feat/x", "files": [{"path": "data/weekly/2026-10-26.json"}]},
+        {"number": 24, "url": "u24", "state": "OPEN", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-run-1", "files": [{"path": "data/weekly/2026-10-12.json"}]},
+        {"number": 25, "url": "u25", "state": "CLOSED", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-run-2", "files": [{"path": "data/weekly/2026-10-19.json"}]},
+        {"number": 7, "url": "u7", "state": "MERGED", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-run-3", "files": [{"path": "data/weekly/2026-10-06.json"}]},
+        {"number": 9, "url": "u9", "state": "OPEN", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "feat/x", "files": [{"path": "data/weekly/2026-10-26.json"}]},
     ]
 
     def test_open_and_merged_block(self):
@@ -490,10 +490,10 @@ class TestExistingDataPr(unittest.TestCase):
     def test_branch_named_after_the_date_blocks(self):
         from scripts.weekly.existing_data_pr import find_existing
         prs = [
-            {"number": 36, "url": "u36", "state": "MERGED", "headRefName": "data/weekly-2026-10-12-rebuild", "files": []},
-            {"number": 41, "url": "u41", "state": "OPEN", "headRefName": "data/weekly-run-2026-10-19", "files": []},
-            {"number": 42, "url": "u42", "state": "CLOSED", "headRefName": "data/weekly-2026-10-26", "files": []},
-            {"number": 43, "url": "u43", "state": "MERGED", "headRefName": "data/weekly-rebuild", "files": [{"path": "data/weekly/2026-11-02.json"}]},
+            {"number": 36, "url": "u36", "state": "MERGED", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-2026-10-12-rebuild", "files": []},
+            {"number": 41, "url": "u41", "state": "OPEN", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-run-2026-10-19", "files": []},
+            {"number": 42, "url": "u42", "state": "CLOSED", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-2026-10-26", "files": []},
+            {"number": 43, "url": "u43", "state": "MERGED", "isCrossRepository": False, "author": {"login": "silentdany"}, "headRefName": "data/weekly-rebuild", "files": [{"path": "data/weekly/2026-11-02.json"}]},
         ]
         self.assertEqual(find_existing(prs, "2026-10-12")["number"], 36)
         self.assertEqual(find_existing(prs, "2026-10-19")["number"], 41)
@@ -513,6 +513,26 @@ class TestExistingDataPr(unittest.TestCase):
         r = subprocess.run(cmd + ["2026-10-12; x", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
         self.assertEqual(r.returncode, 2)
 
+    def test_fork_pr_never_blocks(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        fork = [{"number": 99, "url": "u99", "state": "OPEN", "isCrossRepository": True,
+                 "author": {"login": "silentdany"}, "headRefName": "data/weekly-2026-10-19",
+                 "files": [{"path": "data/weekly/2026-10-19.json"}]}]
+        self.assertIsNone(find_existing(fork, "2026-10-19"))
+        missing = [{**fork[0], "isCrossRepository": None}]
+        self.assertIsNone(find_existing(missing, "2026-10-19"))  # unknown = untrusted
+
+    def test_unexpected_author_never_blocks(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        base = {"number": 98, "url": "u98", "state": "OPEN", "isCrossRepository": False,
+                "headRefName": "data/weekly-2026-10-19", "files": []}
+        self.assertIsNone(find_existing([{**base, "author": {"login": "mallory"}}], "2026-10-19"))
+        self.assertIsNone(find_existing([{**base, "author": None}], "2026-10-19"))
+        for login in ("silentdany", "app/github-actions", "github-actions[bot]"):
+            self.assertEqual(find_existing([{**base, "author": {"login": login}}], "2026-10-19")["number"], 98, login)
+        self.assertIsNone(find_existing([{**base, "author": {"login": "silentdany"}}], "2026-10-19",
+                                        authors=frozenset({"other-bot"})))
+
     def test_rejects_bad_date(self):
         from scripts.weekly.existing_data_pr import find_existing
         with self.assertRaises(ValueError):
@@ -528,10 +548,15 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIn("scripts.weekly.existing_data_pr", guard)
         self.assertNotIn("secrets.", guard)
         self.assertIn("contents/data/weekly/${DATE}.json?ref=main", guard)
-        self.assertIn('--search "head:data/weekly-"', guard)
+        self.assertIn('--search "head:data/weekly- created:>=${DATE}"', guard)
+        self.assertIn("isCrossRepository,author", guard)
+        self.assertIn('"${ON_MAIN[@]}"', guard)
+        self.assertNotIn("2>/dev/null", guard)
+        self.assertIn("\npermissions: {}\n", wf)
         scrape = wf[wf.index("\n  scrape:"):]
         self.assertIn("needs: dedupe", scrape[:200])
         self.assertIn("if: needs.dedupe.outputs.skip != 'true'", scrape[:200])
+        self.assertIn("permissions:\n      contents: read\n", scrape[:300])
 
 
 class TestMergeRetention(unittest.TestCase):

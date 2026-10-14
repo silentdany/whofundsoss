@@ -26,10 +26,9 @@ on:
         required: false
         default: false
 
-# Minimum permissions. Do not broaden.
-permissions:
-  contents: write
-  pull-requests: write
+# Nothing at workflow level; each job declares its own (minimal) permissions.
+# scrape writes through WFO_WEEKLY_PAT, not GITHUB_TOKEN.
+permissions: {}
 
 concurrency:
   group: weekly-scraper
@@ -67,23 +66,34 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          ON_MAIN=""
-          if gh api "repos/${GITHUB_REPOSITORY}/contents/data/weekly/${DATE}.json?ref=main" --silent 2>/dev/null; then
-            ON_MAIN="--on-main"
+          # data/weekly/<date>.json already on main? 404 = no. Any other error
+          # (auth, rate limit, 5xx) is logged and fails the job closed.
+          ON_MAIN=()
+          if OUT=$(gh api "repos/${GITHUB_REPOSITORY}/contents/data/weekly/${DATE}.json?ref=main" --silent 2>&1); then
+            ON_MAIN=(--on-main)
+          elif printf '%s' "$OUT" | grep -q "HTTP 404"; then
+            echo "data/weekly/${DATE}.json not on main"
+          else
+            echo "::error::contents API check failed: ${OUT}"
+            exit 1
           fi
           gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit 100 \
-            --search "head:data/weekly-" \
-            --json number,url,state,headRefName,files > "$RUNNER_TEMP/prs.json"
-          if EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" $ON_MAIN < "$RUNNER_TEMP/prs.json"); then
-            echo "::notice::Data PR for ${DATE} already exists (${EXISTING}). Skipping this run."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
+            --search "head:data/weekly- created:>=${DATE}" \
+            --json number,url,state,headRefName,files,isCrossRepository,author > "$RUNNER_TEMP/prs.json"
+          RC=0
+          EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" "${ON_MAIN[@]}" < "$RUNNER_TEMP/prs.json") || RC=$?
+          case "$RC" in
+            0) echo "::notice::Data for ${DATE} already exists (${EXISTING}). Skipping this run."
+               echo "skip=true" >> "$GITHUB_OUTPUT" ;;
+            1) echo "skip=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::existing_data_pr failed (exit ${RC})"; exit 1 ;;
+          esac
 
   scrape:
     needs: dedupe
     if: needs.dedupe.outputs.skip != 'true'
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

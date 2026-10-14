@@ -9,7 +9,7 @@ the workflow from the contents API).
 
 Input: JSON from
   gh pr list --state all --search "head:data/weekly-" \
-    --json number,url,state,headRefName,files
+    --json number,url,state,headRefName,files,isCrossRepository,author
 Prints the first matching PR URL and exits 0 when one exists; exits 1 otherwise.
 """
 from __future__ import annotations
@@ -20,8 +20,30 @@ import sys
 
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
+# Only PRs opened by the weekly job count. open_data_pr.sh runs `gh pr create`
+# with WFO_WEEKLY_PAT, owned by silentdany (author of every data PR so far: #3,
+# #7, #24-#36). github-actions[bot] (shown by gh as app/github-actions) covers a
+# run that falls back to GITHUB_TOKEN. Override with DATA_PR_AUTHORS (comma list).
+DEFAULT_AUTHORS = frozenset({"silentdany", "github-actions[bot]", "app/github-actions"})
 
-def find_existing(prs: list[dict], date: str) -> dict | None:
+
+def allowed_authors() -> frozenset[str]:
+    import os
+    raw = os.environ.get("DATA_PR_AUTHORS", "").strip()
+    if not raw:
+        return DEFAULT_AUTHORS
+    return frozenset(a.strip().lower() for a in raw.split(",") if a.strip())
+
+
+def _trusted(pr: dict, authors: frozenset[str]) -> bool:
+    # A fork PR (or one missing the field) must never block the run (DoS).
+    if pr.get("isCrossRepository") is not False:
+        return False
+    login = ((pr.get("author") or {}).get("login") or "").lower()
+    return login in {a.lower() for a in authors}
+
+
+def find_existing(prs: list[dict], date: str, authors: frozenset[str] | None = None) -> dict | None:
     """First open/merged PR that carries this date's data.
 
     Matches a head branch starting with data/weekly-<date> or
@@ -32,7 +54,10 @@ def find_existing(prs: list[dict], date: str) -> dict | None:
         raise ValueError("date must be YYYY-MM-DD")
     target = f"data/weekly/{date}.json"
     by_name = (f"data/weekly-{date}", f"data/weekly-run-{date}")
+    authors = DEFAULT_AUTHORS if authors is None else authors
     for pr in prs:
+        if not _trusted(pr, authors):
+            continue
         head = pr.get("headRefName") or ""
         if not head.startswith("data/weekly-"):
             continue
@@ -61,7 +86,7 @@ def main(argv: list[str]) -> int:
         print(f"main:data/weekly/{argv[1]}.json")
         return 0
     prs = json.load(sys.stdin)
-    hit = find_existing(prs if isinstance(prs, list) else [], argv[1])
+    hit = find_existing(prs if isinstance(prs, list) else [], argv[1], allowed_authors())
     if hit:
         print(hit.get("url") or f"#{hit.get('number')}")
         return 0
