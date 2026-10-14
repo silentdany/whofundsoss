@@ -2,6 +2,7 @@ import { genericOAuthClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { runPreSignInSignOut, runSignOut } from "../../../scripts/sign-out-plan.mjs";
 import { GROK_PROVIDERS } from "./providers";
+import { resolveAuthEnabled, SITE_HAS_SIGN_IN } from "./site-auth";
 
 /**
  * Better Auth client for this React SPA (browser-side).
@@ -29,13 +30,13 @@ export const authClient = createAuthClient({
 });
 
 /**
- * True when sign-in UI should be shown — i.e. whenever `VITE_AUTH_ENABLED` is
- * not `"false"`. The shipped template sets it to `"false"`
+ * True when sign-in UI should be shown — only if this site has sign-in
+ * (`SITE_HAS_SIGN_IN`, see `./site-auth`) and `VITE_AUTH_ENABLED` is not `"false"`. The shipped template sets it to `"false"`
  * (`.grok/app-env.json`), which selects the dev user (see `use-current-user`);
  * with the key removed, sign-in is real in preview (baked preview client) and
  * when deployed (injected per-app client).
  */
-export const authEnabled = import.meta.env.VITE_AUTH_ENABLED !== "false";
+export const authEnabled = resolveAuthEnabled(SITE_HAS_SIGN_IN, import.meta.env.VITE_AUTH_ENABLED);
 
 /** The upstream providers to render sign-in buttons for. */
 export { GROK_PROVIDERS };
