@@ -1,4 +1,5 @@
 import { authClient, authEnabled } from "./client";
+import { SITE_HAS_SIGN_IN } from "./site-auth";
 
 /** Normalized user shape used across the app, auth on or off. */
 export type AppUser = {
@@ -55,6 +56,8 @@ export type CurrentUserState = {
  * call keeps a stable hook order across every render of a given component.
  */
 export function useCurrentUserState(): CurrentUserState {
+  // A site without sign-in has no user at all: null session, never a fake identity.
+  if (!SITE_HAS_SIGN_IN) return { user: null, isPending: false };
   if (!authEnabled) return { user: DEV_USER, isPending: false };
   // eslint-disable-next-line react-hooks/rules-of-hooks -- authEnabled is constant for the app's lifetime
   const { data, isPending } = authClient.useSession();
