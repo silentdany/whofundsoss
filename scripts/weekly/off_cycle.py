@@ -30,6 +30,11 @@ ALLOWED_EVENTS = frozenset({"schedule", "workflow_dispatch"})
 EXIT_REFUSED = 3
 
 
+def is_off_cycle(value: object) -> bool:
+    """The `offCycle` marker: boolean True or the string "true" (nothing else)."""
+    return value is True or value == "true"
+
+
 class OffCycleRefused(Exception):
     pass
 
@@ -79,11 +84,24 @@ def decide(event: str, now: datetime, allow_off_cycle: bool) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser()
-    p.add_argument("--event", required=True)
+    p.add_argument("--is-off-cycle-file", default=None, help="Exit 0 if this weekly JSON is off-cycle, 1 otherwise")
+    p.add_argument("--event", default=None)
     p.add_argument("--allow", default="false")
     p.add_argument("--now", default=None, help="ISO timestamp with offset (tests only)")
     a = p.parse_args(argv)
+    if a.is_off_cycle_file:
+        import json
+
+        try:
+            with open(a.is_off_cycle_file, encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, ValueError) as e:
+            print(f"::error::cannot read {a.is_off_cycle_file}: {e}", file=sys.stderr)
+            return 2
+        return 0 if isinstance(data, dict) and is_off_cycle(data.get("offCycle")) else 1
     try:
+        if not a.event:
+            raise ValueError("--event is required")
         allow = parse_flag(a.allow)
         now = datetime.fromisoformat(a.now) if a.now else datetime.now(timezone.utc)
         off = decide(a.event, now, allow)

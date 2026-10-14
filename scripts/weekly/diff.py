@@ -8,6 +8,7 @@ Rules (CdP 2026-10-06):
 """
 from __future__ import annotations
 
+from .off_cycle import is_off_cycle
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -134,7 +135,7 @@ def load_baseline(weekly_dir: Path, catalog_path: Path, *, run_date: str | None 
     # on-cycle run compares against the last official week.
     for path in reversed(snapshots):
         data = json.loads(path.read_text(encoding="utf-8"))
-        if data.get("offCycle") is True:
+        if is_off_cycle(data.get("offCycle")):
             continue
         return "weekly", _rel(path), data.get("companies") or []
     if catalog_path.exists():
@@ -608,7 +609,7 @@ def apply_holds(
         prev = base.get(key)
         hold = active.get(key)
         prev_hold = prev.get("hold") if prev is not None else None
-        prior_reading = bool(prev_hold) and not (isinstance(prev_hold, dict) and prev_hold.get("offCycle"))
+        prior_reading = bool(prev_hold) and not (isinstance(prev_hold, dict) and is_off_cycle(prev_hold.get("offCycle")))
         if prev is None:
             kept_disappeared.append(row)
             continue
@@ -655,7 +656,7 @@ def apply_holds(
                 continue
             prev = base.get((c.get("slug") or "").lower())
             ph = prev.get("hold") if prev else None
-            if ph and not (isinstance(ph, dict) and ph.get("offCycle")) and (not isinstance(ph, dict) or ph.get("kind") != "manual"):
+            if ph and not (isinstance(ph, dict) and is_off_cycle(ph.get("offCycle"))) and (not isinstance(ph, dict) or ph.get("kind") != "manual"):
                 c["hold"] = dict(ph) if isinstance(ph, dict) else {"kind": "zero_reading", "reason": AUTO_HOLD_REASON,
                                                                    "since": None, "review_on": None, "zeroReadings": 1}
     return out
@@ -754,7 +755,7 @@ def apply_drop_confirmation(
         before, now = _ben_count(prev), _ben_count(c)
         c.pop("pendingDrop", None)
         prev_pend = prev.get("pendingDrop")
-        prior_pend = bool(prev_pend) and not (isinstance(prev_pend, dict) and prev_pend.get("offCycle"))
+        prior_pend = bool(prev_pend) and not (isinstance(prev_pend, dict) and is_off_cycle(prev_pend.get("offCycle")))
         if off_cycle and prior_pend and isinstance(prev_pend, dict):
             # Off-cycle: a pending drop is never confirmed nor cleared (recovery
             # included); keep it and the last published value unchanged.

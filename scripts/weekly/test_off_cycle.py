@@ -129,3 +129,46 @@ class TestCli(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOffCycleMarker(unittest.TestCase):
+    def test_values(self):
+        from scripts.weekly.off_cycle import is_off_cycle
+
+        self.assertTrue(is_off_cycle(True))
+        self.assertTrue(is_off_cycle("true"))
+        for v in (False, "false", "TRUE", 1, "1", None, {}, "yes"):
+            self.assertFalse(is_off_cycle(v), v)
+
+    def test_cli_file_check(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as d:
+            for value, rc in ((True, 0), ("true", 0), (False, 1), ("false", 1), (None, 1)):
+                p = Path(d) / "w.json"
+                p.write_text(json.dumps({"date": "2026-10-14", **({} if value is None else {"offCycle": value})}))
+                self.assertEqual(main(["--is-off-cycle-file", str(p)]), rc, value)
+            with redirect_stderr(io.StringIO()):
+                self.assertEqual(main(["--is-off-cycle-file", str(Path(d) / "missing.json")]), 2)
+
+
+class TestOpenDataPrRequiresDate(unittest.TestCase):
+    def test_missing_date_fails_before_any_git(self):
+        import os
+        import subprocess
+        from pathlib import Path
+
+        script = Path(__file__).resolve().parent / "open_data_pr.sh"
+        env = {k: v for k, v in os.environ.items() if k != "DATE"}
+        env["WFO_WEEKLY_PAT"] = "dummy-not-a-token"
+        r = subprocess.run(["bash", str(script)], env=env, capture_output=True, text=True, timeout=30)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("DATE is required", r.stderr)
+
+    def test_script_has_no_utc_fallback(self):
+        from pathlib import Path
+
+        text = (Path(__file__).resolve().parent / "open_data_pr.sh").read_text()
+        self.assertNotIn("date -u", text)
