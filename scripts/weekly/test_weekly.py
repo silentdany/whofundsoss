@@ -527,6 +527,19 @@ class TestExistingDataPr(unittest.TestCase):
             self.assertEqual(r.returncode, 2, f"{label}: {r.stdout!r} {r.stderr!r}")
             self.assertNotEqual(r.stdout.strip(), "none", label)
 
+    def test_cli_full_page_means_possible_truncation(self):
+        import json as _json
+        rows = [{"number": n, "url": f"u{n}", "state": "CLOSED", "isCrossRepository": False,
+                 "author": {"login": "silentdany"}, "headRefName": f"feat/{n}", "files": []} for n in range(3)]
+        r = self._cli(_json.dumps(rows), "--limit", "3")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        self.assertIn("possibly truncated", r.stderr)
+        r = self._cli(_json.dumps(rows), "--limit", "4")
+        self.assertEqual((r.returncode, r.stdout.strip()), (1, "none"))
+        for bad in ("0", "-1", "x"):
+            self.assertEqual(self._cli("[]", "--limit", bad).returncode, 2, bad)
+        self.assertEqual(self._cli("[]", "--limit").returncode, 2)
+
     def test_cli_crash_exits_2_not_1(self):
         from unittest import mock
         from scripts.weekly import existing_data_pr as m
@@ -589,7 +602,9 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIn("scripts.weekly.existing_data_pr", guard)
         self.assertNotIn("secrets.", guard)
         self.assertIn("contents/data/weekly/${DATE}.json?ref=main", guard)
-        self.assertNotIn("--search", guard)  # plain list: no search-index lag
+        self.assertNotIn("--search", guard)
+        self.assertIn('--limit "$PR_LIMIT"', guard)
+        self.assertIn('existing_data_pr "$DATE" --limit "$PR_LIMIT"', guard)  # plain list: no search-index lag
         self.assertIn('if [ "$EXISTING" != "none" ]', guard)
         self.assertIn("*) echo \"::error::existing_data_pr failed", guard)
         self.assertIn("${OUT:0:300}", guard)

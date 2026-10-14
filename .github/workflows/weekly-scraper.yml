@@ -83,12 +83,13 @@ jobs:
             exit 1
           fi
           # Plain list (newest first), not the search API: no index lag.
-          gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit 200 \
+          PR_LIMIT=200
+          gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit "$PR_LIMIT" \
             --json number,url,state,headRefName,files,isCrossRepository,author > "$RUNNER_TEMP/prs.json"
           # Exit codes: 0 = data exists (skip), 1 = none (run, must print "none"),
           # anything else = error -> fail closed.
           RC=0
-          EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" "${ON_MAIN[@]}" < "$RUNNER_TEMP/prs.json") || RC=$?
+          EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" --limit "$PR_LIMIT" "${ON_MAIN[@]}" < "$RUNNER_TEMP/prs.json") || RC=$?
           case "$RC" in
             0) echo "::notice::Data for ${DATE} already exists (${EXISTING:0:300}). Skipping this run."
                echo "skip=true" >> "$GITHUB_OUTPUT" ;;

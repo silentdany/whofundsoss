@@ -81,8 +81,20 @@ EXIT_EXISTS, EXIT_NONE, EXIT_ERROR = 0, 1, 2
 def _main(argv: list[str]) -> int:
     on_main = "--on-main" in argv
     argv = [a for a in argv if a != "--on-main"]
+    limit = None
+    if "--limit" in argv:
+        i = argv.index("--limit")
+        try:
+            limit = int(argv[i + 1])
+        except (IndexError, ValueError):
+            print("--limit needs a positive integer", file=sys.stderr)
+            return EXIT_ERROR
+        if limit <= 0:
+            print("--limit needs a positive integer", file=sys.stderr)
+            return EXIT_ERROR
+        argv = argv[:i] + argv[i + 2:]
     if len(argv) != 2:
-        print("usage: existing_data_pr.py YYYY-MM-DD [--on-main] < prs.json", file=sys.stderr)
+        print("usage: existing_data_pr.py YYYY-MM-DD [--on-main] [--limit N] < prs.json", file=sys.stderr)
         return EXIT_ERROR
     if not _DATE_RE.match(argv[1]):
         print("date must be YYYY-MM-DD", file=sys.stderr)
@@ -99,6 +111,11 @@ def _main(argv: list[str]) -> int:
         return EXIT_ERROR
     if not isinstance(prs, list) or not all(isinstance(p, dict) for p in prs):
         print(f"PR list must be a JSON list of objects, got {type(prs).__name__}", file=sys.stderr)
+        return EXIT_ERROR
+    if limit is not None and len(prs) >= limit:
+        # gh pr list returned as many PRs as asked: the list may be truncated.
+        print(f"PR list has {len(prs)} entries = --limit {limit}: possibly truncated, refusing to decide",
+              file=sys.stderr)
         return EXIT_ERROR
     hit = find_existing(prs, argv[1], allowed_authors())
     if hit:
