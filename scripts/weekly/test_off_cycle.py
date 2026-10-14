@@ -6,7 +6,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timezone
 
-from scripts.weekly.off_cycle import EXIT_REFUSED, OffCycleRefused, decide, is_cycle_day, main, parse_flag
+from scripts.weekly.off_cycle import EXIT_REFUSED, OffCycleRefused, decide, is_cycle_day, main, parse_flag, run_date_paris
 
 
 def utc(s: str) -> datetime:
@@ -56,14 +56,41 @@ class TestDecide(unittest.TestCase):
         self.assertTrue(decide("schedule", self.WED, False))
 
 
+class TestParisRunDate(unittest.TestCase):
+    def test_sunday_utc_evening_is_monday_paris(self):
+        # Sécu B2: 2026-10-18 22:30 UTC = Monday 2026-10-19 00:30 Paris
+        now = utc("2026-10-18T22:30:00")
+        self.assertEqual(run_date_paris(now), "2026-10-19")
+        self.assertFalse(decide("workflow_dispatch", now, False))  # on-cycle, dated Monday
+
+    def test_dst_spring_forward(self):
+        # 2026-03-29: clocks go UTC+1 -> UTC+2 at 01:00 UTC.
+        self.assertEqual(run_date_paris(utc("2026-03-28T23:30:00")), "2026-03-29")  # Sun 00:30 CET
+        self.assertEqual(run_date_paris(utc("2026-03-29T22:30:00")), "2026-03-30")  # Mon 00:30 CEST
+        self.assertTrue(is_cycle_day(utc("2026-03-29T22:30:00")))
+        self.assertFalse(is_cycle_day(utc("2026-03-29T21:30:00")))  # Sun 23:30 CEST
+
+    def test_cron_and_dispatch_same_paris_monday_share_the_date(self):
+        # dispatch Mon 00:30 Paris and cron 04:17 UTC the same Monday -> same date (dedupe catches it)
+        self.assertEqual(run_date_paris(utc("2026-10-18T22:30:00")), run_date_paris(utc("2026-10-19T04:17:00")))
+
+
+class TestEvents(unittest.TestCase):
+    def test_only_allowlisted_events(self):
+        mon = utc("2026-10-12T10:00:00")
+        for ev in ("push", "pull_request", "repository_dispatch", "workflow_call", ""):
+            with self.assertRaises(OffCycleRefused):
+                decide(ev, mon, True)
+
+
 class TestFlag(unittest.TestCase):
     def test_values(self):
-        for v in ("", None, "false", "FALSE", "0", "no"):
+        for v in ("", None, "false"):
             self.assertFalse(parse_flag(v))
-        for v in ("true", "True", "1", "yes"):
-            self.assertTrue(parse_flag(v))
-        with self.assertRaises(ValueError):
-            parse_flag("maybe")
+        self.assertTrue(parse_flag("true"))
+        for v in ("maybe", "yes", "1", "0", "no", "True", "FALSE"):
+            with self.assertRaises(ValueError):
+                parse_flag(v)
 
 
 class TestCli(unittest.TestCase):
@@ -81,11 +108,19 @@ class TestCli(unittest.TestCase):
 
     def test_allowed_prints_true(self):
         rc, out, _ = self._run("--event", "workflow_dispatch", "--allow", "true", "--now", "2026-10-14T10:00:00+00:00")
-        self.assertEqual((rc, out), (0, "off_cycle=true"))
+        self.assertEqual((rc, out), (0, "off_cycle=true\ndate=2026-10-14"))
 
     def test_monday_prints_false(self):
         rc, out, _ = self._run("--event", "schedule", "--now", "2026-10-12T04:17:00+00:00")
-        self.assertEqual((rc, out), (0, "off_cycle=false"))
+        self.assertEqual((rc, out), (0, "off_cycle=false\ndate=2026-10-12"))
+
+    def test_disallowed_event_exit_code(self):
+        rc, _, _ = self._run("--event", "push", "--now", "2026-10-12T04:17:00+00:00")
+        self.assertEqual(rc, EXIT_REFUSED)
+
+    def test_yes_rejected(self):
+        rc, _, _ = self._run("--event", "workflow_dispatch", "--allow", "yes", "--now", "2026-10-14T10:00:00+00:00")
+        self.assertEqual(rc, 2)
 
     def test_bad_flag(self):
         rc, _, _ = self._run("--event", "workflow_dispatch", "--allow", "maybe")

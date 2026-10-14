@@ -6,10 +6,16 @@ allowed off-cycle run is marked `offCycle` so it never counts as a reading for
 the two-consecutive-readings rules (zero readings, sharp drops): it cannot
 release a pending hold early (context: PR #41, a mid-week run).
 
+The run date is the Europe/Paris calendar date, computed here once and used by
+every later step (a Monday 00:30 Paris dispatch is dated Monday, so the 04:17
+UTC cron the same day is caught by the duplicate guard).
+
+Only the events in ALLOWED_EVENTS may run the scraper.
+
 CLI (used by .github/workflows/weekly-scraper.yml):
     python3 -m scripts.weekly.off_cycle --event "$GITHUB_EVENT_NAME" --allow "$INPUT_ALLOW_OFF_CYCLE"
-Prints `off_cycle=true|false` and exits 0, or exits 3 when the run is refused
-(2 on bad arguments).
+Prints `off_cycle=true|false` and `date=YYYY-MM-DD` (Paris) and exits 0, or
+exits 3 when the run is refused (2 on bad arguments).
 """
 from __future__ import annotations
 
@@ -20,6 +26,7 @@ from zoneinfo import ZoneInfo
 
 PARIS = ZoneInfo("Europe/Paris")
 MONDAY = 0
+ALLOWED_EVENTS = frozenset({"schedule", "workflow_dispatch"})
 EXIT_REFUSED = 3
 
 
@@ -28,12 +35,19 @@ class OffCycleRefused(Exception):
 
 
 def parse_flag(raw: str | None) -> bool:
-    v = (raw or "").strip().lower()
-    if v in ("", "false", "0", "no"):
+    # GitHub boolean inputs render as exactly "true"/"false"; empty = not passed.
+    v = (raw or "").strip()
+    if v in ("", "false"):
         return False
-    if v in ("true", "1", "yes"):
+    if v == "true":
         return True
     raise ValueError(f"allow_off_cycle must be true or false, got {raw!r}")
+
+
+def run_date_paris(now: datetime) -> str:
+    if now.tzinfo is None:
+        raise ValueError("now must be timezone-aware")
+    return now.astimezone(PARIS).date().isoformat()
 
 
 def is_cycle_day(now: datetime) -> bool:
@@ -49,9 +63,11 @@ def decide(event: str, now: datetime, allow_off_cycle: bool) -> bool:
     Scheduled runs are never refused (a late cron still runs), but are marked
     off-cycle if they land outside Monday Paris.
     """
+    if event not in ALLOWED_EVENTS:
+        raise OffCycleRefused(f"event {event!r} may not run the weekly scraper (allowed: {sorted(ALLOWED_EVENTS)})")
     if is_cycle_day(now):
         return False
-    if event == "workflow_dispatch" and not allow_off_cycle:
+    if event != "schedule" and not allow_off_cycle:
         day = now.astimezone(PARIS).strftime("%A %Y-%m-%d")
         raise OffCycleRefused(
             f"manual run refused: today is {day} in Europe/Paris, the weekly cycle is Monday. "
@@ -78,6 +94,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"::error::{e}", file=sys.stderr)
         return 2
     print(f"off_cycle={'true' if off else 'false'}")
+    print(f"date={run_date_paris(now)}")
     return 0
 
 
