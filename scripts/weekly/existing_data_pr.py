@@ -9,7 +9,7 @@ the workflow from the contents API).
 
 Input: JSON from
   gh pr list --state all --limit 200 \
-    --json number,url,state,headRefName,files,isCrossRepository,author
+    --json number,url,state,headRefName,files,isCrossRepository,author,createdAt
 Exit 0 + PR URL when data exists (skip); exit 1 + "none" when nothing
 exists (run); exit 2 on any error (bad usage, malformed / empty / non-list
 JSON, crash). The workflow fails closed on anything but 0 or 1+"none".
@@ -85,9 +85,13 @@ def _shape_error(pr: object) -> str | None:
     n = pr.get("number")
     if not isinstance(n, int) or isinstance(n, bool):
         return "number must be an int"
-    for k in ("state", "headRefName", "url"):
+    for k in ("state", "headRefName", "url", "createdAt"):
         if not isinstance(pr.get(k), str):
             return f"{k} must be a string"
+    if pr["state"].upper() not in {"OPEN", "MERGED", "CLOSED"}:
+        return f"unknown state {pr['state'][:20]!r}"
+    if not _DATE_RE.match(pr["createdAt"][:10]):
+        return "createdAt must start with YYYY-MM-DD"
     if not isinstance(pr.get("isCrossRepository"), bool):
         return "isCrossRepository must be a bool"
     author = pr.get("author")
@@ -139,10 +143,14 @@ def _main(argv: list[str]) -> int:
             print(f"PR list entry {i} is not a PR row: {err}", file=sys.stderr)
             return EXIT_ERROR
     if limit is not None and len(prs) >= limit:
-        # gh pr list returned as many PRs as asked: the list may be truncated.
-        print(f"PR list has {len(prs)} entries = --limit {limit}: possibly truncated, refusing to decide",
-              file=sys.stderr)
-        return EXIT_ERROR
+        # A full page may be truncated. gh lists newest first, so it is still
+        # complete for this date if the oldest row was created before it
+        # (a data PR for <date> is created on or after <date>).
+        oldest = min(pr["createdAt"][:10] for pr in prs)
+        if oldest >= argv[1]:
+            print(f"PR list has {len(prs)} entries = --limit {limit}, all created on/after {argv[1]}: "
+                  "possibly truncated, refusing to decide", file=sys.stderr)
+            return EXIT_ERROR
     hit = find_existing(prs, argv[1], allowed_authors())
     if hit:
         print(hit.get("url") or f"#{hit.get('number')}")

@@ -85,7 +85,7 @@ jobs:
           # Plain list (newest first), not the search API: no index lag.
           PR_LIMIT=200
           gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit "$PR_LIMIT" \
-            --json number,url,state,headRefName,files,isCrossRepository,author > "$RUNNER_TEMP/prs.json"
+            --json number,url,state,headRefName,files,isCrossRepository,author,createdAt > "$RUNNER_TEMP/prs.json"
           # Exit codes: 0 = data exists (skip), 1 = none (run, must print "none"),
           # anything else = error -> fail closed.
           RC=0
