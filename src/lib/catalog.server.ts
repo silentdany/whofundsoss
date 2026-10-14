@@ -2,12 +2,9 @@ import { isSpamDenylisted } from "./spam-denylist";
 import holdsCsv from "../../data/holds/weekly-holds.csv?raw";
 import { activeHolds, parseHolds, todayUtc, withoutHeld } from "./holds";
 import raw from "@/data/catalog.json";
-// Catalog dumps: still used by the snapshots CSV export only.
-import snapPrev from "@/data/snapshots/2026-10-05.json";
-import snapCurr from "@/data/snapshots/2026-10-06.json";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
-import { buildWeeklyMovements, selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
+import { buildSnapshotsCsv, buildWeeklyMovements, selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
 import { normSlug, SLUG_RENAMES, slugEquivalents } from "@/lib/slug-aliases";
 import { formatSponsorshipProjectLabel } from "@/lib/sponsorship-url";
 import {
@@ -527,24 +524,13 @@ export function sponsorshipsCsv(): string {
   return [header.join(","), ...lines].join("\n");
 }
 
-export function snapshotsCsv(): string {
-  const header = ["collected_at", "hash", "companies", "sponsorships", "ranked", "public_usd_ranked", "public_usd_all"];
-  const prev = snapPrev as SnapFile;
-  const curr = snapCurr as SnapFile;
-  const rows = [prev.meta, curr.meta].map((m) =>
-    [
-      m.collectedAt,
-      m.hash,
-      m.companies,
-      m.sponsorships,
-      m.ranked,
-      m.publicUsdRanked,
-      m.publicUsdAll,
-    ]
-      .map(csvCell)
-      .join(","),
-  );
-  return [header.join(","), ...rows].join("\n");
+/** One row per official weekly snapshot (data/weekly, same loader and filters as /movements). */
+export async function snapshotsCsv(): Promise<string> {
+  const { officialWeeks, loadWeek, api } = await import("@/lib/public-api/data.server");
+  const held = V().held;
+  const hidden = (slug: string) => slugEquivalents(slug).some((s) => held.has(s) || api.hidden(s));
+  const canonical = (slug: string) => SLUG_RENAMES.get(normSlug(slug)) ?? normSlug(slug);
+  return buildSnapshotsCsv(await officialWeeks(), (w) => loadWeek(w), hidden, canonical);
 }
 
 function csvCell(value: unknown): string {
