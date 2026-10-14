@@ -471,10 +471,10 @@ class TestCanonicalBeforeSlugAndDenylist(unittest.TestCase):
 
 class TestExistingDataPr(unittest.TestCase):
     PRS = [
-        {"number": 24, "url": "u24", "state": "OPEN", "headRefName": "data/weekly-run-1", "files": [{"path": "data/weekly/2026-10-12.json"}]},
-        {"number": 25, "url": "u25", "state": "CLOSED", "headRefName": "data/weekly-run-2", "files": [{"path": "data/weekly/2026-10-19.json"}]},
-        {"number": 7, "url": "u7", "state": "MERGED", "headRefName": "data/weekly-run-3", "files": [{"path": "data/weekly/2026-10-06.json"}]},
-        {"number": 9, "url": "u9", "state": "OPEN", "headRefName": "feat/x", "files": [{"path": "data/weekly/2026-10-26.json"}]},
+        {"number": 24, "url": "u24", "state": "OPEN", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-run-1", "files": [{"path": "data/weekly/2026-10-12.json"}]},
+        {"number": 25, "url": "u25", "state": "CLOSED", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-run-2", "files": [{"path": "data/weekly/2026-10-19.json"}]},
+        {"number": 7, "url": "u7", "state": "MERGED", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-run-3", "files": [{"path": "data/weekly/2026-10-06.json"}]},
+        {"number": 9, "url": "u9", "state": "OPEN", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "feat/x", "files": [{"path": "data/weekly/2026-10-26.json"}]},
     ]
 
     def test_open_and_merged_block(self):
@@ -487,29 +487,181 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIsNone(find_existing(self.PRS, "2026-10-19"))
         self.assertIsNone(find_existing(self.PRS, "2026-10-26"))
 
+    def test_branch_named_after_the_date_blocks(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        prs = [
+            {"number": 36, "url": "u36", "state": "MERGED", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-2026-10-12-rebuild", "files": []},
+            {"number": 41, "url": "u41", "state": "OPEN", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-run-2026-10-19", "files": []},
+            {"number": 42, "url": "u42", "state": "CLOSED", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-2026-10-26", "files": []},
+            {"number": 43, "url": "u43", "state": "MERGED", "isCrossRepository": False, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-rebuild", "files": [{"path": "data/weekly/2026-11-02.json"}]},
+        ]
+        self.assertEqual(find_existing(prs, "2026-10-12")["number"], 36)
+        self.assertEqual(find_existing(prs, "2026-10-19")["number"], 41)
+        self.assertIsNone(find_existing(prs, "2026-10-26"))  # closed, unmerged
+        self.assertEqual(find_existing(prs, "2026-11-02")["number"], 43)  # by file
+        self.assertIsNone(find_existing(prs, "2026-10-05"))
+
+    def test_date_prefix_needs_a_separator(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        base = {"number": 50, "url": "u50", "state": "OPEN", "isCrossRepository": False,
+                "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "files": []}
+        for head in ("data/weekly-2026-10-120", "data/weekly-2026-10-123-x", "data/weekly-run-2026-10-12x"):
+            self.assertIsNone(find_existing([{**base, "headRefName": head}], "2026-10-12"), head)
+        with self.assertRaises(ValueError):  # a partial date is never a valid key
+            find_existing([{**base, "headRefName": "data/weekly-2026-10-12"}], "2026-10-1")
+        for head in ("data/weekly-2026-10-12", "data/weekly-2026-10-12-rebuild", "data/weekly-run-2026-10-12-1"):
+            self.assertEqual(find_existing([{**base, "headRefName": head}], "2026-10-12")["number"], 50, head)
+
+    def _cli(self, stdin, *args):
+        import subprocess
+        import sys
+        root = Path(__file__).resolve().parents[2]
+        return subprocess.run([sys.executable, "-m", "scripts.weekly.existing_data_pr", "2026-10-19", *args],
+                              input=stdin, cwd=root, capture_output=True, text=True)
+
+    def test_cli_fails_closed_on_bad_input(self):
+        for label, body in {"html": "<html><body>502 Bad Gateway</body></html>", "empty": "",
+                            "whitespace": "  \n", "object": '{"message": "Bad credentials"}',
+                            "list of non-objects": '["x", 1]', "null": "null"}.items():
+            r = self._cli(body)
+            self.assertEqual(r.returncode, 2, f"{label}: {r.stdout!r} {r.stderr!r}")
+            self.assertNotEqual(r.stdout.strip(), "none", label)
+
+    def _rows(self, n, created):
+        return [{"number": i, "url": f"u{i}", "state": "CLOSED", "isCrossRepository": False,
+                 "author": {"login": "silentdany"}, "createdAt": created(i), "headRefName": f"feat/{i}",
+                 "files": []} for i in range(n)]
+
+    def test_full_page_ok_when_oldest_predates_run_date(self):
+        import json as _json
+        rows = self._rows(200, lambda i: "2026-10-19T09:00:00Z" if i < 199 else "2026-10-18T23:00:00Z")
+        r = self._cli(_json.dumps(rows), "--limit", "200")
+        self.assertEqual((r.returncode, r.stdout.strip()), (1, "none"), r.stderr)
+
+    def test_full_page_all_on_run_date_fails_closed(self):
+        import json as _json
+        rows = self._rows(200, lambda i: "2026-10-19T09:00:00Z")
+        r = self._cli(_json.dumps(rows), "--limit", "200")
+        self.assertEqual(r.returncode, 2, r.stderr)
+        self.assertIn("possibly truncated", r.stderr)
+
+    def test_limit_arg_validated(self):
+        import json as _json
+        self.assertEqual(self._cli(_json.dumps(self._rows(3, lambda i: "2026-10-01T00:00:00Z")), "--limit", "4").returncode, 1)
+        for bad in ("0", "-1", "x"):
+            self.assertEqual(self._cli("[]", "--limit", bad).returncode, 2, bad)
+        self.assertEqual(self._cli("[]", "--limit").returncode, 2)
+
+    def test_cli_rejects_non_pr_objects(self):
+        import json as _json
+        good = {"number": 1, "url": "u1", "state": "CLOSED", "isCrossRepository": False,
+                "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "feat/x", "files": [{"path": "a"}]}
+        self.assertEqual(self._cli(_json.dumps([good])).returncode, 1)
+        self.assertEqual(self._cli(_json.dumps([{**good, "author": None}])).returncode, 1)
+        bad = {
+            "qa sample": [{"message": "Bad credentials"}, {"foo": 1}],
+            "number str": [{**good, "number": "1"}],
+            "number bool": [{**good, "number": True}],
+            "state missing": [{k: v for k, v in good.items() if k != "state"}],
+            "head int": [{**good, "headRefName": 5}],
+            "url null": [{**good, "url": None}],
+            "cross str": [{**good, "isCrossRepository": "false"}],
+            "author str": [{**good, "author": "silentdany"}],
+            "author no login": [{**good, "author": {}}],
+            "files dict": [{**good, "files": {"path": "a"}}],
+            "files path int": [{**good, "files": [{"path": 1}]}],
+            "one bad among good": [good, {"foo": 1}],
+            "state unknown": [{**good, "state": "DRAFT"}],
+            "state empty": [{**good, "state": ""}],
+            "createdAt missing": [{k: v for k, v in good.items() if k != "createdAt"}],
+            "createdAt garbage": [{**good, "createdAt": "yesterday"}],
+        }
+        for label, rows in bad.items():
+            r = self._cli(_json.dumps(rows))
+            self.assertEqual(r.returncode, 2, f"{label}: {r.stdout!r} {r.stderr!r}")
+            self.assertNotEqual(r.stdout.strip(), "none", label)
+
+    def test_cli_crash_exits_2_not_1(self):
+        from unittest import mock
+        from scripts.weekly import existing_data_pr as m
+        with mock.patch.object(m, "find_existing", side_effect=RuntimeError("boom")), \
+                mock.patch("sys.stdin") as stdin:
+            stdin.read.return_value = "[]"
+            self.assertEqual(m.main(["x", "2026-10-19"]), m.EXIT_ERROR)
+
+    def test_cli_none_marker_and_exists(self):
+        r = self._cli("[]")
+        self.assertEqual((r.returncode, r.stdout.strip()), (1, "none"))
+        pr = '[{"number": 1, "url": "u1", "state": "OPEN", "isCrossRepository": false, "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-2026-10-19", "files": []}]'
+        r = self._cli(pr)
+        self.assertEqual((r.returncode, r.stdout.strip()), (0, "u1"))
+
+    def test_cli_on_main_skips_and_otherwise_reads_prs(self):
+        import subprocess
+        import sys
+        root = Path(__file__).resolve().parents[2]
+        cmd = [sys.executable, "-m", "scripts.weekly.existing_data_pr"]
+        r = subprocess.run(cmd + ["2026-10-12", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
+        self.assertEqual((r.returncode, r.stdout.strip()), (0, "main:data/weekly/2026-10-12.json"))
+        r = subprocess.run(cmd + ["2026-10-12"], input="[]", cwd=root, capture_output=True, text=True)
+        self.assertEqual((r.returncode, r.stdout.strip()), (1, "none"))
+        r = subprocess.run(cmd + ["2026-10-12; x", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 2)
+
+    def test_fork_pr_never_blocks(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        fork = [{"number": 99, "url": "u99", "state": "OPEN", "isCrossRepository": True,
+                 "author": {"login": "silentdany"}, "createdAt": "2026-10-01T08:00:00Z", "headRefName": "data/weekly-2026-10-19",
+                 "files": [{"path": "data/weekly/2026-10-19.json"}]}]
+        self.assertIsNone(find_existing(fork, "2026-10-19"))
+        missing = [{**fork[0], "isCrossRepository": None}]
+        self.assertIsNone(find_existing(missing, "2026-10-19"))  # unknown = untrusted
+
+    def test_unexpected_author_never_blocks(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        base = {"number": 98, "url": "u98", "state": "OPEN", "isCrossRepository": False,
+                "headRefName": "data/weekly-2026-10-19", "files": []}
+        self.assertIsNone(find_existing([{**base, "author": {"login": "mallory"}}], "2026-10-19"))
+        self.assertIsNone(find_existing([{**base, "author": None}], "2026-10-19"))
+        for login in ("silentdany", "app/github-actions", "github-actions[bot]"):
+            self.assertEqual(find_existing([{**base, "author": {"login": login}}], "2026-10-19")["number"], 98, login)
+        self.assertIsNone(find_existing([{**base, "author": {"login": "silentdany"}}], "2026-10-19",
+                                        authors=frozenset({"other-bot"})))
+
     def test_rejects_bad_date(self):
         from scripts.weekly.existing_data_pr import find_existing
         with self.assertRaises(ValueError):
             find_existing(self.PRS, "2026-10-12; rm -rf /")
 
-    def test_workflow_patch_uses_read_only_github_token(self):
-        # Ships as docs/weekly-scraper-dedupe.patch (the bot token cannot push
-        # .github/workflows). Once applied, the live workflow is checked too.
+    def test_workflow_dedupe_job_uses_read_only_github_token(self):
+        # Text checks (no PyYAML dependency); actionlint validates the syntax.
         root = Path(__file__).resolve().parents[2]
-        patch = (root / "docs" / "weekly-scraper-dedupe.patch").read_text()
-        added = "\n".join(l[1:] for l in patch.splitlines() if l.startswith("+") and not l.startswith("+++"))
-        self.assertIn("scripts.weekly.existing_data_pr", added)
-        self.assertIn("GH_TOKEN: ${{ github.token }}", added)
-        self.assertIn("pull-requests: read", added)
-        self.assertIn("contents: read", added)
-        guard = added[added.index("dedupe:"):added.index("needs: dedupe")]
-        self.assertNotIn("PAT", guard.replace("no PAT", ""))
-        self.assertNotIn("secrets.", guard)
-        self.assertIn("needs: dedupe", added)
-        self.assertIn("if: needs.dedupe.outputs.skip != 'true'", added)
         wf = (root / ".github" / "workflows" / "weekly-scraper.yml").read_text()
-        if "existing_data_pr" in wf:
-            self.assertIn("if: needs.dedupe.outputs.skip != 'true'", wf)
+        guard = wf[wf.index("\n  dedupe:"):wf.index("\n  scrape:")]
+        self.assertIn("permissions:\n      contents: read\n      pull-requests: read\n", guard)
+        self.assertIn("GH_TOKEN: ${{ github.token }}", guard)
+        self.assertIn("scripts.weekly.existing_data_pr", guard)
+        self.assertNotIn("secrets.", guard)
+        self.assertIn("contents/data/weekly/${DATE}.json?ref=main", guard)
+        self.assertNotIn("--search", guard)
+        self.assertIn('--limit "$PR_LIMIT"', guard)
+        self.assertIn("isCrossRepository,author,createdAt", guard)
+        self.assertIn('existing_data_pr "$DATE" --limit "$PR_LIMIT"', guard)  # plain list: no search-index lag
+        self.assertIn('if [ "$EXISTING" != "none" ]', guard)
+        self.assertIn("*) echo \"::error::existing_data_pr failed", guard)
+        self.assertIn("${OUT:0:300}", guard)
+        self.assertIn('echo "date=${DATE}" >> "$GITHUB_OUTPUT"', guard)
+        self.assertEqual(wf.count("date -u +%F"), 1)  # DATE computed once, in dedupe
+        self.assertEqual(wf.count("RUN_DATE: ${{ needs.dedupe.outputs.date }}"), 2)
+        self.assertIn("SECOND data PR", wf)
+        self.assertIn("isCrossRepository,author", guard)
+        self.assertIn('"${ON_MAIN[@]}"', guard)
+        self.assertNotIn("2>/dev/null", guard)
+        self.assertIn("\npermissions: {}\n", wf)
+        scrape = wf[wf.index("\n  scrape:"):]
+        self.assertIn("needs: dedupe", scrape[:200])
+        self.assertIn("if: needs.dedupe.outputs.skip != 'true'", scrape[:200])
+        self.assertIn("permissions:\n      contents: read\n", scrape[:300])
 
 
 class TestMergeRetention(unittest.TestCase):
