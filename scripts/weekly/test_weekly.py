@@ -487,6 +487,32 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIsNone(find_existing(self.PRS, "2026-10-19"))
         self.assertIsNone(find_existing(self.PRS, "2026-10-26"))
 
+    def test_branch_named_after_the_date_blocks(self):
+        from scripts.weekly.existing_data_pr import find_existing
+        prs = [
+            {"number": 36, "url": "u36", "state": "MERGED", "headRefName": "data/weekly-2026-10-12-rebuild", "files": []},
+            {"number": 41, "url": "u41", "state": "OPEN", "headRefName": "data/weekly-run-2026-10-19", "files": []},
+            {"number": 42, "url": "u42", "state": "CLOSED", "headRefName": "data/weekly-2026-10-26", "files": []},
+            {"number": 43, "url": "u43", "state": "MERGED", "headRefName": "data/weekly-rebuild", "files": [{"path": "data/weekly/2026-11-02.json"}]},
+        ]
+        self.assertEqual(find_existing(prs, "2026-10-12")["number"], 36)
+        self.assertEqual(find_existing(prs, "2026-10-19")["number"], 41)
+        self.assertIsNone(find_existing(prs, "2026-10-26"))  # closed, unmerged
+        self.assertEqual(find_existing(prs, "2026-11-02")["number"], 43)  # by file
+        self.assertIsNone(find_existing(prs, "2026-10-05"))
+
+    def test_cli_on_main_skips_and_otherwise_reads_prs(self):
+        import subprocess
+        import sys
+        root = Path(__file__).resolve().parents[2]
+        cmd = [sys.executable, "-m", "scripts.weekly.existing_data_pr"]
+        r = subprocess.run(cmd + ["2026-10-12", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
+        self.assertEqual((r.returncode, r.stdout.strip()), (0, "main:data/weekly/2026-10-12.json"))
+        r = subprocess.run(cmd + ["2026-10-12"], input="[]", cwd=root, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 1)
+        r = subprocess.run(cmd + ["2026-10-12; x", "--on-main"], input="[]", cwd=root, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 2)
+
     def test_rejects_bad_date(self):
         from scripts.weekly.existing_data_pr import find_existing
         with self.assertRaises(ValueError):
@@ -501,6 +527,8 @@ class TestExistingDataPr(unittest.TestCase):
         self.assertIn("GH_TOKEN: ${{ github.token }}", guard)
         self.assertIn("scripts.weekly.existing_data_pr", guard)
         self.assertNotIn("secrets.", guard)
+        self.assertIn("contents/data/weekly/${DATE}.json?ref=main", guard)
+        self.assertIn('--search "head:data/weekly-"', guard)
         scrape = wf[wf.index("\n  scrape:"):]
         self.assertIn("needs: dedupe", scrape[:200])
         self.assertIn("if: needs.dedupe.outputs.skip != 'true'", scrape[:200])

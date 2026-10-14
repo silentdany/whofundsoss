@@ -67,10 +67,14 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit 50 \
-            --search "head:data/weekly-run-" \
+          ON_MAIN=""
+          if gh api "repos/${GITHUB_REPOSITORY}/contents/data/weekly/${DATE}.json?ref=main" --silent 2>/dev/null; then
+            ON_MAIN="--on-main"
+          fi
+          gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit 100 \
+            --search "head:data/weekly-" \
             --json number,url,state,headRefName,files > "$RUNNER_TEMP/prs.json"
-          if EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" < "$RUNNER_TEMP/prs.json"); then
+          if EXISTING=$(python3 -m scripts.weekly.existing_data_pr "$DATE" $ON_MAIN < "$RUNNER_TEMP/prs.json"); then
             echo "::notice::Data PR for ${DATE} already exists (${EXISTING}). Skipping this run."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
