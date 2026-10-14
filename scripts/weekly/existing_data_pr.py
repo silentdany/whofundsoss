@@ -78,6 +78,27 @@ def find_existing(prs: list[dict], date: str, authors: frozenset[str] | None = N
 EXIT_EXISTS, EXIT_NONE, EXIT_ERROR = 0, 1, 2
 
 
+def _shape_error(pr: object) -> str | None:
+    """Why this element is not a gh PR row with the fields we read, or None."""
+    if not isinstance(pr, dict):
+        return f"not an object ({type(pr).__name__})"
+    n = pr.get("number")
+    if not isinstance(n, int) or isinstance(n, bool):
+        return "number must be an int"
+    for k in ("state", "headRefName", "url"):
+        if not isinstance(pr.get(k), str):
+            return f"{k} must be a string"
+    if not isinstance(pr.get("isCrossRepository"), bool):
+        return "isCrossRepository must be a bool"
+    author = pr.get("author")
+    if author is not None and not (isinstance(author, dict) and isinstance(author.get("login"), str)):
+        return "author must be null or an object with a string login"
+    files = pr.get("files")
+    if not isinstance(files, list) or not all(isinstance(f, dict) and isinstance(f.get("path"), str) for f in files):
+        return "files must be a list of objects with a string path"
+    return None
+
+
 def _main(argv: list[str]) -> int:
     on_main = "--on-main" in argv
     argv = [a for a in argv if a != "--on-main"]
@@ -109,9 +130,14 @@ def _main(argv: list[str]) -> int:
     except ValueError as e:
         print(f"PR list is not valid JSON ({e}): {raw[:200]!r}", file=sys.stderr)
         return EXIT_ERROR
-    if not isinstance(prs, list) or not all(isinstance(p, dict) for p in prs):
-        print(f"PR list must be a JSON list of objects, got {type(prs).__name__}", file=sys.stderr)
+    if not isinstance(prs, list):
+        print(f"PR list must be a JSON list, got {type(prs).__name__}", file=sys.stderr)
         return EXIT_ERROR
+    for i, pr in enumerate(prs):
+        err = _shape_error(pr)
+        if err:
+            print(f"PR list entry {i} is not a PR row: {err}", file=sys.stderr)
+            return EXIT_ERROR
     if limit is not None and len(prs) >= limit:
         # gh pr list returned as many PRs as asked: the list may be truncated.
         print(f"PR list has {len(prs)} entries = --limit {limit}: possibly truncated, refusing to decide",

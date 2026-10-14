@@ -540,6 +540,31 @@ class TestExistingDataPr(unittest.TestCase):
             self.assertEqual(self._cli("[]", "--limit", bad).returncode, 2, bad)
         self.assertEqual(self._cli("[]", "--limit").returncode, 2)
 
+    def test_cli_rejects_non_pr_objects(self):
+        import json as _json
+        good = {"number": 1, "url": "u1", "state": "CLOSED", "isCrossRepository": False,
+                "author": {"login": "silentdany"}, "headRefName": "feat/x", "files": [{"path": "a"}]}
+        self.assertEqual(self._cli(_json.dumps([good])).returncode, 1)
+        self.assertEqual(self._cli(_json.dumps([{**good, "author": None}])).returncode, 1)
+        bad = {
+            "qa sample": [{"message": "Bad credentials"}, {"foo": 1}],
+            "number str": [{**good, "number": "1"}],
+            "number bool": [{**good, "number": True}],
+            "state missing": [{k: v for k, v in good.items() if k != "state"}],
+            "head int": [{**good, "headRefName": 5}],
+            "url null": [{**good, "url": None}],
+            "cross str": [{**good, "isCrossRepository": "false"}],
+            "author str": [{**good, "author": "silentdany"}],
+            "author no login": [{**good, "author": {}}],
+            "files dict": [{**good, "files": {"path": "a"}}],
+            "files path int": [{**good, "files": [{"path": 1}]}],
+            "one bad among good": [good, {"foo": 1}],
+        }
+        for label, rows in bad.items():
+            r = self._cli(_json.dumps(rows))
+            self.assertEqual(r.returncode, 2, f"{label}: {r.stdout!r} {r.stderr!r}")
+            self.assertNotEqual(r.stdout.strip(), "none", label)
+
     def test_cli_crash_exits_2_not_1(self):
         from unittest import mock
         from scripts.weekly import existing_data_pr as m
