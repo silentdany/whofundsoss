@@ -2,10 +2,13 @@ import { isSpamDenylisted } from "./spam-denylist";
 import holdsCsv from "../../data/holds/weekly-holds.csv?raw";
 import { activeHolds, parseHolds, todayUtc, withoutHeld } from "./holds";
 import raw from "@/data/catalog.json";
+// Catalog dumps: still used by the snapshots CSV export only.
 import snapPrev from "@/data/snapshots/2026-10-05.json";
 import snapCurr from "@/data/snapshots/2026-10-06.json";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
+import { buildWeeklyMovements, selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
+import { normSlug, SLUG_RENAMES, slugEquivalents } from "@/lib/slug-aliases";
 import { formatSponsorshipProjectLabel } from "@/lib/sponsorship-url";
 import {
   buildProjectIndex,
@@ -21,7 +24,6 @@ import type {
   Commons,
   CompanyRow,
   Meta,
-  MovementCompany,
   MovementsPayload,
   SourceKey,
   Sponsorship,
@@ -182,10 +184,38 @@ export function publishedProjectPathList(): string[] {
   return V().publishedProjects.map((p) => `/project/${encodeURIComponent(p.slug)}`);
 }
 
-export function movementsPayload(): MovementsPayload {
+/**
+ * Diff of the two latest weekly snapshots in data/weekly (same listing as the
+ * public API). The files are bundled at build time, so every deploy triggered
+ * by a weekly-snapshot commit picks up the new week; no dates are hardcoded.
+ */
+export async function movementsPayload(): Promise<MovementsPayload> {
+  const { WEEKS, loadWeek, api } = await import("@/lib/public-api/data.server");
   const held = V().held;
-  const strip = (snap: SnapFile): SnapFile => ({ ...snap, index: snap.index.filter((r) => !held.has(r.slug)) });
-  return buildMovementsFromSnaps(strip(snapPrev as SnapFile), strip(snapCurr as SnapFile), getMeta());
+  const hidden = (slug: string) => slugEquivalents(slug).some((s) => held.has(s) || api.hidden(s));
+  const canonical = (slug: string) => SLUG_RENAMES.get(normSlug(slug)) ?? normSlug(slug);
+  const pair = await selectLatestTwo(WEEKS, (week) => loadWeek(week));
+  if (pair.skipped.length) {
+    console.warn(`[movements] skipped invalid weekly snapshot(s): ${pair.skipped.join(", ")}`);
+  }
+  const used = pair.status === "ok" ? [pair.prev, pair.curr] : pair.only ? [pair.only] : [];
+  for (const w of used) for (const msg of w.warnings) console.warn(`[movements] ${msg}`);
+  if (pair.status === "ok") return buildWeeklyMovements(pair.prev, pair.curr, getMeta(), hidden, canonical);
+  const only: SnapFile = pair.only
+    ? weeklyToSnap(pair.only, hidden, canonical)
+    : {
+        meta: {
+          collectedAt: getMeta().collectedAt,
+          hash: "none",
+          companies: 0,
+          sponsorships: 0,
+          ranked: 0,
+          publicUsdAll: 0,
+          publicUsdRanked: 0,
+        },
+        index: [],
+      };
+  return { ...buildMovementsFromSnaps(only, only, getMeta()), insufficient: true };
 }
 
 export function mysteriesPayload() {
@@ -357,8 +387,8 @@ export function sponsorshipsQuery(slug: string, params: URLSearchParams) {
   };
 }
 
-export function deltasPayload(params: URLSearchParams) {
-  const move = movementsPayload();
+export async function deltasPayload(params: URLSearchParams) {
+  const move = await movementsPayload();
   const from = params.get("from") ?? move.from.collectedAt;
   const to = params.get("to") ?? move.to.collectedAt;
   const companies = [...move.climbers, ...move.fallers]

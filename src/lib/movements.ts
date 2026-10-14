@@ -42,7 +42,7 @@ function toMove(
   };
 }
 
-/** Diff two catalog snapshot indexes. Never reads weekly scraper JSON. */
+/** Diff two snapshot indexes (see weekly-snapshots.ts for the weekly source). */
 export function buildMovementsFromSnaps(
   prev: SnapFile,
   curr: SnapFile,
@@ -133,9 +133,9 @@ export function buildMovementsFromSnaps(
     unchangedLeaders,
     note:
       `Public dollars moved ${deltaUsd >= 0 ? "+" : ""}${deltaUsd} USD between ` +
-      `${prev.meta.collectedAt} (hash ${prev.meta.hash.slice(0, 12)}) and ` +
-      `${curr.meta.collectedAt} (hash ${curr.meta.hash.slice(0, 12)}). ` +
+      `${prev.meta.collectedAt} (scraper run ${prev.meta.hash}) and ` +
+      `${curr.meta.collectedAt} (scraper run ${curr.meta.hash}). ` +
       `Companies ${prev.meta.companies} → ${curr.meta.companies}. ` +
-      `Built from publishable dumps — not from weekly scraper JSON.`,
+      `Built from the two latest weekly snapshots, with held, excluded and denylisted entries removed.`,
   };
 }

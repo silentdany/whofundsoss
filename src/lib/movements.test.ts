@@ -28,7 +28,7 @@ test("buildMovementsFromSnaps diffs 2026-10-05 → 2026-10-06 with verifiable ha
   assert.ok(move.newCompanies.some((c) => c.slug === "tik-ninja"));
   assert.ok(move.newCompanies.some((c) => c.slug === "redreply"));
   assert.ok(move.unchangedLeaders.some((c) => c.slug === "posit-dev" && c.rank === 1));
-  assert.ok(move.note.includes("not from weekly scraper"));
+  assert.ok(move.note.includes("weekly snapshots"));
 });
 
 test("live catalog is 2026-10-06, no note_triage, hash bit-identical (P0-1 Soft Sécu + P0-3)", () => {

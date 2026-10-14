@@ -146,7 +146,7 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
           <p className="font-serif text-2xl">WhoFundsOSS</p>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-paper/85">
             A public record of who funds open source. Amounts are a floor: only dollars someone has
-            already published. Refreshed once a month.
+            already published. Ranking refreshed monthly, movements weekly.
           </p>
         </div>
         <FooterColumn
