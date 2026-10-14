@@ -42,7 +42,7 @@ function toMove(
   };
 }
 
-/** Diff two catalog snapshot indexes. Never reads weekly scraper JSON. */
+/** Diff two snapshot indexes (see weekly-snapshots.ts for the weekly source). */
 export function buildMovementsFromSnaps(
   prev: SnapFile,
   curr: SnapFile,
@@ -136,6 +136,6 @@ export function buildMovementsFromSnaps(
       `${prev.meta.collectedAt} (hash ${prev.meta.hash.slice(0, 12)}) and ` +
       `${curr.meta.collectedAt} (hash ${curr.meta.hash.slice(0, 12)}). ` +
       `Companies ${prev.meta.companies} → ${curr.meta.companies}. ` +
-      `Built from publishable dumps — not from weekly scraper JSON.`,
+      `Built from the two latest weekly snapshots, with held, excluded and denylisted entries removed.`,
   };
 }

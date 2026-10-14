@@ -44,12 +44,24 @@ function MovementsPage() {
           Math.abs(summary.deltaCompanies) === 1 ? "company" : "companies"
         } tracked.`;
 
+  if (data.insufficient) {
+    return (
+      <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
+        <PageIntro
+          eyebrow={`Snapshot of ${collectedLabel(to.collectedAt)}`}
+          title="Not enough snapshots to compare yet."
+          lede="Movements need two weekly readings of the public record. The next weekly snapshot will appear here automatically."
+        />
+      </Shell>
+    );
+  }
+
   return (
     <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
       <PageIntro
         eyebrow={`${collectedLabel(from.collectedAt)} to ${collectedLabel(to.collectedAt)}`}
         title="What changed since the last snapshot."
-        lede={`${headline} We compare two monthly readings of the public record. Small gaps between them are normal: it is a floor that only moves when someone publishes something new.`}
+        lede={`${headline} We compare the two latest weekly readings of the public record. Small gaps between them are normal: it is a floor that only moves when someone publishes something new.`}
       />
       <section className="mx-auto max-w-[1120px] px-5 pb-16">
         <dl className="grid grid-cols-2 gap-6 border-t border-line pt-8 lg:grid-cols-4">
@@ -77,7 +89,7 @@ function MovementsPage() {
             </ul>
           </details>
         ) : null}
-        {fresh.length ? <MoveSection title="New this month" empty="" rows={fresh} mode="enter" /> : null}
+        {fresh.length ? <MoveSection title="New this week" empty="" rows={fresh} mode="enter" /> : null}
         {leftCompanies.length ? (
           <MoveSection title="No longer in the catalog" empty="" rows={leftCompanies} mode="exit" />
         ) : null}

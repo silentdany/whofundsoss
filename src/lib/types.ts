@@ -68,6 +68,8 @@ export type MovementCompany = {
 
 export type MovementsPayload = {
   meta: Meta;
+  /** True when fewer than two valid weekly snapshots exist (from === to). */
+  insufficient?: boolean;
   from: { collectedAt: string; hash: string; companies: number; publicUsdAll: number };
   to: { collectedAt: string; hash: string; companies: number; publicUsdAll: number };
   summary: {
