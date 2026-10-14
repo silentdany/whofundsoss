@@ -24,3 +24,14 @@ test("analytics never identify the dev fallback user", () => {
   const src = readFileSync(new URL("./provider.tsx", import.meta.url), "utf8");
   assert.match(src, /!user \|\| user\.isDevFallback/);
 });
+
+test("without sign-in the client returns a null session (no fake user)", () => {
+  const src = readFileSync(new URL("./use-current-user.ts", import.meta.url), "utf8");
+  assert.match(src, /if \(!SITE_HAS_SIGN_IN\) return \{ user: null, isPending: false \};/);
+});
+
+test("without sign-in requireUserId fails closed before any dev fallback", () => {
+  const src = readFileSync(new URL("./verify.server.ts", import.meta.url), "utf8");
+  const fn = src.slice(src.indexOf("export async function requireUserId"));
+  assert.ok(fn.indexOf("if (!SITE_HAS_SIGN_IN) throw new UnauthorizedError()") < fn.indexOf("DEV_USER_ID"));
+});
