@@ -6,10 +6,13 @@ import { CompanySearch } from "@/components/company-search";
 import { Shell } from "@/components/shell";
 import { notFoundHead, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/site";
+import { POSTHOG_EU_UI_HOST, posthogEuHost } from "@/lib/security-headers";
 import appCss from "../styles.css?url";
 
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
+// EU cloud only, explicitly (never the SDK's US defaults); see security-headers.ts.
+const posthogApiHost = posthogEuHost(posthogHost);
 
 if (import.meta.env.DEV && !posthogKey) {
   throw new Error(
@@ -75,7 +78,8 @@ export const Route = createRootRoute({
             <PostHogProvider
               apiKey={posthogKey}
               options={{
-                api_host: posthogHost,
+                api_host: posthogApiHost,
+                ui_host: POSTHOG_EU_UI_HOST,
                 defaults: "2025-05-24",
                 capture_exceptions: true,
                 debug: import.meta.env.DEV,

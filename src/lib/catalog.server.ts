@@ -2,6 +2,7 @@ import { isSpamDenylisted } from "./spam-denylist";
 import holdsCsv from "../../data/holds/weekly-holds.csv?raw";
 import { activeHolds, parseHolds, todayUtc, withoutHeld } from "./holds";
 import raw from "@/data/catalog.json";
+import { csvCell } from "@/lib/csv";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
 import { buildSnapshotsCsv, buildWeeklyMovements, selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
@@ -533,11 +534,6 @@ export async function snapshotsCsv(): Promise<string> {
   return buildSnapshotsCsv(await officialWeeks(), (w) => loadWeek(w), hidden, canonical);
 }
 
-function csvCell(value: unknown): string {
-  const text = String(value ?? "");
-  if (/[",\n]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
-  return text;
-}
 
 function clampInt(raw: string | null, fallback: number, min: number, max: number): number {
   const n = raw == null ? fallback : Number.parseInt(raw, 10);

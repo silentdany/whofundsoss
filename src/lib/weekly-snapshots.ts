@@ -1,3 +1,4 @@
+import { csvCell } from "@/lib/csv";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
 import type { Meta, MovementsPayload } from "@/lib/types";
 
@@ -10,9 +11,13 @@ import type { Meta, MovementsPayload } from "@/lib/types";
 export const WEEK_FILE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export const TOP_N = 200;
 
-/** Off-cycle marker as written by the scraper: boolean true or the string "true". */
+/**
+ * Off-cycle marker. Fail-safe: only an absent key (undefined) or boolean false
+ * is on-cycle; anything else ("TRUE", " true", 1, null, "yes", "false"...)
+ * makes the file off-cycle, so an unexpected marker never becomes official.
+ */
 export function isOffCycle(value: unknown): boolean {
-  return value === true || value === "true";
+  return value !== undefined && value !== false;
 }
 
 /** The weeks that are official (valid date, file loads, not off-cycle), newest first. */
@@ -273,30 +278,47 @@ export const SNAPSHOTS_CSV_HEADER = [
   "public_usd_all",
 ] as const;
 
-/** Snapshots CSV, oldest week first; invalid or off-cycle weeks are left out. */
+/**
+ * Snapshots CSV, oldest week first; invalid or off-cycle weeks are left out.
+ * Every week is filtered with the UNION of all listed weeks' blocked sets
+ * (holds, exclusions, diff.held, all slug forms) plus the global hidden lists,
+ * the same rule /movements applies to its two weeks, so the counts agree.
+ */
 export async function buildSnapshotsCsv(
   weeks: Iterable<string>,
   load: (week: string) => Promise<unknown>,
   hidden: (slug: string) => boolean = () => false,
   canonical: (slug: string) => string = (s) => s,
 ): Promise<string> {
-  const lines: string[] = [SNAPSHOTS_CSV_HEADER.join(",")];
+  const parsed: ParsedWeekly[] = [];
   for (const week of [...new Set(weeks)].filter(isRealWeek).sort()) {
-    let raw: unknown;
     try {
-      raw = await load(week);
+      const p = parseWeekly(week, await load(week));
+      if (p) parsed.push(p);
     } catch {
-      continue;
+      // unreadable: left out
     }
-    const parsed = parseWeekly(week, raw);
-    if (!parsed) continue;
-    const m = weeklyToSnap(parsed, hidden, canonical).meta;
+  }
+  const blocked = new Set<string>();
+  for (const w of parsed) {
+    for (const s of w.blocked) {
+      blocked.add(s);
+      blocked.add(canonical(s));
+    }
+    for (const [from, to] of w.renamed) {
+      if (blocked.has(from) || blocked.has(to)) {
+        blocked.add(from);
+        blocked.add(to);
+      }
+    }
+  }
+  const filter = (slug: string) => blocked.has(slug) || blocked.has(canonical(slug)) || hidden(slug);
+  const lines: string[] = [SNAPSHOTS_CSV_HEADER.join(",")];
+  for (const w of parsed) {
+    const m = weeklyToSnap(w, filter, canonical).meta;
     lines.push(
       [m.collectedAt, m.hash, m.companies, m.sponsorships, m.ranked, m.publicUsdRanked, m.publicUsdAll]
-        .map((v) => {
-          const t = String(v);
-          return /[",\n]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
-        })
+        .map(csvCell)
         .join(","),
     );
   }

@@ -23,7 +23,7 @@ from scripts.weekly.diff import (
     load_site_overrides,
 )
 from scripts.weekly.denylist import parse_spam_denylist
-from scripts.weekly.off_cycle import is_off_cycle
+from scripts.weekly.off_cycle import off_cycle_marked
 from scripts.weekly.report import render_markdown
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -60,7 +60,7 @@ def main(argv: list[str]) -> int:
     already = {(r.get("slug"), r.get("hold_kind")) for r in diff.held}
     held_before = len(diff.held)
     apply_drop_confirmation(
-        diff, companies, baseline, run_date=payload["date"], off_cycle=is_off_cycle(payload.get("offCycle"))
+        diff, companies, baseline, run_date=payload["date"], off_cycle=off_cycle_marked(payload)
     )
     new_held = [r for r in diff.held[held_before:] if (r.get("slug"), r.get("hold_kind")) not in already]
     diff.held = diff.held[:held_before] + new_held
