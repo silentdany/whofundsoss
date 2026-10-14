@@ -33,6 +33,9 @@ test("CSP allows the third parties the site really loads, and nothing broad", ()
   assert.ok(p["style-src"].includes("https://fonts.googleapis.com"));
   assert.ok(p["font-src"].includes("https://fonts.gstatic.com"));
   assert.ok(p["connect-src"].includes("https://*.ingest.de.sentry.io"));
+  // PostHog (EU) analytics bundled in the client.
+  assert.ok(p["script-src"].includes("https://eu-assets.i.posthog.com"));
+  assert.ok(p["connect-src"].includes("https://eu.i.posthog.com"));
   for (const d of ["script-src", "connect-src", "default-src"]) {
     assert.ok(!p[d].includes("*") && !p[d].includes("https:"), `${d} is not a wildcard`);
   }
