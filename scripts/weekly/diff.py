@@ -130,9 +130,12 @@ def load_baseline(weekly_dir: Path, catalog_path: Path, *, run_date: str | None 
         except Exception:
             return path.name
 
-    if snapshots:
-        path = snapshots[-1]
+    # Off-cycle snapshots (offCycle: true) are never a baseline: the next
+    # on-cycle run compares against the last official week.
+    for path in reversed(snapshots):
         data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("offCycle") is True:
+            continue
         return "weekly", _rel(path), data.get("companies") or []
     if catalog_path.exists():
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
@@ -616,9 +619,13 @@ def apply_holds(
                 "since": hold.get("since"),
                 "review_on": hold.get("review_on"),
             }
-        elif off_cycle and prior_reading and isinstance(prev_hold, dict):
+        elif off_cycle and prior_reading:
             # Off-cycle run: keep the pending hold as is, never release it early.
-            tag = dict(prev_hold)
+            # A non-dict hold (legacy `true`) fails closed: still held.
+            tag = dict(prev_hold) if isinstance(prev_hold, dict) else {
+                "kind": "zero_reading", "reason": AUTO_HOLD_REASON, "since": None,
+                "review_on": None, "zeroReadings": 1,
+            }
         elif require_two_zero and not prior_reading:
             tag = {
                 "kind": "zero_reading",
@@ -640,6 +647,17 @@ def apply_holds(
         out.append(carried)
         diff.held.append({**row, "hold_reason": tag["reason"], "review_on": tag["review_on"], "hold_kind": tag["kind"]})
     diff.disappeared_sponsors = kept_disappeared
+    if off_cycle:
+        # A company reappearing during an off-cycle run keeps its pending
+        # (on-cycle) hold unchanged: only an on-cycle reading may clear it.
+        for c in out:
+            if c.get("hold"):
+                continue
+            prev = base.get((c.get("slug") or "").lower())
+            ph = prev.get("hold") if prev else None
+            if ph and not (isinstance(ph, dict) and ph.get("offCycle")) and (not isinstance(ph, dict) or ph.get("kind") != "manual"):
+                c["hold"] = dict(ph) if isinstance(ph, dict) else {"kind": "zero_reading", "reason": AUTO_HOLD_REASON,
+                                                                   "since": None, "review_on": None, "zeroReadings": 1}
     return out
 
 
@@ -735,14 +753,11 @@ def apply_drop_confirmation(
             continue
         before, now = _ben_count(prev), _ben_count(c)
         c.pop("pendingDrop", None)
-        if not before or now is None or now == 0 or now >= before * (1 - DROP_RATIO):
-            continue
         prev_pend = prev.get("pendingDrop")
         prior_pend = bool(prev_pend) and not (isinstance(prev_pend, dict) and prev_pend.get("offCycle"))
-        if prior_pend and not off_cycle:
-            continue  # second consecutive (on-cycle) sharp-drop reading: publish
-        if prior_pend and off_cycle:
-            # Off-cycle: keep the pending drop and last published value as is.
+        if off_cycle and prior_pend and isinstance(prev_pend, dict):
+            # Off-cycle: a pending drop is never confirmed nor cleared (recovery
+            # included); keep it and the last published value unchanged.
             c["pendingDrop"] = dict(prev_pend)
             c["ghBeneficiaries"] = prev.get("ghBeneficiaries")
             c["beneficiaries"] = prev.get("beneficiaries")
@@ -751,6 +766,10 @@ def apply_drop_confirmation(
                               "to": now, "hold_reason": DROP_HOLD_REASON,
                               "review_on": None, "hold_kind": "sharp_drop"})
             continue
+        if not before or now is None or now == 0 or now >= before * (1 - DROP_RATIO):
+            continue
+        if prior_pend:
+            continue  # second consecutive (on-cycle) sharp-drop reading: publish
         c["pendingDrop"] = {
             "field": "ghBeneficiaries",
             "from": before,

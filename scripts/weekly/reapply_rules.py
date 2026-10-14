@@ -58,7 +58,9 @@ def main(argv: list[str]) -> int:
         setattr(diff, k, list(d.get(k) or []))
     already = {(r.get("slug"), r.get("hold_kind")) for r in diff.held}
     held_before = len(diff.held)
-    apply_drop_confirmation(diff, companies, baseline, run_date=payload["date"])
+    apply_drop_confirmation(
+        diff, companies, baseline, run_date=payload["date"], off_cycle=bool(payload.get("offCycle"))
+    )
     new_held = [r for r in diff.held[held_before:] if (r.get("slug"), r.get("hold_kind")) not in already]
     diff.held = diff.held[:held_before] + new_held
     for k in LIST_KEYS:
