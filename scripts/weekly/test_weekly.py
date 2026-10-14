@@ -492,24 +492,18 @@ class TestExistingDataPr(unittest.TestCase):
         with self.assertRaises(ValueError):
             find_existing(self.PRS, "2026-10-12; rm -rf /")
 
-    def test_workflow_patch_uses_read_only_github_token(self):
-        # Ships as docs/weekly-scraper-dedupe.patch (the bot token cannot push
-        # .github/workflows). Once applied, the live workflow is checked too.
+    def test_workflow_dedupe_job_uses_read_only_github_token(self):
+        # Text checks (no PyYAML dependency); actionlint validates the syntax.
         root = Path(__file__).resolve().parents[2]
-        patch = (root / "docs" / "weekly-scraper-dedupe.patch").read_text()
-        added = "\n".join(l[1:] for l in patch.splitlines() if l.startswith("+") and not l.startswith("+++"))
-        self.assertIn("scripts.weekly.existing_data_pr", added)
-        self.assertIn("GH_TOKEN: ${{ github.token }}", added)
-        self.assertIn("pull-requests: read", added)
-        self.assertIn("contents: read", added)
-        guard = added[added.index("dedupe:"):added.index("needs: dedupe")]
-        self.assertNotIn("PAT", guard.replace("no PAT", ""))
-        self.assertNotIn("secrets.", guard)
-        self.assertIn("needs: dedupe", added)
-        self.assertIn("if: needs.dedupe.outputs.skip != 'true'", added)
         wf = (root / ".github" / "workflows" / "weekly-scraper.yml").read_text()
-        if "existing_data_pr" in wf:
-            self.assertIn("if: needs.dedupe.outputs.skip != 'true'", wf)
+        guard = wf[wf.index("\n  dedupe:"):wf.index("\n  scrape:")]
+        self.assertIn("permissions:\n      contents: read\n      pull-requests: read\n", guard)
+        self.assertIn("GH_TOKEN: ${{ github.token }}", guard)
+        self.assertIn("scripts.weekly.existing_data_pr", guard)
+        self.assertNotIn("secrets.", guard)
+        scrape = wf[wf.index("\n  scrape:"):]
+        self.assertIn("needs: dedupe", scrape[:200])
+        self.assertIn("if: needs.dedupe.outputs.skip != 'true'", scrape[:200])
 
 
 class TestMergeRetention(unittest.TestCase):
