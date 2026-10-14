@@ -2,13 +2,13 @@ import { isSpamDenylisted } from "./spam-denylist";
 import holdsCsv from "../../data/holds/weekly-holds.csv?raw";
 import { activeHolds, parseHolds, todayUtc, withoutHeld } from "./holds";
 import raw from "@/data/catalog.json";
-import { createHash } from "node:crypto";
 // Catalog dumps: still used by the snapshots CSV export only.
 import snapPrev from "@/data/snapshots/2026-10-05.json";
 import snapCurr from "@/data/snapshots/2026-10-06.json";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
-import { selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
+import { buildWeeklyMovements, selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
+import { normSlug, SLUG_RENAMES, slugEquivalents } from "@/lib/slug-aliases";
 import { formatSponsorshipProjectLabel } from "@/lib/sponsorship-url";
 import {
   buildProjectIndex,
@@ -24,7 +24,6 @@ import type {
   Commons,
   CompanyRow,
   Meta,
-  MovementCompany,
   MovementsPayload,
   SourceKey,
   Sponsorship,
@@ -193,22 +192,21 @@ export function publishedProjectPathList(): string[] {
 export async function movementsPayload(): Promise<MovementsPayload> {
   const { WEEKS, loadWeek, api } = await import("@/lib/public-api/data.server");
   const held = V().held;
-  const hidden = (slug: string) => held.has(slug) || api.hidden(slug);
+  const hidden = (slug: string) => slugEquivalents(slug).some((s) => held.has(s) || api.hidden(s));
+  const canonical = (slug: string) => SLUG_RENAMES.get(normSlug(slug)) ?? normSlug(slug);
   const pair = await selectLatestTwo(WEEKS, (week) => loadWeek(week));
-  const fp = (raw: unknown) => createHash("sha256").update(JSON.stringify(raw)).digest("hex");
-  const toSnap = (w: Parameters<typeof weeklyToSnap>[0]): SnapFile => {
-    const snap = weeklyToSnap(w, hidden);
-    return { ...snap, meta: { ...snap.meta, hash: fp(w.companies) } };
-  };
-  if (pair.status === "ok") {
-    return { ...buildMovementsFromSnaps(toSnap(pair.prev), toSnap(pair.curr), getMeta()), insufficient: false };
+  if (pair.skipped.length) {
+    console.warn(`[movements] skipped invalid weekly snapshot(s): ${pair.skipped.join(", ")}`);
   }
+  const used = pair.status === "ok" ? [pair.prev, pair.curr] : pair.only ? [pair.only] : [];
+  for (const w of used) for (const msg of w.warnings) console.warn(`[movements] ${msg}`);
+  if (pair.status === "ok") return buildWeeklyMovements(pair.prev, pair.curr, getMeta(), hidden, canonical);
   const only: SnapFile = pair.only
-    ? toSnap(pair.only)
+    ? weeklyToSnap(pair.only, hidden, canonical)
     : {
         meta: {
           collectedAt: getMeta().collectedAt,
-          hash: getMeta().hash,
+          hash: "none",
           companies: 0,
           sponsorships: 0,
           ranked: 0,

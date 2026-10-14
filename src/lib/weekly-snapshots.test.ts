@@ -102,3 +102,104 @@ test("real data/weekly: diff covers the two latest files on disk", async () => {
   assert.equal(move.from.collectedAt, sorted.at(-2));
   assert.equal(move.to.collectedAt, sorted.at(-1));
 });
+
+import { buildWeeklyMovements, isRealWeek, pairToSnaps } from "./weekly-snapshots.ts";
+import { SLUG_RENAMES, normSlug } from "./slug-aliases.ts";
+
+const canonical = (s: string) => SLUG_RENAMES.get(normSlug(s)) ?? normSlug(s);
+
+test("Sécu B1 / QA P1-1: held in current week, visible in previous → not 'gone', totals unskewed", () => {
+  const prevW = parseWeekly("2026-10-06", file("2026-10-06", [
+    { slug: "keep", name: "Keep", publicUsd: 100 },
+    { slug: "n32-tech", name: "n32.tech", publicUsd: 10 },
+    { slug: "proxidize", name: "Proxidize", publicUsd: 1500 },
+  ]))!;
+  const currW = parseWeekly("2026-10-12", {
+    ...file("2026-10-12", [
+      { slug: "keep", name: "Keep", publicUsd: 100 },
+      { slug: "n32-tech", name: "n32.tech", publicUsd: 10, hold: { kind: "zero_reading" } },
+      { slug: "proxidize", name: "Proxidize", publicUsd: 1500 },
+    ]),
+    diff: { held: [{ slug: "n32-tech" }, { slug: "proxidize" }], disappeared_sponsors: [] },
+  })!;
+  const move = buildWeeklyMovements(prevW, currW, meta);
+  assert.deepEqual(move.leftCompanies, []);
+  assert.deepEqual(move.fallers, []);
+  assert.equal(move.summary.deltaUsd, 0);
+  const raw = pairToSnaps(prevW, currW);
+  assert.deepEqual(raw.prev.index.map((r) => r.slug), ["keep"]);
+  assert.deepEqual(raw.curr.index.map((r) => r.slug), ["keep"]);
+});
+
+test("QA P1-2: renamed companies (stable-ID + catalog renames) are neither new nor gone", () => {
+  const prevW = parseWeekly("2026-10-06", file("2026-10-06", [
+    { slug: "unknown", name: "上线了", publicUsd: 50 },
+    { slug: "b-rkert-werke-gmbh-co-kg", name: "Bürkert", publicUsd: 70 },
+  ]))!;
+  const currW = parseWeekly("2026-10-12", {
+    ...file("2026-10-12", [
+      { slug: "sxl-cn", name: "上线了", publicUsd: 60 },
+      { slug: "burkert-werke-gmbh-co-kg", name: "Bürkert", publicUsd: 70 },
+    ]),
+    diff: { renamed: [{ from: "unknown", to: "sxl-cn" }], new_sponsors: [], disappeared_sponsors: [] },
+  })!;
+  const raw = pairToSnaps(prevW, currW, () => false, canonical);
+  const move = buildWeeklyMovements(prevW, currW, meta, () => false, canonical);
+  assert.deepEqual(raw.prev.index.map((r) => r.slug).sort(), ["burkert-werke-gmbh-co-kg", "sxl-cn"]);
+  assert.deepEqual(move.newCompanies, []);
+  assert.deepEqual(move.leftCompanies, []);
+  assert.deepEqual(move.newTop200, []);
+  assert.deepEqual(move.climbers.map((c) => [c.slug, c.deltaUsd]), [["sxl-cn", 10]]);
+});
+
+test("real data: page new/gone == scraper diff behind /api/movements (no restriction needed)", async () => {
+  const dir = new URL("../../data/weekly/", import.meta.url);
+  const weeks = readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10));
+  const pair = await selectLatestTwo(weeks, async (w) => JSON.parse(readFileSync(new URL(`${w}.json`, dir), "utf8")));
+  if (pair.status !== "ok") return;
+  const { prev, curr } = pairToSnaps(pair.prev, pair.curr, () => false, canonical);
+  const before = new Set(prev.index.map((r) => r.slug));
+  const after = new Set(curr.index.map((r) => r.slug));
+  const blocked = (s: string) => pair.curr.blocked.has(s) || pair.prev.blocked.has(s);
+  const apiNew = pair.curr.newSlugs.map(canonical).filter((s) => !blocked(s)).sort();
+  const apiGone = pair.curr.goneSlugs.map(canonical).filter((s) => !blocked(s)).sort();
+  assert.deepEqual([...after].filter((s) => !before.has(s)).sort(), apiNew);
+  assert.deepEqual([...before].filter((s) => !after.has(s)).sort(), apiGone);
+  const move = buildWeeklyMovements(pair.prev, pair.curr, meta, () => false, canonical);
+  assert.deepEqual(move.newCompanies.map((r) => r.slug).sort(), apiNew);
+  assert.deepEqual(move.leftCompanies.map((r) => r.slug).sort(), apiGone);
+  for (const s of ["n32-tech", "proxidize"]) {
+    assert.ok(!move.leftCompanies.some((r) => r.slug === s), `${s} must not be listed as gone`);
+  }
+});
+
+test("impossible dates are rejected and reported", async () => {
+  assert.equal(isRealWeek("2026-13-99"), false);
+  assert.equal(isRealWeek("2026-02-30"), false);
+  assert.equal(isRealWeek("2026-10-12"), true);
+  const files = { "2026-13-99": file("2026-13-99"), "2026-10-12": file("2026-10-12"), "2026-10-06": file("2026-10-06") };
+  const pair = await selectLatestTwo(Object.keys(files), loaderOf(files));
+  assert.equal(pair.status, "ok");
+  if (pair.status === "ok") {
+    assert.equal(pair.curr.week, "2026-10-12");
+    assert.deepEqual(pair.skipped, ["2026-13-99"]);
+  }
+});
+
+test("negative or string publicUsd rows are skipped with a warning", () => {
+  const w = parseWeekly("2026-10-12", file("2026-10-12", [
+    { slug: "ok", publicUsd: 5 },
+    { slug: "neg", publicUsd: -5 },
+    { slug: "str", publicUsd: "100" },
+    { slug: "nul", publicUsd: null },
+  ]))!;
+  assert.deepEqual(w.companies.map((c) => c.slug), ["ok", "nul"]);
+  assert.equal(w.warnings.length, 2);
+});
+
+test("off-cycle snapshots are never selected as an official week", async () => {
+  const files = { "2026-10-14": { ...file("2026-10-14"), offCycle: true }, "2026-10-12": file("2026-10-12"), "2026-10-06": file("2026-10-06") };
+  const pair = await selectLatestTwo(Object.keys(files), loaderOf(files));
+  assert.equal(pair.status, "ok");
+  if (pair.status === "ok") assert.deepEqual([pair.prev.week, pair.curr.week], ["2026-10-06", "2026-10-12"]);
+});

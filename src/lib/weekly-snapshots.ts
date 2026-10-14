@@ -1,4 +1,5 @@
-import type { SnapFile } from "./movements";
+import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
+import type { Meta, MovementsPayload } from "@/lib/types";
 
 /**
  * Pick the two latest valid weekly snapshots (data/weekly/YYYY-MM-DD.json),
@@ -23,21 +24,44 @@ export type ParsedWeekly = {
   week: string;
   companies: WeeklyCompanyRow[];
   blocked: Set<string>;
+  /** Weekly scraper run id (GitHub Actions run), or the week when absent. */
   fingerprint: string;
+  /** Renames recorded by the scraper's stable-ID matching (diff.renamed): old -> new. */
+  renamed: Map<string, string>;
+  /** New and gone slugs as recorded by the scraper (diff.new_sponsors / disappeared_sponsors). */
+  newSlugs: string[];
+  goneSlugs: string[];
+  /** Rows skipped as invalid (negative or non-numeric publicUsd). */
+  warnings: string[];
 };
+
+/** YYYY-MM-DD that is also a real calendar date (rejects 2026-13-99). */
+export function isRealWeek(week: string): boolean {
+  if (!WEEK_FILE_RE.test(week)) return false;
+  const d = new Date(`${week}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === week;
+}
 
 /** Validate a raw weekly file. Returns null when malformed (never throws). */
 export function parseWeekly(week: string, raw: unknown): ParsedWeekly | null {
-  if (!WEEK_FILE_RE.test(week)) return null;
+  if (!isRealWeek(week)) return null;
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const r = raw as Record<string, unknown>;
   if (r.date !== week) return null;
+  // Off-cycle runs (allow_off_cycle) are never the official week.
+  if (r.offCycle === true) return null;
   if (!Array.isArray(r.companies) || r.companies.length === 0) return null;
   const companies: WeeklyCompanyRow[] = [];
+  const warnings: string[] = [];
   for (const c of r.companies) {
     if (!c || typeof c !== "object") return null;
     const slug = (c as Record<string, unknown>).slug;
     if (typeof slug !== "string" || !slug) return null;
+    const usd = (c as Record<string, unknown>).publicUsd;
+    if (usd != null && (typeof usd !== "number" || !Number.isFinite(usd) || usd < 0)) {
+      warnings.push(`${week}: ${slug} has invalid publicUsd ${JSON.stringify(usd)}; row skipped`);
+      continue;
+    }
     companies.push(c as WeeklyCompanyRow);
   }
   const blocked = new Set<string>();
@@ -48,7 +72,8 @@ export function parseWeekly(week: string, raw: unknown): ParsedWeekly | null {
       if (typeof s === "string" && s) blocked.add(s.toLowerCase());
     }
   }
-  const held = (r.diff as Record<string, unknown> | undefined)?.held;
+  const diff = (r.diff && typeof r.diff === "object" ? r.diff : {}) as Record<string, unknown>;
+  const held = diff.held;
   if (Array.isArray(held)) {
     for (const h of held) {
       const s = h && typeof h === "object" ? (h as Record<string, unknown>).slug : null;
@@ -56,7 +81,28 @@ export function parseWeekly(week: string, raw: unknown): ParsedWeekly | null {
     }
   }
   const fingerprint = typeof r.runId === "string" || typeof r.runId === "number" ? String(r.runId) : week;
-  return { week, companies, blocked, fingerprint };
+  const renamed = new Map<string, string>();
+  for (const x of rows(diff.renamed)) {
+    if (typeof x.from === "string" && typeof x.to === "string" && x.from && x.to) {
+      renamed.set(x.from.toLowerCase(), x.to.toLowerCase());
+    }
+  }
+  const slugsOf = (v: unknown) =>
+    rows(v).map((x) => x.slug).filter((x): x is string => typeof x === "string" && !!x).map((x) => x.toLowerCase());
+  return {
+    week,
+    companies,
+    blocked,
+    fingerprint,
+    renamed,
+    newSlugs: slugsOf(diff.new_sponsors),
+    goneSlugs: slugsOf(diff.disappeared_sponsors),
+    warnings,
+  };
+}
+
+function rows(v: unknown): Record<string, unknown>[] {
+  return Array.isArray(v) ? (v.filter((x) => x && typeof x === "object") as Record<string, unknown>[]) : [];
 }
 
 export type LatestPair =
@@ -71,9 +117,10 @@ export async function selectLatestTwo(
   weeks: Iterable<string>,
   load: (week: string) => Promise<unknown>,
 ): Promise<LatestPair> {
-  const sorted = [...new Set(weeks)].filter((w) => WEEK_FILE_RE.test(w)).sort().reverse();
+  const all = [...new Set(weeks)];
+  const sorted = all.filter(isRealWeek).sort().reverse();
   const found: ParsedWeekly[] = [];
-  const skipped: string[] = [];
+  const skipped: string[] = all.filter((w) => WEEK_FILE_RE.test(w) && !isRealWeek(w));
   for (const week of sorted) {
     let raw: unknown;
     try {
@@ -94,11 +141,15 @@ export async function selectLatestTwo(
 }
 
 /** Convert a weekly snapshot to the SnapFile shape (ranked top 200 by public USD). */
-export function weeklyToSnap(w: ParsedWeekly, hidden: (slug: string) => boolean = () => false): SnapFile {
+export function weeklyToSnap(
+  w: ParsedWeekly,
+  hidden: (slug: string) => boolean = () => false,
+  rekey: (slug: string) => string = (s) => s,
+): SnapFile {
   const rows = w.companies
     .filter((c) => !w.blocked.has(c.slug.toLowerCase()) && !hidden(c.slug.toLowerCase()))
     .map((c) => ({
-      slug: c.slug,
+      slug: rekey(c.slug.toLowerCase()),
       name: typeof c.name === "string" && c.name ? c.name : c.slug,
       publicUsd: typeof c.publicUsd === "number" && Number.isFinite(c.publicUsd) ? c.publicUsd : 0,
       projects: Array.isArray(c.collectives) ? c.collectives.length : 0,
@@ -128,4 +179,60 @@ export function weeklyToSnap(w: ParsedWeekly, hidden: (slug: string) => boolean 
 
 function round2(n: number) {
   return Math.round(n * 100) / 100;
+}
+
+/**
+ * Convert both weeks with the SAME identity and the SAME filter, as the
+ * scraper diff behind /api/movements does:
+ * - identity: previous-week slugs are mapped to their current slug through the
+ *   catalog renames (slug-renames.json, passed as `canonical`) and the stable-ID
+ *   renames the scraper recorded in the current week (diff.renamed);
+ * - filter: union of both weeks' blocked sets (hold, exclusionNote,
+ *   excludedNoted, diff.held), every slug form included, plus the global
+ *   hidden lists. A row held in one week can never surface as new or gone.
+ */
+export function pairToSnaps(
+  prev: ParsedWeekly,
+  curr: ParsedWeekly,
+  hidden: (slug: string) => boolean = () => false,
+  canonical: (slug: string) => string = (s) => s,
+): { prev: SnapFile; curr: SnapFile } {
+  const toCurr = (slug: string) => {
+    const s = slug.toLowerCase();
+    return curr.renamed.get(s) ?? canonical(s);
+  };
+  const blocked = new Set<string>();
+  for (const s of [...prev.blocked, ...curr.blocked]) {
+    blocked.add(s);
+    blocked.add(toCurr(s));
+  }
+  const filter = (slug: string) => blocked.has(slug) || blocked.has(toCurr(slug)) || hidden(slug) || hidden(toCurr(slug));
+  return { prev: weeklyToSnap(prev, filter, toCurr), curr: weeklyToSnap(curr, filter, canonical) };
+}
+
+/**
+ * The /movements diff, shared by the page and /api/v1/deltas. New and gone
+ * companies are restricted to what the scraper diff recorded for the current
+ * week (the source of /api/movements), so the page never contradicts the API.
+ */
+export function buildWeeklyMovements(
+  prevW: ParsedWeekly,
+  currW: ParsedWeekly,
+  meta: Meta,
+  hidden: (slug: string) => boolean = () => false,
+  canonical: (slug: string) => string = (s) => s,
+): MovementsPayload {
+  const { prev, curr } = pairToSnaps(prevW, currW, hidden, canonical);
+  const move = buildMovementsFromSnaps(prev, curr, meta);
+  const newSet = new Set(currW.newSlugs.map(canonical));
+  const goneSet = new Set(currW.goneSlugs.map(canonical));
+  const newCompanies = move.newCompanies.filter((r) => newSet.has(r.slug));
+  const leftCompanies = move.leftCompanies.filter((r) => goneSet.has(r.slug));
+  return {
+    ...move,
+    newCompanies,
+    leftCompanies,
+    summary: { ...move.summary, newCompanies: newCompanies.length, leftCompanies: leftCompanies.length },
+    insufficient: false,
+  };
 }
