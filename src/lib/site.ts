@@ -55,7 +55,7 @@ export function formatTitle(page: string): string {
 export const PAGE_TITLES = {
   home: `${SITE_NAME}${TITLE_SEPARATOR}${SITE_TAGLINE}`,
   ranking: formatTitle("Open source funding ranking: top companies"),
-  movements: formatTitle("Open source funding changes this month"),
+  movements: formatTitle("Open source funding changes this week"),
   mysteries: formatTitle("Declared but unnamed: pledges without projects"),
   graph: formatTitle("Who funds the same open source projects"),
   watchlist: formatTitle("Open source funding watchlist"),

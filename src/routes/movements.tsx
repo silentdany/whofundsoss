@@ -22,7 +22,7 @@ export const Route = createFileRoute("/movements")({
 
 function MovementsPage() {
   const data = Route.useLoaderData();
-  const { meta, from, to, summary, note, newCompanies, leftCompanies, newTop200, leftTop200 } = data;
+  const { from, to, summary, note, newCompanies, leftCompanies, newTop200, leftTop200 } = data;
 
   // Spam-denylisted pages stay in the data, but we never feature them in a "what moved" story.
   const clean = (rows: MovementCompany[]) => rows.filter((row) => !isSpamDenylisted(row.slug));
@@ -46,7 +46,7 @@ function MovementsPage() {
 
   if (data.insufficient) {
     return (
-      <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
+      <Shell collectedAt={to.collectedAt}>
         <PageIntro
           eyebrow={`Snapshot of ${collectedLabel(to.collectedAt)}`}
           title="Not enough snapshots to compare yet."
@@ -57,7 +57,7 @@ function MovementsPage() {
   }
 
   return (
-    <Shell collectedAt={meta.collectedAt} hash={meta.hash}>
+    <Shell collectedAt={to.collectedAt}>
       <PageIntro
         eyebrow={`${collectedLabel(from.collectedAt)} to ${collectedLabel(to.collectedAt)}`}
         title="What changed since the last snapshot."
@@ -106,9 +106,8 @@ function MovementsPage() {
         <details className="mt-10 text-sm text-secondary">
           <summary className="min-h-8 cursor-pointer font-medium text-ink">How this comparison was built</summary>
           <p className="mt-3 max-w-2xl leading-relaxed">
-            {note} Snapshot fingerprints, for anyone who wants to verify: {from.collectedAt}{" "}
-            <span className="tabular-nums">{hashShort(from.hash)}</span> to {to.collectedAt}{" "}
-            <span className="tabular-nums">{hashShort(to.hash)}</span>.
+            {note} Each weekly snapshot is the file data/weekly/{"<date>"}.json in the public repository,
+            written by the scraper run named above.
             {hidden > 0
               ? ` ${hidden} entr${hidden === 1 ? "y" : "ies"} from the spam denylist ${hidden === 1 ? "is" : "are"} left out of these lists.`
               : ""}
@@ -228,6 +227,3 @@ function signedInt(n: number): string {
   return String(n);
 }
 
-function hashShort(hash: string): string {
-  return hash.slice(0, 12);
-}
