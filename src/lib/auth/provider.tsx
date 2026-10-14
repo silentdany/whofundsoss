@@ -20,7 +20,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isPending || !posthog) return;
 
-    if (!user) {
+    // The dev fallback (auth off) is one shared placeholder, not a visitor:
+    // never identify every visitor as "dev-user" in analytics.
+    if (!user || user.isDevFallback) {
       if (identifiedUserId.current) {
         posthog.reset();
         identifiedUserId.current = null;
