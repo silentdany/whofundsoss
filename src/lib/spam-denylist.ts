@@ -14,8 +14,8 @@ import { slugEquivalents } from "@/lib/slug-aliases";
  *
  * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam), sxl-cn (Strikingly / sxl.cn, OC backer of babel, vuejs, webpack; kept in the ranking 2026-10-12).
  *
- * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-12.5).
- * v2026-10-12.5 · as of 2026-10-12
+ * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-10-19.1).
+ * v2026-10-19.1 · as of 2026-10-19
  */
 export type SpamCategory =
   | "gambling"
@@ -27,7 +27,7 @@ export type SpamCategory =
   | "adult"
   | "commercial-unrelated";
 
-export const SPAM_DENYLIST_VERSION = "2026-10-12.5";
+export const SPAM_DENYLIST_VERSION = "2026-10-19.1";
 
 /** Who flagged it: "qa" = QA sitemap review, "dev" = Dev pass, "data" = Data triage. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -136,6 +136,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "awisee-agency": { category: "link-spam", source: "data", reason: "same agency as awisee (awisee.agency)" },
   "backlink-bento": { category: "link-spam", source: "dev", reason: "sells backlinks" },
   "black-hat-webmasters": { category: "link-spam", source: "dev", reason: "black-hat SEO forum" },
+  "buongiorno-immagini": { category: "link-spam", source: "data", reason: "OC account created 2026-07-03, gives $1-2 to 20+ collectives; site buongiornoimmagine.net is Italian content, no open-source link" },
   "writers-per-hour": { category: "link-spam", source: "data", reason: "essay writing / homework mill" },
   // piracy
   "fire-stick-how": { category: "piracy", source: "qa", reason: "Fire TV Stick sideloading / IPTV guides" },

@@ -1,10 +1,10 @@
 {
   "title": "WhoFundsOSS public spam denylist",
-  "version": "2026-10-12.5",
-  "as_of": "2026-10-12",
+  "version": "2026-10-19.1",
+  "as_of": "2026-10-19",
   "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
   "counts": {
-    "total": 107,
+    "total": 108,
     "by_category": {
       "adult": 1,
       "commercial-unrelated": 4,
@@ -12,7 +12,7 @@
       "fake-reviews": 3,
       "fake-traffic": 8,
       "gambling": 54,
-      "link-spam": 5,
+      "link-spam": 6,
       "piracy": 3
     }
   },
@@ -541,6 +541,11 @@
       "slug": "black-hat-webmasters",
       "category": "link-spam",
       "reason": "black-hat SEO forum"
+    },
+    {
+      "slug": "buongiorno-immagini",
+      "category": "link-spam",
+      "reason": "OC account created 2026-07-03, gives $1-2 to 20+ collectives; site buongiornoimmagine.net is Italian content, no open-source link"
     },
     {
       "slug": "writers-per-hour",
