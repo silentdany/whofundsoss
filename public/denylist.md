@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-10-19.1 · as of 2026-10-19 · **108** entries
+**Version** 2026-11-02.1 · as of 2026-11-02 · **109** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -14,9 +14,9 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | fake-reviews | 3 |
 | fake-traffic | 8 |
 | gambling | 54 |
-| link-spam | 6 |
+| link-spam | 7 |
 | piracy | 3 |
-| **Total** | **108** |
+| **Total** | **109** |
 
 ## Criteria
 
@@ -137,6 +137,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `backlink-bento` | link-spam | sells backlinks |
 | `black-hat-webmasters` | link-spam | black-hat SEO forum |
 | `buongiorno-immagini` | link-spam | OC account created 2026-07-03, gives $1-2 to 20+ collectives; site buongiornoimmagine.net is Italian content, no open-source link |
+| `spotydownloader` | link-spam | OC account created 2026-10-20, gives $6 in total to 6 collectives; site spotydownloader.com is a commercial Spotify-to-MP3 downloader, no open-source link |
 | `writers-per-hour` | link-spam | essay writing / homework mill |
 | `fire-stick-how` | piracy | Fire TV Stick sideloading / IPTV guides |
 | `fire-stick-tricks` | piracy | Fire TV Stick sideloading / IPTV guides |
