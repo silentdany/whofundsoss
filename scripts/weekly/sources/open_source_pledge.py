@@ -49,7 +49,7 @@ def parse_member_page(slug: str, html: str) -> dict[str, Any]:
     year_amounts: dict[int, list[int]] = {}
     sections = re.split(r'<section[^>]*class="[^"]*annual-report', html, flags=re.I)
     for sec in sections[1:] if len(sections) > 1 else []:
-        year_m = re.search(r">(20[12][0-9])\s*report", sec, re.I)
+        year_m = re.search(r">\s*(20[12][0-9])\s*report", sec, re.I)
         if not year_m:
             continue
         year = int(year_m.group(1))
