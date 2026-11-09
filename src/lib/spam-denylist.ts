@@ -14,8 +14,8 @@ import { slugEquivalents } from "@/lib/slug-aliases";
  *
  * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam), sxl-cn (Strikingly / sxl.cn, OC backer of babel, vuejs, webpack; kept in the ranking 2026-10-12).
  *
- * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-11-09.1).
- * v2026-11-09.1 · as of 2026-11-09
+ * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-11-09.2).
+ * v2026-11-09.2 · as of 2026-11-09
  */
 export type SpamCategory =
   | "gambling"
@@ -27,7 +27,7 @@ export type SpamCategory =
   | "adult"
   | "commercial-unrelated";
 
-export const SPAM_DENYLIST_VERSION = "2026-11-09.1";
+export const SPAM_DENYLIST_VERSION = "2026-11-09.2";
 
 /** Who flagged it: "qa" = QA sitemap review, "dev" = Dev pass, "data" = Data triage. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -105,6 +105,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "fameviso-buy-real-followers-and-likes": { category: "fake-engagement", source: "qa", reason: "sells followers / likes" },
   "fameviso-buy-real-followers-likes-views": { category: "fake-engagement", source: "qa", reason: "sells followers / likes" },
   "fameviso-monthly-auto-likes-automated-instagram-engagement": { category: "fake-engagement", source: "qa", reason: "sells automated likes" },
+  "fameoria": { category: "fake-engagement", source: "data", reason: "sells Instagram and TikTok followers / likes / views (Dany decision 2026-11-09)" },
   "famoid": { category: "fake-engagement", source: "dev", reason: "sells followers / likes" },
   "instant-famous": { category: "fake-engagement", source: "dev", reason: "sells followers / likes" },
   "media-mister": { category: "fake-engagement", source: "dev", reason: "sells followers / likes" },
