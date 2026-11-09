@@ -133,6 +133,34 @@ class TestOspLatestYear(unittest.TestCase):
         self.assertEqual(row["publicUsd"], 60000.0)
         self.assertEqual(row["ospReportYear"], 2025)
 
+    def test_live_h2_whitespace_and_middot(self):
+        """OSP member pages (observed 2026-11-09) put a space after '>' and use &middot;.
+
+        Fixture trimmed from https://opensourcepledge.com/members/sentry/ fetched
+        2026-11-09 (Europe/Paris). Without allowing leading whitespace in the year
+        regex, with_amount drops to 0 while member count stays 37.
+        """
+        html = (
+            "<title>Sentry | Open Source Pledge</title>"
+            '<section class="annual-report section--tight" data-astro-cid-kagbbw2i>'
+            '<h2 data-astro-cid-kagbbw2i> 2026 report\n'
+            "              &middot; submitted "
+            '<abbr title="Members submit once per year" data-astro-cid-kagbbw2i>'
+            "21 Oct 2026</abbr> </h2>"
+            "<p>$1,000,000</p><p>$7,576</p>"
+            "</section>"
+            '<section class="annual-report section--tight" data-astro-cid-kagbbw2i>'
+            '<h2 data-astro-cid-kagbbw2i> 2025 report\n'
+            "              &middot; submitted "
+            '<abbr title="Members submit once per year" data-astro-cid-kagbbw2i>'
+            "06 Jan 2026</abbr> </h2>"
+            "<p>$750,000</p><p>$5,682</p>"
+            "</section>"
+        )
+        row = parse_member_page("sentry", html)
+        self.assertEqual(row["publicUsd"], 1000000.0)
+        self.assertEqual(row["ospReportYear"], 2026)
+
 
 class TestEmptyGhSeedSkipped(unittest.TestCase):
     def test_zero_beneficiaries_gh_only_fails_retention(self):
