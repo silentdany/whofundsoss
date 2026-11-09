@@ -1607,8 +1607,8 @@
     }
   ],
   "denylist": {
-    "version": "2026-11-09.1",
-    "count": 112
+    "version": "2026-11-09.2",
+    "count": 113
   },
   "exclusions": {
     "count": 133
@@ -43120,7 +43120,7 @@
     "suspicious": false,
     "suspicious_reasons": [],
     "counts": {
-      "new_sponsors": 1,
+      "new_sponsors": 0,
       "disappeared_sponsors": 1,
       "unverified_partial": 0,
       "new_sponsorships": 8,
@@ -43129,17 +43129,7 @@
       "held": 2,
       "renamed": 0
     },
-    "new_sponsors": [
-      {
-        "slug": "fameoria",
-        "name": "Fameoria",
-        "sources": [
-          "oc"
-        ],
-        "publicUsd": 170.0,
-        "in_catalog": null
-      }
-    ],
+    "new_sponsors": [],
     "disappeared_sponsors": [
       {
         "slug": "torspace",
@@ -43678,6 +43668,10 @@
     {
       "slug": "buongiorno-immagini",
       "reason": "denylist:link-spam:OC account created 2026-07-03, gives $1-2 to 20+ collectives; site buongiornoimmagine.net is Italian content, no open-source link"
+    },
+    {
+      "slug": "fameoria",
+      "reason": "denylist:fake-engagement:sells Instagram and TikTok followers / likes / views (Dany decision 2026-11-09)"
     },
     {
       "slug": "buonanotte-immagini",
