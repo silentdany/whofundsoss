@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-11-09.1 · as of 2026-11-09 · **112** entries
+**Version** 2026-11-09.2 · as of 2026-11-09 · **113** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -10,13 +10,13 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 |---|---:|
 | adult | 1 |
 | commercial-unrelated | 4 |
-| fake-engagement | 30 |
+| fake-engagement | 31 |
 | fake-reviews | 3 |
 | fake-traffic | 8 |
 | gambling | 55 |
 | link-spam | 8 |
 | piracy | 3 |
-| **Total** | **112** |
+| **Total** | **113** |
 
 ## Criteria
 
@@ -50,6 +50,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `buy-youtube-subscribers-media-mister` | fake-engagement | sells YouTube subscribers |
 | `buzzvoice-com` | fake-engagement | sells followers / likes |
 | `crescitaly` | fake-engagement | SMM panel |
+| `fameoria` | fake-engagement | sells Instagram and TikTok followers / likes / views (Dany decision 2026-11-09) |
 | `fameviso-buy-real-followers-and-likes` | fake-engagement | sells followers / likes |
 | `fameviso-buy-real-followers-likes-views` | fake-engagement | sells followers / likes |
 | `fameviso-monthly-auto-likes-automated-instagram-engagement` | fake-engagement | sells automated likes |
