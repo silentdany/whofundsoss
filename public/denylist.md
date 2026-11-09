@@ -1,6 +1,6 @@
 # Spam denylist
 
-**Version** 2026-11-02.1 · as of 2026-11-02 · **109** entries
+**Version** 2026-11-09.1 · as of 2026-11-09 · **112** entries
 
 Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.
 
@@ -10,13 +10,13 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 |---|---:|
 | adult | 1 |
 | commercial-unrelated | 4 |
-| fake-engagement | 29 |
+| fake-engagement | 30 |
 | fake-reviews | 3 |
 | fake-traffic | 8 |
-| gambling | 54 |
-| link-spam | 7 |
+| gambling | 55 |
+| link-spam | 8 |
 | piracy | 3 |
-| **Total** | **109** |
+| **Total** | **112** |
 
 ## Criteria
 
@@ -67,6 +67,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `thunderclap-it` | fake-engagement | Buy Instagram Followers (spam_followers) |
 | `volgersboost` | fake-engagement | sells followers (NL) |
 | `want-to-boost-your-channel-on-youtube-buy-youtube-subscribers-from-sidesmedia-watch-your-subs-grow` | fake-engagement | sells YouTube subscribers |
+| `youviews-buy-youtube-views-subscribers-likes` | fake-engagement | sells YouTube views, subscribers and likes (Dany decision 2026-11-09) |
 | `buy-google-reviews` | fake-reviews | sells Google reviews |
 | `fameviso-buy-google-reviews-safely` | fake-reviews | sells Google reviews |
 | `reviewcart` | fake-reviews | sells reviews |
@@ -80,6 +81,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `twt-s` | fake-traffic | sells website traffic |
 | `1win` | gambling | online casino / sportsbook |
 | `777` | gambling | Ukrainian online casino |
+| `allfreechips` | gambling | casino bonus / gambling affiliate site (Dany decision 2026-11-09) |
 | `au-internet-pokies` | gambling | online pokies |
 | `automatenspieler` | gambling | German slot machine site |
 | `aviator` | gambling | 1Win casino / sports betting (techyguy.in) |
@@ -136,6 +138,7 @@ Company pages on this list are served with noindex,follow and omitted from sitem
 | `awisee-agency` | link-spam | same agency as awisee (awisee.agency) |
 | `backlink-bento` | link-spam | sells backlinks |
 | `black-hat-webmasters` | link-spam | black-hat SEO forum |
+| `buonanotte-immagini` | link-spam | name close to denylisted buongiorno-immagini; OC new sponsor weekly 2026-11-02, same pattern, no open-source link (Dany decision 2026-11-09) |
 | `buongiorno-immagini` | link-spam | OC account created 2026-07-03, gives $1-2 to 20+ collectives; site buongiornoimmagine.net is Italian content, no open-source link |
 | `spotydownloader` | link-spam | OC account created 2026-10-20, gives $6 in total to 6 collectives; site spotydownloader.com is a commercial Spotify-to-MP3 downloader, no open-source link |
 | `writers-per-hour` | link-spam | essay writing / homework mill |

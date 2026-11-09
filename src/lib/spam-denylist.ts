@@ -14,8 +14,8 @@ import { slugEquivalents } from "@/lib/slug-aliases";
  *
  * Reviewed and NOT listed: cryptonewsz (crypto news), cryptomoonpress (crypto news), crypto-tracker (crypto tool), seolead (unclear business), buycheaprdp (RDP hosting), hashtags-for-likes (hashtag tool), open-apk-file (file utility), upgrow (growth agency), redreply (Reddit marketing SaaS; not clearly spam), sxl-cn (Strikingly / sxl.cn, OC backer of babel, vuejs, webpack; kept in the ranking 2026-10-12).
  *
- * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-11-02.1).
- * v2026-11-02.1 · as of 2026-11-02
+ * Public copy: `/denylist` · `/denylist.json` · `/denylist.md` (v2026-11-09.1).
+ * v2026-11-09.1 · as of 2026-11-09
  */
 export type SpamCategory =
   | "gambling"
@@ -27,7 +27,7 @@ export type SpamCategory =
   | "adult"
   | "commercial-unrelated";
 
-export const SPAM_DENYLIST_VERSION = "2026-11-02.1";
+export const SPAM_DENYLIST_VERSION = "2026-11-09.1";
 
 /** Who flagged it: "qa" = QA sitemap review, "dev" = Dev pass, "data" = Data triage. */
 export type SpamSource = "qa" | "dev" | "data";
@@ -36,6 +36,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   // gambling
   "1win": { category: "gambling", source: "dev", reason: "online casino / sportsbook" },
   "777": { category: "gambling", source: "dev", reason: "Ukrainian online casino" },
+  "allfreechips": { category: "gambling", source: "data", reason: "casino bonus / gambling affiliate site (Dany decision 2026-11-09)" },
   "au-internet-pokies": { category: "gambling", source: "dev", reason: "online pokies" },
   "automatenspieler": { category: "gambling", source: "dev", reason: "German slot machine site" },
   "aviator": { category: "gambling", source: "data", reason: "1Win casino / sports betting (techyguy.in)" },
@@ -118,6 +119,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "thunderclap-it": { category: "fake-engagement", source: "data", reason: "Buy Instagram Followers (spam_followers)" },
   "volgersboost": { category: "fake-engagement", source: "qa", reason: "sells followers (NL)" },
   "want-to-boost-your-channel-on-youtube-buy-youtube-subscribers-from-sidesmedia-watch-your-subs-grow": { category: "fake-engagement", source: "qa", reason: "sells YouTube subscribers" },
+  "youviews-buy-youtube-views-subscribers-likes": { category: "fake-engagement", source: "data", reason: "sells YouTube views, subscribers and likes (Dany decision 2026-11-09)" },
   // fake-reviews
   "buy-google-reviews": { category: "fake-reviews", source: "qa", reason: "sells Google reviews" },
   "fameviso-buy-google-reviews-safely": { category: "fake-reviews", source: "qa", reason: "sells Google reviews" },
@@ -136,6 +138,7 @@ export const SPAM_DENYLIST: Readonly<Record<string, { category: SpamCategory; so
   "awisee-agency": { category: "link-spam", source: "data", reason: "same agency as awisee (awisee.agency)" },
   "backlink-bento": { category: "link-spam", source: "dev", reason: "sells backlinks" },
   "black-hat-webmasters": { category: "link-spam", source: "dev", reason: "black-hat SEO forum" },
+  "buonanotte-immagini": { category: "link-spam", source: "data", reason: "name close to denylisted buongiorno-immagini; OC new sponsor weekly 2026-11-02, same pattern, no open-source link (Dany decision 2026-11-09)" },
   "buongiorno-immagini": { category: "link-spam", source: "data", reason: "OC account created 2026-07-03, gives $1-2 to 20+ collectives; site buongiornoimmagine.net is Italian content, no open-source link" },
   "spotydownloader": { category: "link-spam", source: "data", reason: "OC account created 2026-10-20, gives $6 in total to 6 collectives; site spotydownloader.com is a commercial Spotify-to-MP3 downloader, no open-source link" },
   "writers-per-hour": { category: "link-spam", source: "data", reason: "essay writing / homework mill" },
