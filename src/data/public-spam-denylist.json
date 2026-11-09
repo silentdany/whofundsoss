@@ -1,18 +1,18 @@
 {
   "title": "WhoFundsOSS public spam denylist",
-  "version": "2026-11-02.1",
-  "as_of": "2026-11-02",
+  "version": "2026-11-09.1",
+  "as_of": "2026-11-09",
   "summary": "Company pages on this list are served with noindex,follow and omitted from sitemap.xml. They are left out of the ranking and the totals. Their company page still renders with the published figures, so the decision can be checked. Entries are added one by one with an explicit reason. There is no automatic heuristic.",
   "counts": {
-    "total": 109,
+    "total": 112,
     "by_category": {
       "adult": 1,
       "commercial-unrelated": 4,
-      "fake-engagement": 29,
+      "fake-engagement": 30,
       "fake-reviews": 3,
       "fake-traffic": 8,
-      "gambling": 54,
-      "link-spam": 7,
+      "gambling": 55,
+      "link-spam": 8,
       "piracy": 3
     }
   },
@@ -198,6 +198,11 @@
       "reason": "sells YouTube subscribers"
     },
     {
+      "slug": "youviews-buy-youtube-views-subscribers-likes",
+      "category": "fake-engagement",
+      "reason": "sells YouTube views, subscribers and likes (Dany decision 2026-11-09)"
+    },
+    {
       "slug": "buy-google-reviews",
       "category": "fake-reviews",
       "reason": "sells Google reviews"
@@ -261,6 +266,11 @@
       "slug": "777",
       "category": "gambling",
       "reason": "Ukrainian online casino"
+    },
+    {
+      "slug": "allfreechips",
+      "category": "gambling",
+      "reason": "casino bonus / gambling affiliate site (Dany decision 2026-11-09)"
     },
     {
       "slug": "au-internet-pokies",
@@ -541,6 +551,11 @@
       "slug": "black-hat-webmasters",
       "category": "link-spam",
       "reason": "black-hat SEO forum"
+    },
+    {
+      "slug": "buonanotte-immagini",
+      "category": "link-spam",
+      "reason": "name close to denylisted buongiorno-immagini; OC new sponsor weekly 2026-11-02, same pattern, no open-source link (Dany decision 2026-11-09)"
     },
     {
       "slug": "buongiorno-immagini",
