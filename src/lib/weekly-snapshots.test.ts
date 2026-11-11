@@ -206,10 +206,10 @@ test("off-cycle snapshots are never selected as an official week", async () => {
 
 import { buildSnapshotsCsv, isOffCycle, officialWeeksFrom } from "./weekly-snapshots.ts";
 
-test("offCycle accepts boolean true and string \"true\" only", async () => {
-  assert.equal(isOffCycle(true), true);
-  assert.equal(isOffCycle("true"), true);
-  for (const v of [false, "false", "TRUE", 1, "1", null, undefined]) assert.equal(isOffCycle(v), false);
+test("offCycle is fail-safe: only absent or boolean false is on-cycle", async () => {
+  assert.equal(isOffCycle(undefined), false);
+  assert.equal(isOffCycle(false), false);
+  for (const v of [true, "true", "TRUE", " true", 1, "1", null, "yes", "false", 0]) assert.equal(isOffCycle(v), true, String(v));
   const files = {
     "2026-10-15": { ...file("2026-10-15"), offCycle: "true" },
     "2026-10-14": { ...file("2026-10-14"), offCycle: true },
@@ -257,4 +257,49 @@ test("real data: snapshots CSV has one row per official weekly file", async () =
   const official = await officialWeeksFrom(weeks, load);
   const rows = (await buildSnapshotsCsv(weeks, load)).split("\n").slice(1);
   assert.deepEqual(rows.map((r) => r.split(",")[0]), [...official].sort());
+});
+
+import { CSV_BOM, csvCell } from "./csv.ts";
+
+test("CSV cells are neutralized against formula injection", () => {
+  for (const v of ["=SUM(1+1)", "+cmd|' /C calc'!A0", "-2+3", "@SUM(1)", "\tx", "\rx"]) {
+    assert.ok(csvCell(v).replace(/^"/, "").startsWith("'"), v);
+  }
+  assert.equal(csvCell("38310327261"), "38310327261");
+  assert.equal(csvCell('a,"b"'), '"a,""b"""');
+  assert.equal(CSV_BOM, "\uFEFF");
+});
+
+test("snapshots CSV: a hostile runId is neutralized", async () => {
+  const files = { "2026-10-12": { ...file("2026-10-12"), runId: "@SUM(1+1)" } };
+  const csv = await buildSnapshotsCsv(Object.keys(files), loaderOf(files));
+  assert.equal(csv.split("\n")[1]!.split(",")[1], "'@SUM(1+1)");
+});
+
+test("snapshots CSV uses the union of holds across weeks, like /movements", async () => {
+  const files = {
+    "2026-10-06": file("2026-10-06", [{ slug: "a", publicUsd: 1 }, { slug: "n32-tech", publicUsd: 2 }]),
+    "2026-10-12": {
+      ...file("2026-10-12", [{ slug: "a", publicUsd: 1 }, { slug: "n32-tech", publicUsd: 2, hold: { kind: "zero_reading" } }]),
+      diff: { held: [{ slug: "n32-tech" }] },
+    },
+  };
+  const rows = (await buildSnapshotsCsv(Object.keys(files), loaderOf(files))).split("\n").slice(1);
+  assert.deepEqual(rows.map((r) => r.split(",")[2]), ["1", "1"]);
+});
+
+test("real data: snapshots CSV counts == /movements from/to counts", async () => {
+  const dir = new URL("../../data/weekly/", import.meta.url);
+  const weeks = readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10));
+  const load = async (w: string) => JSON.parse(readFileSync(new URL(`${w}.json`, dir), "utf8"));
+  const pair = await selectLatestTwo(weeks, load);
+  if (pair.status !== "ok") return;
+  const official = await officialWeeksFrom(weeks, load);
+  const move = buildWeeklyMovements(pair.prev, pair.curr, meta, () => false, canonical);
+  // Same two weeks as /movements: the CSV must give the same company counts.
+  const rows = (await buildSnapshotsCsv([pair.prev.week, pair.curr.week], load, () => false, canonical)).split("\n").slice(1);
+  const by = Object.fromEntries(rows.map((r) => [r.split(",")[0], Number(r.split(",")[2])]));
+  assert.equal(by[move.from.collectedAt], move.from.companies);
+  assert.equal(by[move.to.collectedAt], move.to.companies);
+  assert.ok(official.includes(pair.curr.week));
 });

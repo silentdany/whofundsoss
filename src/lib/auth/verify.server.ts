@@ -1,6 +1,7 @@
 import { getRequest } from "@tanstack/react-start/server";
 import { gateIdentityEnabled } from "./gate-identity.server";
 import { auth, authConfigured } from "./server";
+import { SITE_HAS_SIGN_IN } from "./site-auth";
 
 /**
  * Server-side session resolution (server-only).
@@ -82,6 +83,8 @@ export async function getSessionUser(
  * - Auth disabled + no database -> the shared dev user id.
  */
 export async function requireUserId(bearerToken?: string): Promise<string> {
+  // Fail closed: a site without sign-in never hands out an id (not even dev-user).
+  if (!SITE_HAS_SIGN_IN) throw new UnauthorizedError();
   if (!authConfigured && !gateIdentityEnabled()) {
     if (databaseConfigured) {
       throw new Error(

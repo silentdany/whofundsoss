@@ -2,9 +2,16 @@ import { isSpamDenylisted } from "./spam-denylist";
 import holdsCsv from "../../data/holds/weekly-holds.csv?raw";
 import { activeHolds, parseHolds, todayUtc, withoutHeld } from "./holds";
 import raw from "@/data/catalog.json";
+import { csvCell } from "@/lib/csv";
+import { api as publicApi } from "@/lib/public-api/data.server";
 import { money } from "@/lib/format";
 import { buildMovementsFromSnaps, type SnapFile } from "@/lib/movements";
-import { buildSnapshotsCsv, buildWeeklyMovements, selectLatestTwo, weeklyToSnap } from "@/lib/weekly-snapshots";
+import {
+  buildSnapshotsCsv,
+  buildWeeklyMovements,
+  selectLatestTwo,
+  weeklyToSnap,
+} from "@/lib/weekly-snapshots";
 import { normSlug, SLUG_RENAMES, slugEquivalents } from "@/lib/slug-aliases";
 import { formatSponsorshipProjectLabel } from "@/lib/sponsorship-url";
 import {
@@ -54,7 +61,16 @@ function buildView(today: string) {
   const projectIndex = buildProjectIndex(catalog.index, catalog.details);
   const publishedProjects = gatedProjects(projectIndex);
   const publishedProjectSlugs = new Set(publishedProjects.map((p) => p.slug));
-  return { today, held, catalog, bySlug, listedRows, projectIndex, publishedProjects, publishedProjectSlugs };
+  return {
+    today,
+    held,
+    catalog,
+    bySlug,
+    listedRows,
+    projectIndex,
+    publishedProjects,
+    publishedProjectSlugs,
+  };
 }
 let view: ReturnType<typeof buildView> | null = null;
 function V() {
@@ -89,8 +105,8 @@ export function homePayload() {
   const sentry = V().bySlug.get("getsentry");
   const microsoft = V().bySlug.get("microsoft");
   const positDetail = V().catalog.details["posit-dev"];
-  const ghosts = V().catalog.index
-    .filter((row) => row.unitemized)
+  const ghosts = V()
+    .catalog.index.filter((row) => row.unitemized)
     .slice(0, 4);
 
   const brief: {
@@ -140,7 +156,9 @@ export function homePayload() {
   return {
     meta: getMeta(),
     brief,
-    top: V().catalog.index.filter((row) => row.rank && row.rank <= 10).sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)),
+    top: V()
+      .catalog.index.filter((row) => row.rank && row.rank <= 10)
+      .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0)),
     mix,
   };
 }
@@ -166,7 +184,9 @@ export function companyPayload(slug: string) {
   return { row, detail, meta: getMeta(), linkedProjects, narrative };
 }
 
-export function projectPayload(slug: string): { project: ProjectRecord; meta: ReturnType<typeof getMeta> } | null {
+export function projectPayload(
+  slug: string,
+): { project: ProjectRecord; meta: ReturnType<typeof getMeta> } | null {
   const key = slug.trim().toLowerCase();
   const project = V().projectIndex.get(key);
   if (!isProjectPublished(project)) return null;
@@ -197,7 +217,8 @@ export async function movementsPayload(): Promise<MovementsPayload> {
   }
   const used = pair.status === "ok" ? [pair.prev, pair.curr] : pair.only ? [pair.only] : [];
   for (const w of used) for (const msg of w.warnings) console.warn(`[movements] ${msg}`);
-  if (pair.status === "ok") return buildWeeklyMovements(pair.prev, pair.curr, getMeta(), hidden, canonical);
+  if (pair.status === "ok")
+    return buildWeeklyMovements(pair.prev, pair.curr, getMeta(), hidden, canonical);
   const only: SnapFile = pair.only
     ? weeklyToSnap(pair.only, hidden, canonical)
     : {
@@ -217,13 +238,11 @@ export async function movementsPayload(): Promise<MovementsPayload> {
 
 export function mysteriesPayload() {
   const unitemized = V().listedRows.filter((row) => row.unitemized);
-  const unpriced = V().listedRows
-    .filter((row) => {
+  const unpriced = V()
+    .listedRows.filter((row) => {
       const detail = V().catalog.details[row.slug];
       return (
-        row.sources.includes("gh") &&
-        row.ghBeneficiaries >= 8 &&
-        (detail?.bySource.gh ?? 0) === 0
+        row.sources.includes("gh") && row.ghBeneficiaries >= 8 && (detail?.bySource.gh ?? 0) === 0
       );
     })
     .sort((a, b) => b.ghBeneficiaries - a.ghBeneficiaries)
@@ -237,8 +256,8 @@ export function graphPayload() {
     ids.add(link.a);
     ids.add(link.b);
   }
-  const nodes = V().catalog.index
-    .filter((row) => ids.has(row.slug))
+  const nodes = V()
+    .catalog.index.filter((row) => ids.has(row.slug))
     .map((row) => ({
       id: row.slug,
       name: row.name,
@@ -269,13 +288,37 @@ export function watchlistPayload() {
   return { meta: getMeta(), items, picker };
 }
 
+/**
+ * /api/v1 visibility: spam denylist, active holds and exclusions (pending
+ * review) are never served, in lists, details or exports. Same sources as the
+ * site (spam-denylist.ts, weekly-holds.csv) and the /api public API.
+ */
+export function isV1Hidden(slug: string): boolean {
+  const held = V().held;
+  return (
+    isSpamDenylisted(slug) || slugEquivalents(slug).some((s) => held.has(s) || publicApi.hidden(s))
+  );
+}
+function v1Rows(): CompanyRow[] {
+  return V().catalog.index.filter((row) => !isV1Hidden(row.slug));
+}
+/** Private amounts are never published. */
+function publicAmount(item: Sponsorship): number | null {
+  return item.visibility === "public" ? (item.amountUsd ?? null) : null;
+}
+
 export function leaderboardQuery(params: URLSearchParams) {
-  const sort = params.get("sort") === "projects" ? "projects" : params.get("sort") === "gh" ? "gh" : "public_usd";
+  const sort =
+    params.get("sort") === "projects"
+      ? "projects"
+      : params.get("sort") === "gh"
+        ? "gh"
+        : "public_usd";
   const limit = clampInt(params.get("limit"), 50, 1, 200);
   const offset = clampInt(params.get("offset"), 0, 0, 10_000);
   const includeWhales = params.get("include_whales") !== "false";
   const source = params.get("source");
-  let rows = V().listedRows.slice();
+  let rows = v1Rows();
   if (!includeWhales) rows = rows.filter((row) => !row.whale);
   if (source === "oc" || source === "osp" || source === "gh" || source === "own") {
     rows = rows.filter((row) => row.sources.includes(source));
@@ -309,6 +352,7 @@ export function leaderboardQuery(params: URLSearchParams) {
 }
 
 export function companyApi(slug: string) {
+  if (isV1Hidden(slug)) return null;
   const payload = companyPayload(slug);
   if (!payload) return null;
   const { row, detail, meta } = payload;
@@ -345,7 +389,7 @@ export function companyApi(slug: string) {
     sponsorships: detail.sponsorships.map((item) => ({
       project: item.project,
       source: item.source,
-      amount_usd: item.amountUsd,
+      amount_usd: publicAmount(item),
       cumulative: item.cumulative,
       visibility: item.visibility,
       aggregate: item.aggregate,
@@ -356,6 +400,7 @@ export function companyApi(slug: string) {
 }
 
 export function sponsorshipsQuery(slug: string, params: URLSearchParams) {
+  if (isV1Hidden(slug)) return null;
   const detail = V().catalog.details[slug];
   const row = V().bySlug.get(slug);
   if (!detail || !row) return null;
@@ -376,7 +421,7 @@ export function sponsorshipsQuery(slug: string, params: URLSearchParams) {
     sponsorships: items.slice(start, start + perPage).map((item) => ({
       project: item.project,
       source: item.source,
-      amount_usd: item.amountUsd,
+      amount_usd: publicAmount(item),
       cumulative: item.cumulative,
       visibility: item.visibility,
       collected_at: V().catalog.meta.collectedAt,
@@ -389,7 +434,7 @@ export async function deltasPayload(params: URLSearchParams) {
   const from = params.get("from") ?? move.from.collectedAt;
   const to = params.get("to") ?? move.to.collectedAt;
   const companies = [...move.climbers, ...move.fallers]
-    .filter((row) => row.deltaRank != null && Math.abs(row.deltaRank) > 5)
+    .filter((row) => !isV1Hidden(row.slug) && row.deltaRank != null && Math.abs(row.deltaRank) > 5)
     .map((row) => ({
       slug: row.slug,
       name: row.name,
@@ -419,8 +464,10 @@ export async function deltasPayload(params: URLSearchParams) {
 export function graphQuery(params: URLSearchParams) {
   const minShared = clampInt(params.get("min_shared"), 2, 2, 50);
   const limit = clampInt(params.get("limit"), 50, 1, 80);
-  const pairs = V().catalog.alliances
-    .filter((link) => link.shared >= minShared)
+  const pairs = V()
+    .catalog.alliances.filter(
+      (link) => link.shared >= minShared && !isV1Hidden(link.a) && !isV1Hidden(link.b),
+    )
     .slice(0, limit)
     .map((link) => ({
       a: link.a,
@@ -439,19 +486,21 @@ export function graphQuery(params: URLSearchParams) {
 export function watchlistApi() {
   return {
     collected_at: V().catalog.meta.collectedAt,
-    companies: V().catalog.watchlist.map((item) => {
-      const row = V().bySlug.get(item.slug);
-      return {
-        slug: item.slug,
-        reason: item.reason,
-        added: item.added,
-        rank: row?.rank ?? null,
-        delta_rank: null,
-        public_usd: row?.publicUsd ?? null,
-        projects: row?.projects ?? null,
-        name: row?.name ?? null,
-      };
-    }),
+    companies: V()
+      .catalog.watchlist.filter((item) => !isV1Hidden(item.slug))
+      .map((item) => {
+        const row = V().bySlug.get(item.slug);
+        return {
+          slug: item.slug,
+          reason: item.reason,
+          added: item.added,
+          rank: row?.rank ?? null,
+          delta_rank: null,
+          public_usd: row?.publicUsd ?? null,
+          projects: row?.projects ?? null,
+          name: row?.name ?? null,
+        };
+      }),
   };
 }
 
@@ -477,9 +526,8 @@ export function companiesCsv(): string {
     "whale",
     "unitemized",
     "website",
-    "spam_denylisted",
   ];
-  const lines = V().catalog.index.map((row) =>
+  const lines = v1Rows().map((row) =>
     [
       row.rank ?? "",
       row.slug,
@@ -492,16 +540,24 @@ export function companiesCsv(): string {
       row.whale,
       row.unitemized,
       row.site ?? "",
-      isSpamDenylisted(row.slug),
     ].map(csvCell),
   );
   return [header.join(","), ...lines.map((line) => line.join(","))].join("\n");
 }
 
 export function sponsorshipsCsv(): string {
-  const header = ["slug", "company", "project", "source", "amount_usd", "cumulative", "visibility", "collected_at"];
+  const header = [
+    "slug",
+    "company",
+    "project",
+    "source",
+    "amount_usd",
+    "cumulative",
+    "visibility",
+    "collected_at",
+  ];
   const lines: string[] = [];
-  for (const row of V().catalog.index) {
+  for (const row of v1Rows()) {
     const detail = V().catalog.details[row.slug];
     if (!detail) continue;
     for (const item of detail.sponsorships) {
@@ -511,7 +567,7 @@ export function sponsorshipsCsv(): string {
           row.name,
           item.project,
           item.source,
-          item.amountUsd ?? "",
+          publicAmount(item) ?? "",
           item.cumulative,
           item.visibility,
           V().catalog.meta.collectedAt,
@@ -533,12 +589,6 @@ export async function snapshotsCsv(): Promise<string> {
   return buildSnapshotsCsv(await officialWeeks(), (w) => loadWeek(w), hidden, canonical);
 }
 
-function csvCell(value: unknown): string {
-  const text = String(value ?? "");
-  if (/[",\n]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
-  return text;
-}
-
 function clampInt(raw: string | null, fallback: number, min: number, max: number): number {
   const n = raw == null ? fallback : Number.parseInt(raw, 10);
   if (!Number.isFinite(n)) return fallback;
@@ -558,8 +608,11 @@ export type SearchHit = { slug: string; name: string; rank: number | null; publi
 export function searchCompanies(query: string, limit = 6): SearchHit[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
-  return V().catalog.index
-    .filter((row) => !isSpamDenylisted(row.slug) && (row.name.toLowerCase().includes(q) || row.slug.includes(q)))
+  return V()
+    .catalog.index.filter(
+      (row) =>
+        !isSpamDenylisted(row.slug) && (row.name.toLowerCase().includes(q) || row.slug.includes(q)),
+    )
     .sort((a, b) => {
       const as = a.name.toLowerCase().startsWith(q) ? 0 : 1;
       const bs = b.name.toLowerCase().startsWith(q) ? 0 : 1;
