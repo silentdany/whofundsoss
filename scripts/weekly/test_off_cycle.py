@@ -133,12 +133,16 @@ if __name__ == "__main__":
 
 class TestOffCycleMarker(unittest.TestCase):
     def test_values(self):
-        from scripts.weekly.off_cycle import is_off_cycle
+        from scripts.weekly.off_cycle import is_off_cycle, off_cycle_marked
 
-        self.assertTrue(is_off_cycle(True))
-        self.assertTrue(is_off_cycle("true"))
-        for v in (False, "false", "TRUE", 1, "1", None, {}, "yes"):
-            self.assertFalse(is_off_cycle(v), v)
+        # Fail-safe: only boolean False (or an absent key) is on-cycle.
+        self.assertFalse(is_off_cycle(False))
+        for v in (True, "true", "TRUE", " true", 1, "1", None, {}, "yes", "false", 0):
+            self.assertTrue(is_off_cycle(v), v)
+        self.assertFalse(off_cycle_marked({}))
+        self.assertFalse(off_cycle_marked({"offCycle": False}))
+        self.assertTrue(off_cycle_marked({"offCycle": None}))
+        self.assertFalse(off_cycle_marked(None))
 
     def test_cli_file_check(self):
         import json
@@ -146,9 +150,11 @@ class TestOffCycleMarker(unittest.TestCase):
         from pathlib import Path
 
         with tempfile.TemporaryDirectory() as d:
-            for value, rc in ((True, 0), ("true", 0), (False, 1), ("false", 1), (None, 1)):
+            absent = object()
+            for value, rc in ((True, 0), ("true", 0), ("TRUE", 0), (1, 0), (None, 0), ("yes", 0), ("false", 0),
+                              (False, 1), (absent, 1)):
                 p = Path(d) / "w.json"
-                p.write_text(json.dumps({"date": "2026-10-14", **({} if value is None else {"offCycle": value})}))
+                p.write_text(json.dumps({"date": "2026-10-14", **({} if value is absent else {"offCycle": value})}))
                 self.assertEqual(main(["--is-off-cycle-file", str(p)]), rc, value)
             with redirect_stderr(io.StringIO()):
                 self.assertEqual(main(["--is-off-cycle-file", str(Path(d) / "missing.json")]), 2)

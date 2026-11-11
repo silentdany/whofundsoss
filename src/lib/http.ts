@@ -1,3 +1,12 @@
+import { CSV_BOM } from "@/lib/csv";
+
+/**
+ * NOT a secret. Public demo key, printed on /method ("For developers: API") so
+ * anyone can try the read-only /api/v1 routes. It only gates public aggregate
+ * data (no private amounts, held or spam entries; see the project rules) and
+ * exists to make clients identify the documented API, not to protect anything.
+ * Do not reuse this pattern for a real credential: put that in an env var.
+ */
 export const API_KEY = "wfo_preview_floor";
 
 export function json(data: unknown, status = 200): Response {
@@ -11,7 +20,7 @@ export function json(data: unknown, status = 200): Response {
 }
 
 export function csv(body: string, filename: string): Response {
-  return new Response(body, {
+  return new Response(body.startsWith(CSV_BOM) ? body : CSV_BOM + body, {
     headers: {
       "content-type": "text/csv; charset=utf-8",
       "content-disposition": `attachment; filename="${filename}"`,

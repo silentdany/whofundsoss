@@ -156,10 +156,12 @@ class TestStringMarker(unittest.TestCase):
             (p / "2026-10-12.json").write_text(json.dumps({"date": "2026-10-12", "companies": [{"slug": "a"}]}))
             (p / "2026-10-14.json").write_text(json.dumps({"date": "2026-10-14", "offCycle": "true", "companies": [{"slug": "b"}]}))
             (p / "2026-10-15.json").write_text(json.dumps({"date": "2026-10-15", "offCycle": "false", "companies": [{"slug": "c"}]}))
-            _, path, _ = load_baseline(p, p / "nope.json", run_date="2026-10-15")
-            self.assertTrue(path.endswith("2026-10-12.json"))
+            (p / "2026-10-16.json").write_text(json.dumps({"date": "2026-10-16", "offCycle": None, "companies": [{"slug": "d"}]}))
+            (p / "2026-10-17.json").write_text(json.dumps({"date": "2026-10-17", "offCycle": False, "companies": [{"slug": "e"}]}))
+            _, path, _ = load_baseline(p, p / "nope.json", run_date="2026-10-17")
+            self.assertTrue(path.endswith("2026-10-12.json"))  # "true", "false" (string), null: fail-safe off-cycle
             _, path2, _ = load_baseline(p, p / "nope.json", run_date="2026-10-19")
-            self.assertTrue(path2.endswith("2026-10-15.json"))  # "false" is on-cycle
+            self.assertTrue(path2.endswith("2026-10-17.json"))  # boolean false is on-cycle
 
     def test_string_true_hold_tag_is_ignored_as_prior(self):
         base = _base(hold={"kind": "zero_reading", "since": "2026-10-14", "offCycle": "true"})
@@ -167,7 +169,7 @@ class TestStringMarker(unittest.TestCase):
         self.assertEqual(diff.disappeared_sponsors, [])  # off-cycle tag = no prior reading
         self.assertNotIn("offCycle", out[0]["hold"])
 
-    def test_reapply_string_false_is_on_cycle(self):
+    def test_reapply_boolean_false_is_on_cycle(self):
         import json
         import tempfile
         from pathlib import Path
@@ -176,7 +178,7 @@ class TestStringMarker(unittest.TestCase):
         from scripts.weekly import reapply_rules
 
         _, w1 = _drop([_rec(50)], [_rec(15)], "2026-10-12")
-        payload = {"date": "2026-10-19", "offCycle": "false", "companies": [_rec(14)],
+        payload = {"date": "2026-10-19", "offCycle": False, "companies": [_rec(14)],
                    "diff": {"baseline_kind": "weekly", "baseline_path": "w.json"}}
         with tempfile.TemporaryDirectory() as d:
             p, b = Path(d) / "2026-10-19.json", Path(d) / "2026-10-12.json"
@@ -186,3 +188,32 @@ class TestStringMarker(unittest.TestCase):
                 reapply_rules.main([str(p), str(b)])
             rec = json.loads(p.read_text())["companies"][0]
         self.assertEqual(rec["ghBeneficiaries"], 14)  # second on-cycle reading confirms
+
+
+class TestFailSafeMarkers(unittest.TestCase):
+    def test_unexpected_marker_on_hold_never_counts_as_prior(self):
+        for v in ("TRUE", " true", 1, None, "yes"):
+            base = _base(hold={"kind": "zero_reading", "since": "2026-10-14", "offCycle": v})
+            diff, _ = _zero(base, "2026-10-19")
+            self.assertEqual(diff.disappeared_sponsors, [], v)
+
+    def test_reapply_unexpected_marker_is_off_cycle(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+
+        from scripts.weekly import reapply_rules
+
+        _, w1 = _drop([_rec(50)], [_rec(15)], "2026-10-12")
+        for v in ("TRUE", None, 1, "yes"):
+            payload = {"date": "2026-10-14", "offCycle": v, "companies": [_rec(14)],
+                       "diff": {"baseline_kind": "weekly", "baseline_path": "w.json"}}
+            with tempfile.TemporaryDirectory() as d:
+                p, b = Path(d) / "2026-10-14.json", Path(d) / "2026-10-12.json"
+                p.write_text(json.dumps(payload))
+                b.write_text(json.dumps({"date": "2026-10-12", "companies": w1}))
+                with mock.patch.object(reapply_rules, "render_markdown", return_value=""):
+                    reapply_rules.main([str(p), str(b)])
+                rec = json.loads(p.read_text())["companies"][0]
+            self.assertEqual(rec["ghBeneficiaries"], 50, v)  # not confirmed

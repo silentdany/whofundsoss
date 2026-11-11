@@ -4,7 +4,10 @@ import {
 } from "@sentry/tanstackstart-react";
 import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/react-start";
 import { isRenameablePath, redirectHeaders, redirectTarget } from "@/lib/redirects";
+import { buildCsp, isPreviewEnv } from "@/lib/security-headers";
 import { SITE_URL } from "@/lib/site";
+
+const CSP = buildCsp({ preview: isPreviewEnv(process.env.VERCEL_ENV) });
 
 // Same CSRF guard TanStack Start applies by default when no start instance exists.
 const csrfMiddleware = createCsrfMiddleware({
@@ -25,9 +28,12 @@ const seoMiddleware = createMiddleware({ type: "request" }).server(async ({ requ
     }
   }
   const result = await next();
-  if (process.env.VERCEL_ENV !== "production" && result.response instanceof Response) {
+  if (result.response instanceof Response) {
     try {
-      result.response.headers.set("x-robots-tag", "noindex");
+      // CSP depends on the environment (Vercel Live on previews only), so it is
+      // set here, not in vercel.json. nosniff + Referrer-Policy stay in vercel.json.
+      result.response.headers.set("content-security-policy", CSP);
+      if (process.env.VERCEL_ENV !== "production") result.response.headers.set("x-robots-tag", "noindex");
     } catch {
       // Immutable headers (e.g. a fetched Response): leave as is.
     }
