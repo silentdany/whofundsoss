@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install --omit=dev --no-audit --no-fund",
+  "installCommand": "npm ci --omit=dev --no-audit --no-fund",
   "headers": [
     {
       "source": "/(.*)",
