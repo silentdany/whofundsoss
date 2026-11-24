@@ -1,6 +1,6 @@
 /**
  * /privacy text, word for word from the legal draft of 24/11/2026 (Fonts:
- * option A, self-hosted). Values in [brackets] are still to confirm before
+ * option A, self-hosted), with the bracket decisions of the same day. Values in [brackets] are still to confirm before
  * publication: keep PRIVACY_TEXT_PENDING true in routes/privacy.tsx until then.
  * The controller's identity and contact email proposed in the draft are kept
  * out of this public repo until confirmed; they replace the two placeholders.
@@ -52,13 +52,13 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
         p: "We use this to fix problems and decide what to improve. We do not use it for advertising and we do not sell it.",
       },
       {
-        p: "PostHog stores this data in the EU ([eu.i.posthog.com, to confirm]). We keep it for [12 months].",
+        p: "PostHog stores this data in the EU (eu.i.posthog.com). We keep it for [12 months].",
       },
       {
         p: 'Legal basis: your consent. If you click "No thanks", or do nothing, PostHog is not loaded and nothing is sent.',
       },
       {
-        p: 'You can change your mind at any time on this page with "Turn analytics off" or "Allow analytics". When you turn analytics off, PostHog stops collecting and deletes what it stored in your browser.',
+        p: 'You can change your mind at any time on this page with "Turn analytics off" or "Allow analytics". When you turn analytics off, PostHog stops collecting and deletes the identifier it stored in your browser. It keeps only a small marker that you said no.',
       },
       {
         p: "Our server also sends PostHog a short technical health message (counts of companies and fundings). It contains no data about visitors.",
@@ -72,13 +72,13 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
         p: "The site is hosted by Vercel Inc. (USA). See Vercel's privacy policy: https://vercel.com/legal/privacy-policy.",
       },
       {
-        p: "Like any web host, Vercel receives your IP address, the page requested and your browser type when you visit, to deliver the page and protect the site. Vercel keeps these logs for [durée à lire dans le compte Vercel].",
+        p: "Like any web host, Vercel receives your IP address, the page requested and your browser type when you visit, to deliver the page and protect the site. Vercel shows us these logs for 1 day. Vercel may keep its own copies under its privacy policy.",
       },
       {
         p: "Legal basis: our legitimate interest in running a working and secure site.",
       },
       {
-        p: "Vercel is a US company. Transfers to the US rely on [the EU-US Data Privacy Framework or the European Commission's standard contractual clauses, à vérifier].",
+        p: "Vercel is a US company certified under the EU-U.S. Data Privacy Framework, and also uses the European Commission's standard contractual clauses where required.",
       },
       {
         p: "To protect the public API, we count requests per IP address (60 per minute). This count stays in memory for a minute and is never stored.",
@@ -92,7 +92,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
         p: "When something breaks on the site, in your browser or on our server, we send an error report to Sentry: the error message, where it happened in the code, the page address and your browser type.",
       },
       {
-        p: "[We have set Sentry not to store IP addresses.]",
+        p: "Our site does not send your IP address to Sentry.",
       },
       {
         p: "Sentry receives these reports in Germany (ingest.de.sentry.io). We keep them for [90 days].",
@@ -115,7 +115,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
     blocks: [
       {
         list: [
-          "wfo.analytics-consent (local storage): remembers whether you allowed analytics. Always set once you choose. [Kept 6 months, then we ask again.]",
+          "wfo.analytics-consent (local storage): remembers whether you allowed analytics. Always set once you choose. Kept 6 months, then we ask again.",
           'PostHog cookie ph_..._posthog and PostHog local storage: only after you click "Allow analytics". They hold the random identifier. Removed when you turn analytics off.',
           "No login cookies and no advertising cookies.",
         ],
