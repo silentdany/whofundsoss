@@ -65,3 +65,65 @@ export function shouldLoadAnalytics(consent: ConsentState, key?: string, host?: 
 export function shouldShowBanner(consent: ConsentState | "pending", analyticsConfigured: boolean): boolean {
   return analyticsConfigured && consent === "unset";
 }
+
+type CookieJar = { cookie: string };
+type KeyedStorage = Pick<Storage, "removeItem"> & { readonly length: number; key(index: number): string | null };
+
+/** PostHog's opt-out marker (`__ph_opt_in_out_<token>`): kept, it only says "no". */
+export function isPostHogOptOutMarker(name: string): boolean {
+  return name.startsWith("__ph_opt_in_out_");
+}
+
+/** PostHog keys to delete: `ph_<token>_posthog`, `ph_<token>_*`, `__ph_*`, `ph_debug`, but not the opt-out marker. */
+export function isPostHogKey(name: string): boolean {
+  return /^(__)?ph_/.test(name) && !isPostHogOptOutMarker(name);
+}
+
+/** `a.b.example.com` -> ["a.b.example.com", ".a.b.example.com", ".b.example.com", ".example.com"]. */
+function cookieDomains(hostname: string): string[] {
+  const labels = hostname.split(".");
+  const domains = [hostname];
+  for (let i = 0; i < labels.length - 1; i++) domains.push(`.${labels.slice(i).join(".")}`);
+  return domains;
+}
+
+/**
+ * Delete everything PostHog stored in this browser (cookies on this host and
+ * its parent domains, localStorage, sessionStorage), except PostHog's opt-out
+ * marker. The visitor's "no" is also kept in our own `CONSENT_STORAGE_KEY`.
+ */
+export function clearPostHogStorage(
+  doc: CookieJar | null | undefined,
+  hostname: string,
+  stores: (KeyedStorage | null | undefined)[],
+): string[] {
+  const removed: string[] = [];
+  if (doc) {
+    const names = doc.cookie
+      .split(";")
+      .map((c) => c.split("=")[0]?.trim() ?? "")
+      .filter(isPostHogKey);
+    for (const name of names) {
+      doc.cookie = `${name}=; Max-Age=0; path=/`;
+      for (const domain of cookieDomains(hostname)) doc.cookie = `${name}=; Max-Age=0; path=/; domain=${domain}`;
+      removed.push(`cookie:${name}`);
+    }
+  }
+  for (const store of stores) {
+    try {
+      if (!store) continue;
+      const keys: string[] = [];
+      for (let i = 0; i < store.length; i++) {
+        const key = store.key(i);
+        if (key && isPostHogKey(key)) keys.push(key);
+      }
+      for (const key of keys) {
+        store.removeItem(key);
+        removed.push(`storage:${key}`);
+      }
+    } catch {
+      // Storage blocked: nothing PostHog could have written there either.
+    }
+  }
+  return removed;
+}

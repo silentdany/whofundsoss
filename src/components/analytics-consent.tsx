@@ -2,7 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
-import { shouldLoadAnalytics, shouldShowBanner } from "@/lib/analytics-consent";
+import { clearPostHogStorage, shouldLoadAnalytics, shouldShowBanner } from "@/lib/analytics-consent";
 import { setAnalyticsConsent, useAnalyticsConsent } from "@/lib/analytics-consent-store";
 
 /**
@@ -38,12 +38,24 @@ export function ConsentedAnalytics({
         // A previous "no" leaves PostHog's own opt-out flag; a new "yes" lifts it.
         if (posthog.has_opted_out_capturing()) posthog.opt_in_capturing();
       } else {
+        posthog.set_config({ disable_persistence: false });
         posthog.opt_in_capturing();
       }
-    } else if (started.current) {
-      posthog.opt_out_capturing();
-      posthog.reset();
+      return;
     }
+    if (started.current) {
+      // Forget the identifier first: reset() also clears the opt-out flag, so
+      // it must run BEFORE opt_out_capturing(). Then stop capturing (writes
+      // PostHog's opt-out marker) and stop persisting (drops its cookie and
+      // localStorage entry).
+      posthog.reset(true);
+      posthog.opt_out_capturing();
+      posthog.set_config({ disable_persistence: true });
+    }
+    // No (or no longer a) yes: delete whatever PostHog stored, including what an
+    // earlier, now expired, yes left behind. Only the "no" markers stay:
+    // PostHog's opt-out flag and our CONSENT_STORAGE_KEY.
+    clearPostHogStorage(document, window.location.hostname, [safeStorage("local"), safeStorage("session")]);
   }, [consent, apiKey, host]);
 
   return (
@@ -52,6 +64,14 @@ export function ConsentedAnalytics({
       <ConsentBanner configured={Boolean(apiKey && host)} />
     </PostHogProvider>
   );
+}
+
+function safeStorage(kind: "local" | "session"): Storage | null {
+  try {
+    return kind === "local" ? window.localStorage : window.sessionStorage;
+  } catch {
+    return null;
+  }
 }
 
 function ConsentBanner({ configured }: { configured: boolean }) {

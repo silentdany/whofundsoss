@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   CONSENT_STORAGE_KEY,
+  clearPostHogStorage,
   consentExpired,
+  isPostHogKey,
   readConsent,
   shouldLoadAnalytics,
   shouldShowBanner,
@@ -85,4 +87,54 @@ test("PostHog is never started outside the consent gate", () => {
   assert.match(gate, /if \(shouldLoadAnalytics\(consent, apiKey, host\)\) \{\n\s+if \(!started\.current\) \{\n\s+posthog\.init\(/);
   assert.doesNotMatch(gate, /<PostHogProvider[^>]*apiKey/);
   assert.match(gate, /disable_session_recording: true/);
+});
+
+function keyedStorage(entries: Record<string, string>) {
+  const map = new Map(Object.entries(entries));
+  return {
+    get length() { return map.size; },
+    key: (i: number) => [...map.keys()][i] ?? null,
+    removeItem: (k: string) => void map.delete(k),
+    map,
+  };
+}
+
+test("turning analytics off deletes PostHog's identifier and keeps only the no markers", () => {
+  const written: string[] = [];
+  let jar = "ph_phc_x_posthog=%7B%22distinct_id%22%3A%22abc%22%7D; __vdpl=1; __ph_opt_in_out_phc_x=0";
+  const doc = {
+    get cookie() { return jar; },
+    set cookie(v: string) {
+      written.push(v);
+      const name = v.split("=")[0];
+      if (/Max-Age=0/.test(v)) jar = jar.split("; ").filter((c) => !c.startsWith(`${name}=`)).join("; ");
+    },
+  };
+  const local = keyedStorage({
+    ph_phc_x_posthog: '{"distinct_id":"abc"}',
+    ph_debug: "true",
+    __ph_opt_in_out_phc_x: "0",
+    [CONSENT_STORAGE_KEY]: '{"choice":"denied","at":"2026-11-24T12:00:00.000Z"}',
+    other: "kept",
+  });
+  const session = keyedStorage({ ph_phc_x_primary_window_exists: "true", ph_phc_x_posthog: "{}" });
+  clearPostHogStorage(doc, "whofundsoss.com", [local, session, null]);
+  assert.equal(jar, "__vdpl=1; __ph_opt_in_out_phc_x=0");
+  assert.ok(written.some((c) => c.includes("domain=.whofundsoss.com")), "parent-domain cookie also cleared");
+  assert.deepEqual([...local.map.keys()].sort(), ["__ph_opt_in_out_phc_x", CONSENT_STORAGE_KEY, "other"].sort());
+  assert.equal(session.map.size, 0);
+});
+
+test("PostHog key matching", () => {
+  for (const k of ["ph_phc_x_posthog", "ph_debug", "__ph_surveys", "ph_phc_x_primary_window_exists"]) assert.equal(isPostHogKey(k), true, k);
+  for (const k of ["__ph_opt_in_out_phc_x", CONSENT_STORAGE_KEY, "graph_ph_", "phone"]) assert.equal(isPostHogKey(k), false, k);
+});
+
+test("off: reset runs before opt-out (reset clears the opt-out flag), then persistence stops", () => {
+  const gate = readFileSync(new URL("../components/analytics-consent.tsx", import.meta.url), "utf8");
+  const reset = gate.indexOf("posthog.reset(true)");
+  const optOut = gate.indexOf("posthog.opt_out_capturing()");
+  const stop = gate.indexOf("posthog.set_config({ disable_persistence: true })");
+  assert.ok(reset > 0 && reset < optOut && optOut < stop, "order: reset, opt_out_capturing, disable_persistence");
+  assert.match(gate, /clearPostHogStorage\(document, window\.location\.hostname/);
 });
