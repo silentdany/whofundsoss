@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   CONSENT_STORAGE_KEY,
+  consentExpired,
   readConsent,
   shouldLoadAnalytics,
   shouldShowBanner,
@@ -19,24 +20,44 @@ function memoryStorage() {
   };
 }
 
-test("no stored answer, garbage, or blocked storage all read as unset", () => {
+test("no stored answer, garbage, undated legacy values, or blocked storage all read as unset", () => {
   assert.equal(readConsent(null), "unset");
   assert.equal(readConsent(memoryStorage()), "unset");
-  const junk = memoryStorage();
-  junk.setItem(CONSENT_STORAGE_KEY, "yes");
-  assert.equal(readConsent(junk), "unset");
+  for (const junk of ["yes", "granted", "{", '{"choice":"granted"}', '{"choice":"maybe","at":"2026-11-24T00:00:00Z"}']) {
+    const s = memoryStorage();
+    s.setItem(CONSENT_STORAGE_KEY, junk);
+    assert.equal(readConsent(s), "unset", junk);
+  }
   const blocked = { getItem: () => { throw new Error("SecurityError"); } };
   assert.equal(readConsent(blocked), "unset");
 });
 
-test("a choice round-trips and can be withdrawn", () => {
+test("a choice round-trips with its date and can be withdrawn", () => {
   const s = memoryStorage();
-  writeConsent(s, "granted");
-  assert.equal(readConsent(s), "granted");
-  writeConsent(s, "denied");
-  assert.equal(readConsent(s), "denied");
-  writeConsent(s, "unset");
+  const now = new Date("2026-11-24T12:00:00Z");
+  writeConsent(s, "granted", now);
+  assert.deepEqual(JSON.parse(s.map.get(CONSENT_STORAGE_KEY)!), { choice: "granted", at: "2026-11-24T12:00:00.000Z" });
+  assert.equal(readConsent(s, now), "granted");
+  writeConsent(s, "denied", now);
+  assert.equal(readConsent(s, now), "denied");
+  writeConsent(s, "unset", now);
   assert.equal(s.map.has(CONSENT_STORAGE_KEY), false);
+});
+
+test("a choice expires after 6 months and the banner asks again", () => {
+  for (const choice of ["granted", "denied"] as const) {
+    const s = memoryStorage();
+    writeConsent(s, choice, new Date("2026-11-24T12:00:00Z"));
+    assert.equal(readConsent(s, new Date("2027-05-24T11:59:59Z")), choice, "one second before 6 months");
+    assert.equal(readConsent(s, new Date("2027-05-24T12:00:00Z")), "unset", "exactly 6 months");
+    assert.equal(shouldShowBanner(readConsent(s, new Date("2027-06-01T00:00:00Z")), true), true);
+  }
+  // Month-end: 31 Aug + 6 months rolls into March, never earlier than 6 months.
+  assert.equal(consentExpired(new Date("2026-08-31T00:00:00Z"), new Date("2027-02-28T23:59:59Z")), false);
+  // A date in the future (clock skew, tampering) is not trusted.
+  const s = memoryStorage();
+  writeConsent(s, "granted", new Date("2030-01-01T00:00:00Z"));
+  assert.equal(readConsent(s, new Date("2026-11-24T12:00:00Z")), "unset");
 });
 
 test("analytics load only on an explicit yes with a configured project", () => {
@@ -63,4 +84,5 @@ test("PostHog is never started outside the consent gate", () => {
   assert.equal(gate.match(/posthog\.init\(/g)?.length, 1);
   assert.match(gate, /if \(shouldLoadAnalytics\(consent, apiKey, host\)\) \{\n\s+if \(!started\.current\) \{\n\s+posthog\.init\(/);
   assert.doesNotMatch(gate, /<PostHogProvider[^>]*apiKey/);
+  assert.match(gate, /disable_session_recording: true/);
 });

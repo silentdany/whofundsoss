@@ -29,6 +29,8 @@ export function ConsentedAnalytics({
           api_host: host,
           defaults: "2025-05-24",
           capture_exceptions: true,
+          // No session replay, whatever the PostHog project setting says.
+          disable_session_recording: true,
           debug: import.meta.env.DEV,
           tracing_headers: [window.location.hostname],
         });
