@@ -152,6 +152,25 @@ test("QA P1-2: renamed companies (stable-ID + catalog renames) are neither new n
   assert.deepEqual(move.climbers.map((c) => [c.slug, c.deltaUsd]), [["sxl-cn", 10]]);
 });
 
+test("unverified_partial in current week, present in previous → not gone, totals unskewed", () => {
+  const prevW = parseWeekly("2026-11-09", file("2026-11-09", [
+    { slug: "keep", name: "Keep", publicUsd: 100 },
+    { slug: "speakeasy-api", name: "Speakeasy", publicUsd: 42276 },
+  ]))!;
+  const currW = parseWeekly("2026-11-16", {
+    ...file("2026-11-16", [
+      { slug: "keep", name: "Keep", publicUsd: 100 },
+    ]),
+    diff: { unverified_partial: [{ slug: "speakeasy-api" }], disappeared_sponsors: [], new_sponsors: [] },
+  })!;
+  const raw = pairToSnaps(prevW, currW);
+  assert.deepEqual(raw.prev.index.map((r) => r.slug), ["keep"]);
+  assert.deepEqual(raw.curr.index.map((r) => r.slug), ["keep"]);
+  const move = buildWeeklyMovements(prevW, currW, meta);
+  assert.deepEqual(move.leftCompanies, []);
+  assert.equal(move.summary.deltaUsd, 0);
+});
+
 test("real data: page new/gone == scraper diff behind /api/movements (no restriction needed)", async () => {
   const dir = new URL("../../data/weekly/", import.meta.url);
   const weeks = readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10));

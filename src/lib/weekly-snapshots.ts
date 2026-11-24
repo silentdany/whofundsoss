@@ -103,6 +103,13 @@ export function parseWeekly(week: string, raw: unknown): ParsedWeekly | null {
       if (typeof s === "string" && s) blocked.add(s.toLowerCase());
     }
   }
+  const unverified = diff.unverified_partial;
+  if (Array.isArray(unverified)) {
+    for (const u of unverified) {
+      const s = u && typeof u === "object" ? (u as Record<string, unknown>).slug : null;
+      if (typeof s === "string" && s) blocked.add(s.toLowerCase());
+    }
+  }
   const fingerprint = typeof r.runId === "string" || typeof r.runId === "number" ? String(r.runId) : week;
   const renamed = new Map<string, string>();
   for (const x of rows(diff.renamed)) {
@@ -214,8 +221,9 @@ function round2(n: number) {
  *   catalog renames (slug-renames.json, passed as `canonical`) and the stable-ID
  *   renames the scraper recorded in the current week (diff.renamed);
  * - filter: union of both weeks' blocked sets (hold, exclusionNote,
- *   excludedNoted, diff.held), every slug form included, plus the global
- *   hidden lists. A row held in one week can never surface as new or gone.
+ *   excludedNoted, diff.held, diff.unverified_partial), every slug form
+ *   included, plus the global hidden lists. A row held or unverified
+ *   (partial coverage) in one week can never surface as new or gone.
  */
 export function pairToSnaps(
   prev: ParsedWeekly,
