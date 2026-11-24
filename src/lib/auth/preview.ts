@@ -31,5 +31,10 @@ export const GROK_ISSUER_DEFAULT = "https://auth.grok.me";
  * the live preview's real origin from the request host and validates it against
  * this list (wildcard-matched), so the OAuth `redirect_uri` becomes the concrete
  * `https://<preview-host>/api/auth/oauth2/callback/...` the broker allows.
+ *
+ * Since better-auth 1.7 the app's callback path is `/api/auth/callback/<id>`
+ * (genericOAuth goes through the core social flow). The broker's preview pattern
+ * must accept that path before preview sign-in works again. The site has no
+ * sign-in today (`SITE_HAS_SIGN_IN = false`), so production is not affected.
  */
 export const PREVIEW_ALLOWED_HOSTS = ["*.grok-sandbox.com"] as const;
