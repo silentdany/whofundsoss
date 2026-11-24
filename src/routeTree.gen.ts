@@ -15,6 +15,7 @@ import { Route as GraphRouteImport } from './routes/graph'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MovementsRouteImport } from './routes/movements'
 import { Route as MysteriesRouteImport } from './routes/mysteries'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -69,6 +70,11 @@ const MovementsRoute = MovementsRouteImport.update({
 const MysteriesRoute = MysteriesRouteImport.update({
   id: '/mysteries',
   path: '/mysteries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RankingRoute = RankingRouteImport.update({
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/method': typeof MethodRoute
   '/movements': typeof MovementsRoute
   '/mysteries': typeof MysteriesRoute
+  '/privacy': typeof PrivacyRoute
   '/ranking': typeof RankingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/method': typeof MethodRoute
   '/movements': typeof MovementsRoute
   '/mysteries': typeof MysteriesRoute
+  '/privacy': typeof PrivacyRoute
   '/ranking': typeof RankingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/method': typeof MethodRoute
   '/movements': typeof MovementsRoute
   '/mysteries': typeof MysteriesRoute
+  '/privacy': typeof PrivacyRoute
   '/ranking': typeof RankingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -308,6 +317,7 @@ export interface FileRouteTypes {
     | '/method'
     | '/movements'
     | '/mysteries'
+    | '/privacy'
     | '/ranking'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/method'
     | '/movements'
     | '/mysteries'
+    | '/privacy'
     | '/ranking'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/method'
     | '/movements'
     | '/mysteries'
+    | '/privacy'
     | '/ranking'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -408,6 +420,7 @@ export interface RootRouteChildren {
   MethodRoute: typeof MethodRoute
   MovementsRoute: typeof MovementsRoute
   MysteriesRoute: typeof MysteriesRoute
+  PrivacyRoute: typeof PrivacyRoute
   RankingRoute: typeof RankingRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -477,6 +490,13 @@ declare module '@tanstack/react-router' {
       path: '/mysteries'
       fullPath: '/mysteries'
       preLoaderRoute: typeof MysteriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ranking': {
@@ -664,6 +684,7 @@ const rootRouteChildren: RootRouteChildren = {
   MethodRoute: MethodRoute,
   MovementsRoute: MovementsRoute,
   MysteriesRoute: MysteriesRoute,
+  PrivacyRoute: PrivacyRoute,
   RankingRoute: RankingRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

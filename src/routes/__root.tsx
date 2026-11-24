@@ -1,6 +1,6 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
-import { PostHogProvider } from "posthog-js/react";
 import { AuthProvider } from "@/lib/auth/provider";
+import { ConsentedAnalytics } from "@/components/analytics-consent";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { CompanySearch } from "@/components/company-search";
 import { Shell } from "@/components/shell";
@@ -71,22 +71,10 @@ export const Route = createRootRoute({
           <HeadContent />
         </head>
         <body>
-          {posthogKey && posthogHost ? (
-            <PostHogProvider
-              apiKey={posthogKey}
-              options={{
-                api_host: posthogHost,
-                defaults: "2025-05-24",
-                capture_exceptions: true,
-                debug: import.meta.env.DEV,
-                tracing_headers: typeof window !== "undefined" ? [window.location.hostname] : [],
-              }}
-            >
-              {app}
-            </PostHogProvider>
-          ) : (
-            app
-          )}
+          {/* PostHog starts only after an explicit yes (see analytics-consent). */}
+          <ConsentedAnalytics apiKey={posthogKey} host={posthogHost}>
+            {app}
+          </ConsentedAnalytics>
           <Scripts />
         </body>
       </html>
