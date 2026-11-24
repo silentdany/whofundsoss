@@ -175,6 +175,9 @@ function Footer({ collectedAt, hash }: { collectedAt?: string; hash?: string }) 
         <Link to="/method" hash="about" className="hover:underline">
           About
         </Link>
+        <Link to="/privacy" className="hover:underline">
+          Privacy
+        </Link>
         <a href="https://github.com/silentdany/whofundsoss" className="hover:underline">
           Source on GitHub
         </a>

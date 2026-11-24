@@ -19,7 +19,7 @@
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs'; s=$?; node --experimental-strip-types --import ./scripts/register-alias.mjs --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/redirects.test.ts src/lib/slug-aliases.test.ts src/lib/indexing.test.ts src/lib/movements.test.ts src/lib/weekly-snapshots.test.ts src/lib/auth/site-auth.test.ts src/lib/sponsorship-url.test.ts src/lib/projects.test.ts src/lib/hero-mark.test.ts src/lib/og/card.test.ts src/lib/public-api/public-api.test.ts src/lib/holds.test.ts; t=$?; [ $s -eq 0 ] && [ $t -eq 0 ]",
+    "test": "node --test 'scripts/**/*.test.mjs'; s=$?; node --experimental-strip-types --import ./scripts/register-alias.mjs --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/redirects.test.ts src/lib/slug-aliases.test.ts src/lib/indexing.test.ts src/lib/movements.test.ts src/lib/weekly-snapshots.test.ts src/lib/auth/site-auth.test.ts src/lib/sponsorship-url.test.ts src/lib/projects.test.ts src/lib/hero-mark.test.ts src/lib/og/card.test.ts src/lib/public-api/public-api.test.ts src/lib/holds.test.ts src/lib/analytics-consent.test.ts; t=$?; [ $s -eq 0 ] && [ $t -eq 0 ]",
     "lint": "eslint .",
     "format": "prettier --write .",
     "seo:check": "node --experimental-strip-types scripts/seo-check.ts"
@@ -58,7 +58,7 @@
     "@tanstack/react-table": "^8.21.0",
     "@tanstack/router-plugin": "^1.168.0",
     "@vitejs/plugin-react": "^5.2.0",
-    "better-auth": "~1.6.30",
+    "better-auth": "~1.7.27",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -84,8 +84,8 @@
     "tw-animate-css": "^1.3.4",
     "typescript": "^5.7.0",
     "vaul": "^1.1.2",
-    "vite": "^8.2.0",
-    "zod": "^4.4.0",
+    "vite": "^8.3.8",
+    "zod": "^4.6.7",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
