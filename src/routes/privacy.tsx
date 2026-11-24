@@ -1,13 +1,15 @@
+import { Fragment, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageIntro, Shell } from "@/components/shell";
 import { setAnalyticsConsent, useAnalyticsConsent } from "@/lib/analytics-consent-store";
+import { PRIVACY_LAST_UPDATED, PRIVACY_SECTIONS } from "@/lib/privacy-text";
 import { pageHead } from "@/lib/seo";
 import { PAGE_TITLES } from "@/lib/site";
 
 /**
- * Privacy page. The structure and the factual list of services are in place;
- * the legal text is pending (see privacy-facts.md in the PR). Kept noindex and
- * out of the sitemap until the final text lands. Do not merge with placeholders.
+ * Privacy page. Text from the legal draft (src/lib/privacy-text.ts). Pending
+ * until the [bracketed] values are confirmed: kept noindex, out of the sitemap,
+ * with a visible draft notice. Do not merge while this is true.
  */
 export const PRIVACY_TEXT_PENDING = true;
 
@@ -17,21 +19,37 @@ export const Route = createFileRoute("/privacy")({
       path: "/privacy",
       title: PAGE_TITLES.privacy,
       description: "How WhoFundsOSS handles visitor data: analytics only with consent, hosting, and error reports.",
-      robots: "noindex",
+      robots: PRIVACY_TEXT_PENDING ? "noindex" : undefined,
     }),
   component: PrivacyPage,
 });
 
-const SECTIONS = [
-  { id: "who", title: "Who runs this site" },
-  { id: "data", title: "What we collect" },
-  { id: "analytics", title: "Analytics (PostHog), only with your consent" },
-  { id: "hosting", title: "Hosting and server logs (Vercel)" },
-  { id: "errors", title: "Error reports (Sentry)" },
-  { id: "fonts", title: "Fonts (Google Fonts)" },
-  { id: "storage", title: "Cookies and local storage" },
-  { id: "rights", title: "Your rights and contact" },
-] as const;
+const TOKEN = /(\[[^\]]+\]|https:\/\/[^\s)]+[^\s).,])/g;
+
+/** Plain text with links made clickable and [values to confirm] highlighted. */
+function RichText({ text }: { text: string }): ReactNode {
+  return text.split(TOKEN).map((part, i) => {
+    if (part.startsWith("[") && part.endsWith("]")) {
+      return (
+        <mark key={i} className="rounded bg-amber-100 px-1 text-ink">
+          {part}
+        </mark>
+      );
+    }
+    if (part.startsWith("https://")) {
+      return (
+        <a key={i} href={part} className="underline underline-offset-2" rel="noreferrer">
+          {part}
+        </a>
+      );
+    }
+    return <Fragment key={i}>{part}</Fragment>;
+  });
+}
+
+function slug(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
 
 function PrivacyPage() {
   const consent = useAnalyticsConsent();
@@ -46,12 +64,14 @@ function PrivacyPage() {
       <div className="mx-auto max-w-[1120px] px-5">
         {PRIVACY_TEXT_PENDING ? (
           <p role="note" className="max-w-2xl rounded-2xl bg-sand p-4 text-sm">
-            Draft: the legal text of this page is pending review. Sections below are placeholders.
+            Draft: values in brackets are still to be confirmed. This page is not final yet.
           </p>
         ) : null}
 
-        <section id="choice" className="mt-10 max-w-2xl">
-          <h2 className="font-serif text-2xl">Your analytics choice</h2>
+        <section id="choice" className="mt-10 max-w-2xl" aria-labelledby="choice-title">
+          <h2 id="choice-title" className="font-serif text-2xl">
+            Your analytics choice
+          </h2>
           <p className="mt-3 text-secondary" aria-live="polite">
             {consent === "granted"
               ? "Analytics are on."
@@ -79,12 +99,30 @@ function PrivacyPage() {
           </div>
         </section>
 
-        {SECTIONS.map((section) => (
-          <section key={section.id} id={section.id} className="mt-10 max-w-2xl">
+        {PRIVACY_SECTIONS.map((section) => (
+          <section key={section.title} id={slug(section.title)} className="mt-12 max-w-2xl">
             <h2 className="font-serif text-2xl">{section.title}</h2>
-            <p className="mt-3 text-secondary">[Legal text pending.]</p>
+            {section.blocks.map((block, i) =>
+              "p" in block ? (
+                <p key={i} className="mt-3 leading-relaxed text-secondary">
+                  <RichText text={block.p} />
+                </p>
+              ) : (
+                <ul key={i} className="mt-3 list-disc space-y-1.5 pl-5 leading-relaxed text-secondary">
+                  {block.list.map((item) => (
+                    <li key={item}>
+                      <RichText text={item} />
+                    </li>
+                  ))}
+                </ul>
+              ),
+            )}
           </section>
         ))}
+
+        <p className="mt-12 max-w-2xl text-sm text-muted">
+          <RichText text={PRIVACY_LAST_UPDATED} />
+        </p>
       </div>
     </Shell>
   );
